@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE COLLECTION | 原创角色展示</title>
+    
+    <!-- Tailwind CSS 核心库 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // 【设置】Tailwind 全局配置
+        // 移除暗黑模式配置
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Three.js 3D库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Noto+Serif+SC:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- 图标库 -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: 'Lato', sans-serif;
+            overflow: hidden; 
+            background-color: #f9f9f9;
+        }
+        
+        /* 移除暗黑模式的 body 样式 */
+        /* html.dark body { background-color: #0f0f0f; } */
+
+        section, footer {
+            scroll-snap-align: start;
+        }
+
+        h1, h2, h3, .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .font-reading {
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* 基础动画 */
+        .image-reveal {
+            opacity: 0;
+            transform: scale(1.05);
+            transition: opacity 1.5s ease-out, transform 1.5s ease-out; 
+        }
+        .image-reveal.loaded {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        #modal-overlay { transition: opacity 0.5s ease; }
+        #modal-content { transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease; }
+        
+        .particle-out { animation: particle-dissolve 0.8s forwards ease-in; } 
+        .particle-in { animation: particle-assemble 1.2s forwards ease-out; } 
+
+        @keyframes particle-dissolve {
+            0% { opacity: 1; filter: blur(0px); transform: scale(1); letter-spacing: normal; }
+            100% { opacity: 0; filter: blur(12px); transform: scale(1.1) translateY(-15px); letter-spacing: 0.3em; }
+        }
+
+        @keyframes particle-assemble {
+            0% { opacity: 0; filter: blur(15px); transform: scale(0.95) translateY(15px); letter-spacing: 0.3em; }
+            50% { opacity: 0.5; filter: blur(4px); letter-spacing: 0.1em; }
+            100% { opacity: 1; filter: blur(0px); transform: scale(1) translateY(0); letter-spacing: normal; }
+        }
+        
+        .image-fade-out { animation: fade-out 0.8s forwards; }
+        .image-fade-in { animation: fade-in 1.2s forwards; }
+        
+        @keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+        #reading-mode { transition: opacity 0.5s ease, transform 0.5s ease; }
+        #toc-sidebar { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        
+        #canvas-container {
+            width: 100%;
+            height: 100vh;
+            position: absolute; top: 0; left: 0; overflow: hidden;
+            background: transparent; pointer-events: none; 
+        }
+        
+        /* 移除暗黑模式的 canvas 容器样式 */
+        /* html.dark #canvas-container { background: transparent; } */
+
+        .scroll-indicator { animation: bounce 3s infinite; } 
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-10px);}
+            60% {transform: translateY(-5px);}
+        }
+
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 1.6s cubic-bezier(0.22, 1, 0.36, 1), transform 1.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .reveal-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .music-playing { animation: spin-slow 6s linear infinite; }
+        @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        #toast-notification {
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            z-index: 110;
+        }
+        #toast-notification.show { opacity: 1; transform: translate(-50%, 0); }
+        #toast-notification.hide { opacity: 0; transform: translate(-50%, 20px); pointer-events: none; }
+
+        /* --- 核心：强化版推拉式 3D 旋转相册动画 --- */
+        
+        #carousel-track {
+            /* 透视距离：决定了 3D 效果的强烈程度，数值越小透视越夸张 */
+            perspective: 1200px; 
+            transform-style: preserve-3d;
+        }
+
+        .carousel-item {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: center center;
+            
+            /* * 关键优化：
+             * 1. 使用 0.8s 的时长，让动画更舒缓。
+             * 2. 使用 cubic-bezier(0.25, 0.8, 0.25, 1) 这个曲线（类似 easeOutQuart），
+             * 它的特点是快速启动，然后非常缓慢地停下来，产生一种“由于惯性滑行”的质感。
+             */
+            transition: 
+                transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                opacity 0.8s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                filter 0.8s ease,
+                z-index 0s linear 0.2s; /* z-index 延迟切换，防止穿模 */
+            
+            will-change: transform, opacity, filter;
+            /* 开启硬件加速 */
+            transform-style: preserve-3d; 
+            cursor: pointer;
+        }
+
+        /* --- 状态定义：使用 translate3d 启用真正的 Z 轴推拉 --- */
+
+        /* 中间状态：推到最前，清晰，无旋转 */
+        .carousel-center {
+            z-index: 30;
+            /* translateZ(0) 保持在基准面 */
+            transform: translate3d(-50%, -50%, 0) scale(1) rotateY(0deg);
+            opacity: 1;
+            filter: brightness(1) blur(0px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); /* 强阴影增加浮空感 */
+        }
+
+        /* 左侧状态：推到后方，向右转，模糊 */
+        .carousel-left {
+            z-index: 20;
+            /* translateZ(-250px) 真正向后推，产生景深 */
+            /* translate3d X轴位移配合 perspective 会产生视觉差 */
+            transform: translate3d(-110%, -50%, -250px) scale(0.9) rotateY(25deg);
+            opacity: 0.7;
+            filter: brightness(0.5) blur(3px); /* 变暗 + 模糊 */
+        }
+
+        /* 右侧状态：推到后方，向左转，模糊 */
+        .carousel-right {
+            z-index: 20;
+            /* translateZ(-250px) 真正向后推 */
+            transform: translate3d(10%, -50%, -250px) scale(0.9) rotateY(-25deg);
+            opacity: 0.7;
+            filter: brightness(0.5) blur(3px);
+        }
+
+        /* 隐藏状态：推到更远，完全透明 */
+        .carousel-hidden {
+            z-index: 10;
+            /* translateZ(-500px) 推得非常远 */
+            transform: translate3d(-50%, -50%, -500px) scale(0.5);
+            opacity: 0;
+            filter: brightness(0) blur(10px);
+            pointer-events: none;
+        }
+        
+        /* 移动端适配：减弱 3D 幅度以适应小屏幕 */
+        @media (max-width: 768px) {
+            #carousel-track { perspective: 800px; }
+            /* 移动端稍微紧凑一点 */
+            .carousel-left { transform: translate3d(-100%, -50%, -150px) scale(0.85) rotateY(15deg); }
+            .carousel-right { transform: translate3d(0%, -50%, -150px) scale(0.85) rotateY(-15deg); }
+            .carousel-center { box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.3); }
+        }
+    </style>
+</head>
+<body class="antialiased bg-[#f9f9f9] text-[#333] transition-colors duration-1000"> 
+
+    <audio id="bgm" loop>
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- 导航栏 -->
+    <!-- 移除导航栏中的暗黑模式类 -->
+    <nav class="fixed top-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-gray-100 transition-colors duration-500">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="text-xl font-serif font-semibold tracking-widest text-[#333]">MY COLLECTION</div>
+            <div class="flex items-center gap-4 md:gap-6">
+                <div class="hidden md:flex space-x-8 text-sm uppercase tracking-wide text-gray-500">
+                    <button onclick="customSmoothScroll('world-section')" class="hover:text-black transition-colors uppercase">World</button>
+                    <button onclick="customSmoothScroll('gallery-section')" class="hover:text-black transition-colors uppercase">Settings</button>
+                    <button onclick="customSmoothScroll('stories-section')" class="hover:text-black transition-colors uppercase">Stories</button>
+                </div>
+                <!-- 移除主题切换按钮及其容器分隔线 -->
+                <div class="flex items-center gap-2 pl-0 ml-0">
+                    <button id="music-toggle" onclick="toggleMusic()" class="p-2 rounded-full hover:bg-gray-200 transition-colors text-gray-600 group relative">
+                        <i id="icon-music" data-lucide="music" class="w-5 h-5"></i>
+                        <span id="music-wave" class="absolute inset-0 rounded-full border border-gray-400 opacity-0 transition-opacity duration-700"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主滚动容器 -->
+    <main id="scroll-container" class="h-screen w-full overflow-y-scroll snap-y snap-mandatory relative no-scrollbar">
+        
+        <!-- 第一屏：World (添加 pointer-events-auto 以允许 Three.js 鼠标交互) -->
+        <section id="world-section" class="relative h-screen w-full flex flex-col items-center justify-center pt-16 snap-start shrink-0 pointer-events-auto">
+            <div id="canvas-container"></div>
+            <div class="relative z-10 text-center pointer-events-none px-6">
+                <p class="text-xs font-bold tracking-[0.4em] uppercase mb-6 opacity-60 reveal-on-scroll">Welcome to</p>
+                <h1 class="text-6xl md:text-8xl font-serif mb-6 tracking-tighter reveal-on-scroll" style="transition-delay: 200ms;">东 华 市</h1>
+                <p class="max-w-md mx-auto text-sm md:text-base font-light leading-relaxed opacity-70 mb-12 reveal-on-scroll" style="transition-delay: 400ms;">
+                    探索未知的边界，连结破碎的规则。<br>这里……是梦开始的地方。<br><br><br>
+                </p>
+            </div>
+            <div class="absolute bottom-4 z-10 flex flex-col items-center gap-2 opacity-60 cursor-pointer pointer-events-auto hover:opacity-100 transition-opacity reveal-on-scroll" style="transition-delay: 600ms;" onclick="customSmoothScroll('gallery-section')">
+                <span class="text-[10px] tracking-[0.2em] uppercase">Click to Explore</span>
+                <i data-lucide="chevron-down" class="w-6 h-6 scroll-indicator"></i>
+            </div>
+        </section>
+
+        <!-- 第三屏：Gallery (旋转相册 - 推拉动画强化) -->
+        <!-- 移除主题切换的 class -->
+        <section id="gallery-section" class="bg-white transition-colors duration-1000 py-20 snap-start min-h-screen flex flex-col justify-center shrink-0 overflow-hidden">
+            <header class="relative px-6 text-center mb-8 reveal-on-scroll">
+                <p class="text-xs font-bold tracking-[0.3em] text-gray-400 uppercase mb-4">The Collection</p>
+                <!-- 移除主题切换的 class -->
+                <h2 class="text-4xl md:text-6xl font-serif mb-4 text-gray-900">设定</h2>
+                <div class="w-12 h-0.5 bg-gray-900 mx-auto"></div>
+            </header>
+
+            <!-- 筛选按钮 -->
+            <div class="flex justify-center gap-4 mb-8 px-6 flex-wrap reveal-on-scroll" id="filter-container" style="transition-delay: 200ms;">
+                <!-- 移除主题切换的 class -->
+                <button onclick="filterGallery('character')" class="filter-btn active px-5 py-2 border border-black bg-black text-white text-xs uppercase tracking-wider transition hover:opacity-80" data-type="character">人物</button>
+                <button onclick="filterGallery('organization')" class="filter-btn px-5 py-2 border border-gray-200 text-gray-500 text-xs uppercase tracking-wider hover:border-gray-400 hover:text-black transition bg-transparent" data-type="organization">组织</button>
+                <button onclick="filterGallery('item')" class="filter-btn px-5 py-2 border border-gray-200 text-gray-500 text-xs uppercase tracking-wider hover:border-gray-400 hover:text-black transition bg-transparent" data-type="item">污染物</button>
+            </div>
+
+            <!-- 旋转相册容器 -->
+            <div class="relative w-full max-w-6xl mx-auto h-[500px] md:h-[600px] flex items-center justify-center reveal-on-scroll" style="transition-delay: 400ms;">
+                
+                <!-- 左箭头 -->
+                <button onclick="rotateCarousel('prev')" class="absolute left-4 md:left-12 z-40 p-4 rounded-full bg-white/10 hover:bg-black/10 backdrop-blur-sm text-gray-800 transition-all hover:scale-110 focus:outline-none border border-gray-200/50 shadow-lg">
+                    <i data-lucide="chevron-left" class="w-6 h-6 md:w-8 md:h-8"></i>
+                </button>
+
+                <!-- 图片轨道 (3D空间) -->
+                <div id="carousel-track" class="relative w-full h-full">
+                    <!-- JS 动态生成并持久化的卡片元素 -->
+                </div>
+
+                <!-- 右箭头 -->
+                <button onclick="rotateCarousel('next')" class="absolute right-4 md:right-12 z-40 p-4 rounded-full bg-white/10 hover:bg-black/10 backdrop-blur-sm text-gray-800 transition-all hover:scale-110 focus:outline-none border border-gray-200/50 shadow-lg">
+                    <i data-lucide="chevron-right" class="w-6 h-6 md:w-8 md:h-8"></i>
+                </button>
+
+                <!-- 底部指示器 -->
+                <div class="absolute bottom-4 left-0 right-0 text-center z-40 text-xs tracking-[0.3em] uppercase text-gray-400 pointer-events-none">
+                    <span id="current-counter">1</span> / <span id="total-counter">10</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第四屏：Stories -->
+        <!-- 移除主题切换的 class -->
+        <section id="stories-section" class="bg-[#f4f4f4] transition-colors duration-1000 py-20 border-t border-gray-200 snap-start min-h-screen flex flex-col justify-center shrink-0">
+            <header class="relative px-6 text-center mb-16 reveal-on-scroll">
+                <p class="text-xs font-bold tracking-[0.3em] text-gray-400 uppercase mb-4">Stories</p>
+                <!-- 移除主题切换的 class -->
+                <h2 class="text-4xl md:text-6xl font-serif mb-4 text-gray-900">剧情</h2>
+                <div class="w-12 h-0.5 bg-gray-900 mx-auto"></div>
+            </header>
+
+            <div class="max-w-5xl mx-auto px-6 w-full">
+                <div id="stories-list" class="flex flex-col gap-12">
+                    <!-- JS动态渲染 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 底部 -->
+        <!-- 移除主题切换的 class -->
+        <footer class="border-t border-gray-200 py-12 text-center bg-[#f9f9f9] transition-colors duration-1000 snap-start shrink-0">
+            <div class="text-2xl font-serif mb-4 text-[#333]">MY COLLECTION</div>
+            <p class="text-gray-400 text-xs tracking-wider">© 2023 OC GALLERY. DESIGNED WITH MINIMALISM.</p>
+        </footer>
+    </main>
+
+    <!-- 详情模态框 -->
+    <!-- 移除主题切换的 class -->
+    <div id="modal-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 hidden opacity-0 flex items-center justify-center transition-opacity duration-500 p-4">
+        <div class="absolute inset-0" onclick="closeModal()"></div>
+        <div id="modal-content" class="relative w-full max-w-5xl h-[85vh] bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col md:flex-row transform scale-95 opacity-0 transition-all duration-500"> 
+            <button onclick="closeModal()" class="absolute top-4 right-4 z-20 bg-white/20 backdrop-blur-md p-2 rounded-full hover:bg-white hover:text-black text-white transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div id="modal-body" class="flex flex-col md:flex-row w-full h-full">
+                <!-- 内容由JS填充 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 阅读器 (隐藏结构) -->
+    <!-- 移除主题切换的 class -->
+    <div id="reading-mode" class="fixed inset-0 z-[100] bg-[#F6F4EC] hidden flex flex-col transform translate-y-full transition-colors duration-300">
+        <div class="h-14 px-4 flex items-center justify-between border-b border-[#e6e4dc] bg-[#F6F4EC]/95 backdrop-blur sticky top-0 z-10">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleTOC()" class="p-2 hover:bg-[#e6e4dc] rounded transition-colors text-gray-600 flex items-center gap-2">
+                    <i data-lucide="list" class="w-5 h-5"></i>
+                    <span class="hidden sm:inline text-xs tracking-widest uppercase font-bold">Directory</span>
+                </button>
+                <span id="reader-book-title" class="text-sm font-serif text-gray-500 hidden md:block">Story Title</span>
+            </div>
+            <button onclick="closeReader()" class="p-2 hover:bg-[#e6e4dc] rounded transition-colors text-gray-600 flex items-center gap-2">
+                <span class="hidden sm:inline text-xs tracking-widest uppercase font-bold">Exit Reader</span>
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div id="reader-scroll-container" class="flex-1 overflow-y-auto relative no-scrollbar scroll-smooth">
+            <div class="max-w-3xl mx-auto px-6 py-12 md:py-20">
+                <!-- 移除主题切换的 class -->
+                <h2 id="reader-chapter-title" class="text-3xl md:text-4xl font-serif font-bold text-gray-800 mb-12 text-center">Chapter Title</h2>
+                <div id="reader-content" class="font-reading text-lg md:text-xl leading-loose text-gray-800 text-justify space-y-6"></div>
+                <div class="mt-24 flex justify-between items-center pt-8 border-t border-[#e0ded6]">
+                    <button id="btn-prev-chapter" onclick="prevChapter()" class="text-[#888] hover:text-black flex items-center gap-2 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i> 上一章
+                    </button>
+                    <button id="btn-next-chapter" onclick="nextChapter()" class="text-[#888] hover:text-black flex items-center gap-2 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                        下一章 <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- 移除主题切换的 class -->
+        <div id="toc-sidebar" class="absolute top-0 left-0 bottom-0 w-64 bg-white shadow-xl transform -translate-x-full z-20 overflow-y-auto border-r border-gray-100">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                <span class="text-sm tracking-widest font-bold uppercase text-[#333]">目录</span>
+                <button onclick="toggleTOC()"><i data-lucide="x" class="w-4 h-4 text-gray-400 hover:text-black"></i></button>
+            </div>
+            <div id="toc-list" class="py-2"></div>
+        </div>
+        <div id="toc-overlay" onclick="toggleTOC()" class="absolute inset-0 bg-black/20 backdrop-blur-[1px] z-10 hidden opacity-0 transition-opacity"></div>
+    </div>
+    
+    <!-- 版权页 -->
+    <!-- 移除主题切换的 class -->
+    <div id="copyright-modal" class="fixed inset-0 z-[100] hidden opacity-0 flex items-center justify-center bg-gray-200/50 backdrop-blur-none transition-all duration-1000"> 
+        <div class="bg-white/90 backdrop-blur-xl border border-gray-200 p-12 md:p-16 text-center rounded-lg shadow-2xl transform scale-95 transition-transform duration-1000 max-w-lg mx-4" id="copyright-card">
+            <div class="mb-8">
+                <i data-lucide="copyright" class="w-10 h-10 mx-auto text-gray-800 mb-6 opacity-80"></i>
+                <!-- 移除主题切换的 class -->
+                <h2 class="text-3xl md:text-4xl font-serif text-gray-900 mb-3 tracking-wide">The Creator</h2>
+                <div class="w-12 h-0.5 bg-gray-800/50 mx-auto"></div>
+            </div>
+            <p class="text-gray-600 font-light leading-loose mb-10 text-sm md:text-base">
+                Designed & Developed by <span class="font-bold text-gray-900 border-b border-gray-900/30 pb-0.5">Loriva</span><br>
+                All Original Characters Reserved.<br>
+                <span class="text-xs opacity-50 mt-4 block font-mono tracking-widest">EST. 2023 - 2025</span>
+            </p>
+
+            <div class="flex justify-center gap-8 text-gray-500 mb-12 items-center">
+                <!-- Bilibili -->
+                <a href="https://space.bilibili.com/291218703?spm_id_from=333.1007.0.0" target="_blank" class="hover:text-black hover:scale-110 transition-all duration-300" title="Bilibili">
+                     <svg class="w-6 h-6 fill-current" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M777.504 234.912l-119.968-118.336 31.808-32.256 151.424 149.344a32.736 32.736 0 0 1-0.896 46.432l-0.896 0.896-45.696 45.088c0 0-5.728-7.456-15.776-17.92V234.912zM366.464 116.576l-31.808-32.256-151.424 149.344a32.736 32.736 0 0 0 0.896 46.432l0.896 0.896 45.696 45.088c0 0 5.728-7.456 15.776-17.92V234.912l119.968-118.336zM819.2 320H204.8c-47.104 0-85.312 38.208-85.312 85.312v341.376c0 47.104 38.208 85.312 85.312 85.312h614.4c47.104 0 85.312-38.208 85.312-85.312V405.312c0-47.104-38.208-85.312-85.312-85.312z m0 426.688H204.8V405.312h614.4v341.376zM341.344 512c-23.552 0-42.688 19.136-42.688 42.688s19.136 42.688 42.688 42.688 42.688-19.136 42.688-42.688-19.136-42.688-42.688-42.688z m341.312 0c-23.552 0-42.688 19.136-42.688 42.688s19.136 42.688 42.688 42.688 42.688-19.136 42.688-42.688-19.136-42.688-42.688-42.688z" /></svg>
+                </a>
+                <!-- GitHub -->
+                <a href="https://github.com/JimmyHuang05" target="_blank" class="hover:text-black hover:scale-110 transition-all duration-300" title="GitHub"><i data-lucide="github" class="w-6 h-6"></i></a>
+                <!-- Email -->
+                <a href="javascript:void(0)" onclick="copyEmail()" class="hover:text-black hover:scale-110 transition-all duration-300" title="Email"><i data-lucide="mail" class="w-6 h-6"></i></a>
+            </div>
+
+            <div class="pt-8 border-t border-gray-200">
+                <!-- 移除主题切换的 class -->
+                <div class="flex flex-col items-center gap-2 text-gray-400 text-[10px] uppercase tracking-[0.2em] animate-pulse">
+                    <i data-lucide="mouse-pointer-2" class="w-4 h-4"></i>
+                    <span>Click Anywhere to Close</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 复制成功的提示 (Toast) -->
+    <!-- 移除主题切换的 class -->
+    <div id="toast-notification" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-black/80 text-white px-6 py-3 rounded-full shadow-lg text-sm tracking-wider hide transition-all duration-500 z-50">
+        邮箱地址已复制
+    </div>
+
+    <script>
+        // === 基础逻辑 (Three.js/音乐/滚动) ===
+        const html = document.documentElement;
+        
+        // 移除所有暗黑模式的初始化和切换逻辑
+        // ----------------------------------------------------------------
+        
+        // Three.js
+        let scene, camera, renderer, globe;
+        const worldSection = document.getElementById('world-section');
+
+        function initThree() {
+            const container = document.getElementById('canvas-container');
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.z = 12;
+            renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+            
+            // 创建点阵球体
+            const geometry = new THREE.IcosahedronGeometry(5, 4);
+            const material = new THREE.PointsMaterial({ color: 0x333333, size: 0.08, sizeAttenuation: true });
+            globe = new THREE.Points(geometry, material);
+            scene.add(globe);
+
+            // 创建线框环
+            const ringGeo = new THREE.IcosahedronGeometry(6, 1);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0xcccccc, wireframe: true, transparent: true, opacity: 0.2 });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            scene.add(ring);
+
+            // 总是使用浅色主题颜色初始化
+            updateGlobeColor();
+
+            function animate() {
+                requestAnimationFrame(animate);
+                // 自动旋转
+                globe.rotation.y += 0.002; 
+                globe.rotation.x += 0.0005;
+                ring.rotation.y -= 0.002; 
+                ring.rotation.z += 0.001;
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+            
+            // 鼠标移动监听器绑定到 worldSection
+            worldSection.addEventListener('mousemove', (event) => {
+                // 计算相对位置（从 0 到 1）
+                const rect = worldSection.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+
+                // 归一化到 -1 到 1 的范围
+                const normalizedX = (x / rect.width) * 2 - 1;
+                const normalizedY = (y / rect.height) * 2 - 1; 
+
+                // 缓动目标：只使用场景的旋转，不影响物体的自转
+                const targetRotationY = normalizedX * 0.5;
+                const targetRotationX = normalizedY * 0.5;
+
+                // 使用缓动函数平滑旋转
+                scene.rotation.y += 0.05 * (targetRotationY - scene.rotation.y);
+                scene.rotation.x += 0.05 * (targetRotationX - scene.rotation.x);
+            });
+        }
+        
+        // 简化 updateGlobeColor，不再接受主题参数
+        function updateGlobeColor() {
+            if (!globe) return;
+            // 固定为浅色主题的颜色
+            globe.material.color.setHex(0x333333); // Light mode color
+            scene.fog = new THREE.FogExp2(0xe0e0e0, 0.05); // Light mode fog
+        }
+        initThree();
+
+        // Music
+        const bgm = document.getElementById('bgm');
+        bgm.volume = 0.4;
+        function toggleMusic() {
+            const btn = document.getElementById('music-toggle');
+            if (bgm.paused) {
+                bgm.play();
+                btn.classList.add('text-black');
+                document.getElementById('icon-music').classList.add('music-playing');
+                document.getElementById('music-wave').classList.remove('opacity-0');
+                document.getElementById('music-wave').classList.add('animate-ping');
+            } else {
+                bgm.pause();
+                btn.classList.remove('text-black');
+                document.getElementById('icon-music').classList.remove('music-playing');
+                document.getElementById('music-wave').classList.add('opacity-0');
+                document.getElementById('music-wave').classList.remove('animate-ping');
+            }
+        }
+
+        function customSmoothScroll(targetId) {
+            const el = document.getElementById(targetId);
+            const container = document.getElementById('scroll-container');
+            if(el && container) {
+                 container.scrollTo({ top: el.offsetTop, behavior: 'smooth' });
+                 if(bgm.paused) toggleMusic();
+            }
+        }
+        
+        function initScrollReveal() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+            }, { root: document.getElementById('scroll-container'), threshold: 0.1 });
+            document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
+        }
+        document.addEventListener('DOMContentLoaded', initScrollReveal);
+
+        // === Data (修复故事内容占位符) ===
+        const DEFAULT_AVATAR = "https://placehold.co/400x600/e0e0e0/999999?text=UNKNOWN";
+        const DEFAULT_LANDSCAPE = "https://placehold.co/600x800/e5e5e5/cccccc?text=UNKNOWN";
+        const DEFAULT_ORG = "https://placehold.co/600x800/d4d4d4/888888?text=UNKNOWN";
+
+        const collection = [
+            { id: 1, category: 'character', name: "我", englishName: "Writer", role: "执笔人", tags: ["东华人"], desc: "私立东华高级中学高二在读，高二六班班长。", details: { "Age": "18", "MBTI": "ENFP" }, image: "https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBU_BpH-sz5oA4tuKBtGAzKRcviHoDPQACTgtrG0Q3AAFFZM8GWRPXjKwBAAMCAAN5AAM2BA.jpg", quote: "对于自己，你一定很熟悉……" },
+            { id: 2, category: 'character', name: "宋佩姿", englishName: "茄茄", role: "钢铁女战士", tags: ["清冷系", "模范学生"], desc: "私立东华高级中学高二在读，英语课代表，校学生会仪式部部员，校舞蹈社社员。", details: { "年龄": "17","生日": "0702", "MBTI": "INFJ", "爱好": "读书、绘画" }, image: "https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBU_RpH_R2m6ow7OylL-iFkslrYNV5IAACVAtrG0Q3AAFFLiHOpswm2B8BAAMCAAN5AAM2BA.png", quote: "我喜欢你，因为你就是你。" },
+            { id: 3, category: 'character', name: "薛锦烨", englishName: "Melody", role: "剧本杀出片大王", tags: ["活力满满", "才艺担当"], desc: "私立东华高级中学高二在读，文艺委员，校学生会仪式部部长，校舞蹈社社长。", details: { "年龄": "17","生日": "0117", "MBTI": "ENFP", "爱好": "跳舞、唱歌" }, image: "https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBU_JpH_GWI3uNz5n4ZK1qefAeaKgjXwACUgtrG0Q3AAFFL16SF2pqPMMBAAMCAAN5AAM2BA.png", quote: "请叫我剧本杀出片大王！" },
+            { id: 4, category: 'character', name: "李婧瑶", englishName: "Rita", role: "奶茶净杯使者", tags: ["东华人"], desc: "江南大学附属高等学院高二在读，校学生会外联部部长。", details: { "年龄": "18", "MBTI": "INTJ" }, image: "https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVAJpIIsECeEqlGKc86g6UhJjPlblZgACGgtrG0Q3CEV951uJP35AugEAAwIAA3kAAzYE.png", quote: "我会跑遍地中海收集柑橘类水果。" },
+            { id: 5, category: 'character', name: "张琰清", englishName: "阿珞", role: "薄荷巧克力", tags: ["东华人"], desc: "市立浅野寺国际高等学院高二在读。", details: { "年龄": "18", "MBTI": "ENTJ" }, image: "https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBU-9pH-htGBlwahB_WjFXdtHGH3VTeAACTQtrG0Q3AAFF9JRxk_lJ__ABAAMCAAN5AAM2BA.jpg", quote: "Every flower blooms upon your arrival." },
+
+            { id: 101, category: 'item', name: "私立东华高级中学二〇二三版校规", englishName: "School Regulations of Private Donghua Senior High School 2023 ver.", role: "一切的开端", tags: ["重度污染物", "常识扭曲", "群体"], desc: "凭空出现的校规，对于学生的着装方面做出了详细的要求。", details: { "Members": "Unknown" }, image: DEFAULT_ORG, quote: "" },
+            { id: 102, category: 'item', name: "白水晶手串", englishName: "White crystal bracelet", role: "好运常在", tags: ["轻度污染物", "幸运", "个人"], desc: "我送给宋佩姿的生日礼物，可以为她带来源源不断的好运", details: { "Stock": "Unknown" }, image: "https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBU-hpH9Z5ecCNEcgOYuMlwSpxvlBsuQACPgtrG0Q3AAFFUbflgSMynt0BAAMCAAN3AAM2BA.png", quote: "银光闪烁，奥妙其中，好运连连，福泽绵绵。" },
+            { id: 103, category: 'item', name: "学生身份卡", englishName: "ID Card", role: "身份不明", tags: ["中度污染物", "常识扭曲","群体"], desc: "市教育局建立的全市统一学生档案，每一名学生都会配发一张数字信息卡以关联数据库。", details: { "Type": "Unknown" }, image: DEFAULT_ORG, quote: "" },
+            { id: 301, category: 'organization', name: "私立东华高级中学", englishName: "", role: "私立十二年一贯制·共校", tags: ["超重度规则污染区"], desc: "东华市顶级私立高中之一，坐落于市区东北角，为半封闭制校，入学要求严苛，同时考虑学习成绩和外貌条件，男女比例为六比四，重本率为85%。", details: { "危险等级": "5" }, image: DEFAULT_LANDSCAPE, quote: "东华市最优秀的高中之一。" },
+            { id: 302, category: 'organization', name: "江南大学附属高等学院外联部", englishName: "", role: "政府直辖市重点·共校", tags: ["中度规则污染区"], desc: "东华市顶级公立高中之一，坐落于市区中心。", details: { "危险等级": "3" }, image: DEFAULT_LANDSCAPE, quote: "听说这里不让谈恋爱……？。" },
+            { id: 303, category: 'organization', name: "市立浅野寺国际高等学院", englishName: "", role: "政府直辖市重点·女子校", tags: ["中度规则污染区", "权力真空"], desc: "东华市顶级公立高中之一，坐落于市区中心，为女校，常年实行封闭式管理。", details: { "危险等级": "2" }, image: DEFAULT_LANDSCAPE, quote: "浅野寺，你是我唯一的希望。" },
+            
+            // 填充详细故事内容占位符
+            { id: 201, category: 'story', name: "序章：破碎的皇冠", englishName: "Prologue", role: "Chapter 1", tags: ["War"], desc: "王都陷落...", details: { "Words": "5k" }, image: DEFAULT_LANDSCAPE, quote: "重铸荣耀。", content: `
+                <p>王都伊甸的陷落，不是在一瞬间发生的，而是在漫长而阴冷的黄昏中，慢慢熄灭的最后一道光芒。</p>
+                <p>当警报声撕裂天际时，城墙上的守卫已经疲惫不堪，他们的铠甲被浓郁的黑雾腐蚀，失去了昔日的光泽。黑雾，这种来自“污秽边界”的污染物，像潮水一样涌入城邦，扭曲着一切常识和物理法则。</p>
+                <p>“我们必须撤退！陛下！”一个年轻的骑士冲进大殿，他的声音带着绝望的颤抖。大殿中央，象征着荣耀的黄金王冠已经破碎，散落在冰冷的石砖上，反射着微弱的光。那光芒，就像是这个世界最后的希望。</p>
+                <p>老国王平静地坐在王座上，他看着门外的黑雾，眼神里没有恐惧，只有一种深深的疲倦。他知道，这不是一场可以靠剑与魔法赢得的战斗。这是规则与常识的崩塌。</p>
+                <p>他轻轻挥手：“去吧，带着你能带走的一切。记住，**重铸荣耀**，必须从寻找新的规则开始。”</p>
+            ` },
+            { id: 202, category: 'story', name: "幕间：雨中蓝调", englishName: "Interlude", role: "Side Story", tags: ["Jazz"], desc: "废弃酒吧...", details: { "Words": "2k" }, image: DEFAULT_LANDSCAPE, quote: "故障才是自由。", content: `
+                <p>雨夜。霓虹灯的招牌在废弃的“蓝调角落”酒吧外闪烁，发出微弱的滋滋声，仿佛是城市在低声呻吟。</p>
+                <p>宋佩姿坐在吧台前，用指尖轻轻敲打着高脚杯的边缘，发出清脆的音符。她穿着一件不合时宜的白色连衣裙，在这黑暗的环境中显得过于干净。</p>
+                <p>调酒师，一个脸上带着机械义体纹路的男人，递给她一杯无酒精的薄荷水。“东华市的雨，总是这么腻人。”他沙哑地说道。</p>
+                <p>“不是雨腻人，是规则腻人。”宋佩姿轻声回答，眼神穿过窗外模糊的雨点，看向远处高耸的东华高级中学。那座建筑在雨夜中像一头沉睡的巨兽，充满着秩序和压力。</p>
+                <p>突然，空气中传来一阵不和谐的电子音，那是她口袋里的学生身份卡发出的警告。她皱了皱眉，那是**常识扭曲**的信号。</p>
+                <p>“看来，又有东西想要打破平静了。”她站起身，白色裙摆在微弱的灯光下摇曳。调酒师没有回头，只是低声说：“祝你好运，战士。”</p>
+            ` }
+        ];
+
+        // === 核心：动画增强版旋转相册逻辑 ===
+        let galleryItems = [];
+        let activeIndex = 0;
+        let currentCategory = 'character';
+        const carouselTrack = document.getElementById('carousel-track');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        // 存储已创建的 DOM 元素，避免重复销毁
+        let cardElements = [];
+
+        function filterGallery(type) {
+            currentCategory = type;
+            activeIndex = 0; 
+            filterBtns.forEach(btn => {
+                if (btn.dataset.type === type) {
+                    // 修正激活状态的类名
+                    btn.className = "filter-btn active px-5 py-2 border border-black bg-black text-white text-xs uppercase tracking-wider transition hover:opacity-80";
+                } else {
+                    // 修正非激活状态的类名
+                    btn.className = "filter-btn px-5 py-2 border border-gray-200 text-gray-500 text-xs uppercase tracking-wider hover:border-gray-400 hover:text-black transition bg-transparent";
+                }
+            });
+            initCarousel();
+        }
+
+        function initCarousel() {
+            galleryItems = collection.filter(item => item.category === currentCategory);
+            
+            document.getElementById('total-counter').innerText = galleryItems.length;
+            
+            // 1. 清空轨道
+            carouselTrack.innerHTML = '';
+            cardElements = [];
+
+            if (galleryItems.length === 0) {
+                carouselTrack.innerHTML = `<div class="text-gray-400 font-serif italic text-center w-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">暂无内容</div>`;
+                return;
+            }
+
+            // 2. 一次性生成所有卡片 DOM
+            galleryItems.forEach((item, index) => {
+                const card = document.createElement('div');
+                // 移除暗黑模式类
+                card.className = `carousel-item w-[260px] md:w-[320px] aspect-[3/4] bg-gray-200 rounded-xl overflow-hidden shadow-2xl`;
+                // 优化：添加图片加载错误处理，防止链接失效时页面结构混乱
+                card.innerHTML = `
+                    <img src="${item.image}" class="w-full h-full object-cover" alt="${item.name}" onerror="this.onerror=null; this.src='https://placehold.co/400x600/1e293b/ffffff?text=Image+Missing';">
+                    <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent text-white text-center">
+                        <p class="text-xs font-bold tracking-widest uppercase mb-1 opacity-80">${item.role}</p>
+                        <h3 class="text-xl font-serif">${item.name}</h3>
+                    </div>
+                `;
+                // 存储数据索引，方便点击时判断
+                card.dataset.index = index;
+                card.onclick = () => handleCardClick(index, item.id);
+                
+                carouselTrack.appendChild(card);
+                cardElements.push(card);
+            });
+
+            // 3. 初次渲染状态
+            updateCarouselState();
+        }
+
+        function handleCardClick(index, itemId) {
+            // 计算点击的卡片相对于当前激活卡片的距离
+            const len = galleryItems.length;
+            let diff = (index - activeIndex + len) % len;
+            
+            if (diff === 0) {
+                // 点击的是中间卡片 -> 打开详情
+                openModal(itemId);
+            } else if (diff === 1 || diff === 2) {
+                // 点击的是右侧卡片 -> 向右转
+                rotateCarousel('next');
+            } else {
+                // 点击的是左侧卡片 -> 向左转
+                rotateCarousel('prev');
+            }
+        }
+
+        function updateCarouselState() {
+            if (galleryItems.length === 0) return;
+            document.getElementById('current-counter').innerText = activeIndex + 1;
+
+            const len = galleryItems.length;
+            
+            // 遍历所有卡片，根据其与 activeIndex 的关系分配 CSS 类
+            cardElements.forEach((card, index) => {
+                // 移除旧状态
+                card.classList.remove('carousel-center', 'carousel-left', 'carousel-right', 'carousel-hidden');
+
+                // 计算距离：0=中, 1=右, len-1=左
+                let diff = (index - activeIndex + len) % len;
+
+                if (diff === 0) {
+                    card.classList.add('carousel-center');
+                } else if (diff === len - 1) { // 左边第一个
+                    card.classList.add('carousel-left');
+                } else if (diff === 1) { // 右边第一个
+                    card.classList.add('carousel-right');
+                } else {
+                    // 其他所有卡片归为隐藏状态
+                    card.classList.add('carousel-hidden');
+                }
+            });
+        }
+
+        function rotateCarousel(direction) {
+            const len = galleryItems.length;
+            if (len <= 1) return;
+
+            if (direction === 'next') {
+                activeIndex = (activeIndex + 1) % len;
+            } else {
+                activeIndex = (activeIndex - 1 + len) % len;
+            }
+            // 核心：仅更新状态，不重建 DOM
+            updateCarouselState();
+        }
+
+        // === 故事列表/模态框/阅读器/版权页/复制逻辑 ===
+        
+        function renderStories() {
+            const storiesList = document.getElementById('stories-list');
+            const storyItems = collection.filter(item => item.category === 'story');
+            storiesList.innerHTML = storyItems.map((item, index) => `
+                <div class="flex flex-col md:flex-row gap-8 items-start group bg-white p-6 shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100 reveal-on-scroll" style="transition-delay: ${index * 200}ms">
+                    <div class="w-full md:w-64 aspect-[3/4] md:aspect-[4/3] overflow-hidden shrink-0 cursor-pointer" onclick="openReader(${item.id})">
+                        <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.onerror=null; this.src='https://placehold.co/600x800/1e293b/ffffff?text=Image+Missing';">
+                    </div>
+                    <div class="flex-1 flex flex-col justify-between h-full">
+                        <div>
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="text-xs font-bold tracking-widest text-gray-400 uppercase border border-gray-200 px-2 py-1 rounded">${item.tags[0]}</span>
+                                <span class="text-xs text-gray-400 uppercase tracking-wider">${item.role}</span>
+                            </div>
+                            <!-- 移除主题切换的 class -->
+                            <h3 class="text-2xl font-serif text-gray-900 mb-2 cursor-pointer hover:text-gray-600 transition-colors" onclick="openReader(${item.id})">${item.name}</h3>
+                            <p class="text-xs text-gray-400 uppercase tracking-widest mb-6">${item.englishName}</p>
+                            <p class="text-gray-500 font-light leading-relaxed mb-6 line-clamp-3">${item.desc}</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-auto pt-6 border-t border-gray-100">
+                            <div class="flex gap-4 text-xs text-gray-400 uppercase tracking-widest">
+                                <span>${item.details.Words} Words</span>
+                            </div>
+                            <!-- 移除主题切换的 class -->
+                            <button onclick="openReader(${item.id})" class="text-xs font-bold uppercase tracking-widest border-b border-black pb-1 hover:opacity-60 transition-opacity">Read Chapter</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            initScrollReveal();
+        }
+
+        const modalOverlay = document.getElementById('modal-overlay');
+        const modalContent = document.getElementById('modal-content');
+        const modalBody = document.getElementById('modal-body');
+        let currentDetailId = null;
+
+        function openModal(id) {
+            const item = collection.find(c => c.id === id);
+            if (!item) return;
+            currentDetailId = id;
+            renderModalContent(item);
+            modalOverlay.classList.remove('hidden');
+            setTimeout(() => {
+                modalOverlay.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+            document.getElementById('scroll-container').style.overflow = 'hidden';
+            document.addEventListener('keydown', handleModalKeydown);
+        }
+
+        function closeModal() {
+            document.removeEventListener('keydown', handleModalKeydown);
+            modalOverlay.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            document.getElementById('scroll-container').style.overflow = '';
+            setTimeout(() => modalOverlay.classList.add('hidden'), 300);
+        }
+
+        function handleModalKeydown(e) { if (e.key === 'Escape') closeModal(); }
+
+        function renderModalContent(item) {
+            const detailsHtml = Object.entries(item.details).map(([key, value]) => 
+                // 移除主题切换的 class
+                `<div><span class="block text-xs text-gray-400 uppercase tracking-widest mb-1">${key}</span><span class="font-serif text-lg text-gray-800">${value}</span></div>`
+            ).join('');
+            modalBody.innerHTML = `
+                <!-- 移除主题切换的 class -->
+                <div id="modal-left-image" class="relative shrink-0 bg-gray-100 w-full aspect-[3/4] md:w-auto md:h-full md:aspect-[3/4]">
+                    <img src="${item.image}" class="w-full h-full object-cover" alt="${item.name}" onerror="this.onerror=null; this.src='https://placehold.co/400x600/1e293b/ffffff?text=Image+Missing';">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent md:hidden"></div>
+                    <div class="absolute bottom-4 left-6 text-white md:hidden"><h2 class="text-3xl font-serif">${item.name}</h2></div>
+                </div>
+                <div id="modal-right-text" class="flex-1 p-8 md:p-12 overflow-y-auto">
+                    <div class="flex flex-col h-full">
+                        <div class="mb-8 hidden md:block">
+                             <p class="text-xs tracking-[0.2em] opacity-50 mb-2 uppercase text-gray-500">${item.englishName}</p>
+                             <!-- 移除主题切换的 class -->
+                             <h2 class="text-4xl md:text-5xl font-serif text-gray-900">${item.name}</h2>
+                        </div>
+                        <div class="mb-8 text-center md:text-left relative">
+                            <!-- 移除主题切换的 class -->
+                            <span class="text-6xl font-serif text-gray-100 absolute -top-4 -left-4 z-0">“</span>
+                            <!-- 移除主题切换的 class -->
+                            <p class="text-xl font-serif italic text-gray-800 relative z-10 pl-6 border-l-2 border-gray-900">${item.quote}</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mb-8 justify-center md:justify-start">
+                            <!-- 移除主题切换的 class -->
+                            ${item.tags.map(tag => `<span class="px-3 py-1 bg-gray-100 text-gray-600 text-xs tracking-wider uppercase rounded-sm">${tag}</span>`).join('')}
+                        </div>
+                        <!-- 移除主题切换的 class -->
+                        <div class="prose prose-sm max-w-none text-gray-500 leading-relaxed mb-8 text-justify">${item.desc}</div>
+                        <!-- 移除主题切换的 class -->
+                        <div class="grid grid-cols-2 gap-y-8 border-t border-gray-100 pt-8 mt-auto">${detailsHtml}</div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        // 阅读器/版权页
+        const readingMode = document.getElementById('reading-mode');
+        const readerTitle = document.getElementById('reader-book-title');
+        const readerChapter = document.getElementById('reader-chapter-title');
+        const readerContent = document.getElementById('reader-content');
+        const tocSidebar = document.getElementById('toc-sidebar');
+        const tocList = document.getElementById('toc-list');
+        let currentStoryId = null;
+
+        function openReader(id) {
+            const story = collection.find(c => c.id === id);
+            if (!story) return;
+            currentStoryId = id;
+            readerTitle.innerText = story.englishName;
+            readerChapter.innerText = story.name;
+            // 确保内容是 HTML 格式
+            readerContent.innerHTML = story.content;
+            readingMode.classList.remove('hidden');
+            setTimeout(() => readingMode.classList.remove('translate-y-full'), 10);
+            document.getElementById('scroll-container').style.overflow = 'hidden'; // 阻止背景滚动
+        }
+        function closeReader() {
+            readingMode.classList.add('translate-y-full');
+            setTimeout(() => {
+                readingMode.classList.add('hidden');
+                document.getElementById('scroll-container').style.overflow = ''; // 恢复背景滚动
+            }, 300);
+        }
+        function toggleTOC() {
+            const isOpen = !tocSidebar.classList.contains('-translate-x-full');
+            if (isOpen) {
+                tocSidebar.classList.add('-translate-x-full');
+                document.getElementById('toc-overlay').classList.add('hidden');
+            } else {
+                renderTOC();
+                document.getElementById('toc-overlay').classList.remove('hidden');
+                setTimeout(() => tocSidebar.classList.remove('-translate-x-full'), 10);
+            }
+        }
+        function renderTOC() {
+            const stories = collection.filter(i => i.category === 'story');
+            tocList.innerHTML = stories.map(story => `
+                <!-- 移除主题切换的 class -->
+                <div onclick="openReader(${story.id}); toggleTOC()" class="px-6 py-4 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors">
+                    <!-- 移除主题切换的 class -->
+                    <h4 class="font-serif text-sm font-bold text-gray-800">${story.name}</h4>
+                </div>
+            `).join('');
+        }
+        // 由于故事数量较少，暂不实现 prevChapter/nextChapter 的完整逻辑，仅做占位。
+        function prevChapter() { console.log("Previous chapter functionality triggered."); }
+        function nextChapter() { console.log("Next chapter functionality triggered."); }
+
+
+        const copyrightModal = document.getElementById('copyright-modal');
+        const copyrightCard = document.getElementById('copyright-card');
+        let isCopyrightOpen = false;
+        const scrollContainer = document.getElementById('scroll-container');
+        
+        // 恢复版权页滚动阻止逻辑 (包含上次修复的逻辑)
+        function handleScrollTrigger(deltaY) {
+             if (!document.getElementById('modal-overlay').classList.contains('hidden')) return;
+             if (!document.getElementById('reading-mode').classList.contains('hidden')) return;
+             const isAtBottom = Math.ceil(scrollContainer.scrollTop + scrollContainer.clientHeight) >= scrollContainer.scrollHeight - 5;
+             if (isAtBottom && deltaY > 10 && !isCopyrightOpen) openCopyright();
+        }
+        // 保持 passive: false 以便在 openCopyright 时阻止滚动
+        window.addEventListener('wheel', (e) => { 
+             if (isCopyrightOpen) e.preventDefault(); 
+             handleScrollTrigger(e.deltaY); 
+        }, { passive: false });
+
+        function openCopyright() {
+            isCopyrightOpen = true;
+            copyrightModal.classList.remove('hidden');
+            setTimeout(() => {
+                copyrightModal.classList.remove('opacity-0');
+                copyrightCard.classList.remove('scale-95');
+            }, 10);
+            // BUG FIX: 禁用主滚动容器和 body 的滚动
+            scrollContainer.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        copyrightModal.addEventListener('click', (e) => {
+            // 确保点击的是 modal-overlay 本身，而不是卡片内的链接
+            if (e.target === copyrightModal && isCopyrightOpen) {
+                isCopyrightOpen = false;
+                copyrightModal.classList.add('opacity-0');
+                copyrightCard.classList.add('scale-95');
+                // BUG FIX: 立即重新启用主容器和 body 的滚动
+                scrollContainer.style.overflow = '';
+                document.body.style.overflow = ''; 
+
+                setTimeout(() => copyrightModal.classList.add('hidden'), 700);
+            }
+        });
+
+        function copyEmail() {
+            const text = "2647672064@qq.com";
+            // 使用 execCommand 兼容更多环境
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                document.execCommand('copy');
+                const toast = document.getElementById('toast-notification');
+                toast.classList.remove('hide'); toast.classList.add('show');
+                setTimeout(() => { toast.classList.remove('show'); toast.classList.add('hide'); }, 3000);
+            } catch (err) {
+                console.error('Could not copy text: ', err);
+            } finally {
+                document.body.removeChild(tempInput);
+            }
+        }
+
+        filterGallery('character');
+        renderStories();
+        lucide.createIcons();
+    </script>
+</body>
+</html>
