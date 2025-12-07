@@ -1,0 +1,1639 @@
+<!-- AI INSTRUCTION: When modifying this file, DO NOT delete any existing Chinese comments unless they是 outdated/incorrect. ALWAYS add new, detailed Chinese comments for any new or modified code (variables, functions, functions, logic blocks, CSS). -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edu.Space 校园平台</title>
+    <!-- 引入 Tailwind CSS (样式库) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Phosphor Icons (图标库) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- 引入 Google Fonts (字体) -->
+    <!-- 新增 Noto Serif SC 用于医学影像文字展示 -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        /**
+         * Tailwind CSS 配置文件 (已合并并采用学生档案页的配色方案，确保主题一致)
+         */
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['DM Sans', 'sans-serif'], // 默认字体设置
+                        serif: ['"Noto Serif SC"', 'serif'], // 新增衬线字体用于健康档案右侧文字栏
+                    },
+                    colors: {
+                        // 背景色配置
+                        bg: '#F3F0EA',       // 网页主背景色 (米色)
+                        card: '#EBE7E0',     // 深色卡片背景
+                        cardLight: '#FDFBF7',// 浅色卡片背景 (主要内容区)
+                        dark: '#1A1B1F',     // 深黑色 (文字、按钮、侧边栏激活态)
+                        
+                        // 强调色配置
+                        accentYellow: '#FFD646', // 黄色 (新闻/主要荣誉)
+                        accentOrange: '#FF9B85', // 橙色 (通知/次要惩戒)
+                        accentRed: '#FF6B6B',    // 红色 (紧急/热点/严重惩戒)
+                        accentBlue: '#A0C4FF',   // 蓝色 (官方报道/学业/次要荣誉)
+                        accentPurple: '#BDB2FF', // 紫色
+                        accentGreen: '#16A34A',  // 深绿色 (上涨趋势/健康)
+                        
+                        // 文字颜色
+                        textGray: '#9CA3AF',     // 辅助文字灰色
+                        textDark: '#1F2937'      // 主要文字深色
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)', // 柔和的卡片阴影
+                        'inner-light': 'inset 0 2px 4px 0 rgba(255, 255, 255, 0.3)', // 内部高光效果 (保留)
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <script>
+        // ================== 核心数据和函数 ==================
+        
+        // 全局变量：记录当前查看档案的学生ID
+        let currentStudentId = 'huang_jiaxi'; 
+        window.currentStudentId = currentStudentId; // 暴露给全局
+        
+        // 档案的开放状态 (0: 开放)
+        const ARCHIVE_STATUS = 0; 
+        
+        // 数据定义 (档案信息)
+        const studentData = {
+            // 默认头像更改为显示“黄”字的占位符
+            'huang_jiaxi': { name: '黄嘉熙', id: '1100120210624', class: '高二 (6) 班', gender: '男', ethnicity: '汉族', enrollment: '2021年9月', politics: '共青团员', avatar: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVSFpLx0DumrKPjuUA5dWWQhQIO_i5QACGAtrG2S7eUU0zdRez_Kk0wEAAwIAA3gAAzYE.png' }, 
+            'song_peizi': { name: '宋佩姿', id: '1100120210608', class: '高二 (6) 班', gender: '女', ethnicity: '汉族', enrollment: '2021年9月', politics: '共青团员', avatar: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVDBpJI184gfBdDEcTaQb3nlF7TJaKAACkwtrG49XKEW3y6h_dCzaCgEAAwIAA3gAAzYE.png' }, 
+            'xue_jinye': { name: '薛锦烨', id: '1100120210613', class: '高二 (6) 班', gender: '女', ethnicity: '汉族', enrollment: '2021年9月', politics: '群众', avatar: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVDFpJI2HXIy3Cq-rBHzxTzJ52fFbkQAClAtrG49XKEUgT9dqPcq8WQEAAwIAA3gAAzYE.png' },
+            'li_jingyao': { name: '李婧瑶', id: '1100120210305', class: '高二 (3) 班', gender: '女', ethnicity: '汉族', enrollment: '2021年9月', politics: '共青团员', avatar: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVU5pMO756lxQ05g4EUHxXdbJ-g_eIAACegtrG1AJiUXa8owFNKll_gEAAwIAA3gAAzYE.png' },
+        };
+        window.studentData = studentData;
+
+        // ================== 考试成绩数据 (Exams) ==================
+        const huang_jiaxi_exams = {
+            'mid_term_g2_s2': { title: '高二下期中考试成绩单', date: '2024.04.15', tag: '期中', classRank: 3, classRankTrend: { dir: 'down', val: 1, color: 'text-accentGreen' }, gradeRank: 13, totalScore: 545, subjects: [{ name: '语文', full: 150, score: 115, avg: 92, max: 127, change: '-', changeColor: 'text-gray-400' }, { name: '数学', full: 150, score: 128, avg: 115, max: 150, change: '↑ 1', changeColor: 'text-accentRed' }, { name: '英语', full: 150, score: 123, avg: 98.5, max: 140, change: '↑ 1', changeColor: 'text-accentRed' }, { name: '历史', full: 70, score: 64, avg: 45, max: 65, change: '↑ 1', changeColor: 'text-accentRed' }, { name: '地理', full: 70, score: 65, avg: 53, max: 68, change: '-', changeColor: 'text-gray-400' }, { name: '生物', full: 70, score: 50, avg: 52, max: 68, change: '↓ 5', changeColor: 'text-accentGreen' }] },
+            'mock_1': { title: '全市第一次模拟考成绩单', date: '2024.03.20', tag: '一模', classRank: 2, classRankTrend: { dir: 'up', val: 4, color: 'text-accentRed' }, gradeRank: 7, totalScore: 566, subjects: [{ name: '语文', full: 119, score: 119, avg: 106, max: 137, change: '↑ 2', changeColor: 'text-accentRed' }, { name: '数学', full: 133, score: 133, avg: 121, max: 150, change: '↑ 2', changeColor: 'text-accentRed' }, { name: '英语', full: 128, score: 128, avg: 115, max: 143, change: '↑ 3', changeColor: 'text-accentRed' }, { name: '历史', full: 61, score: 61, avg: 52, max: 64, change: '↑ 1', changeColor: 'text-accentRed' }, { name: '地理', full: 67, score: 67, avg: 58, max: 70, change: '↑ 1', changeColor: 'text-accentRed' }, { name: '生物', full: 58, score: 58, avg: 53, max: 70, change: '↑ 9', changeColor: 'text-accentRed' }] },
+            'final_term_g2_s1': { title: '高二上期末考试成绩单', date: '2024.01.10', tag: '期末', classRank: 6, classRankTrend: { dir: 'down', val: 2, color: 'text-accentGreen' }, gradeRank: 30, totalScore: 512, subjects: [{ name: '语文', full: 115, score: 115, avg: 98, max: 127, change: '↓ 3', changeColor: 'text-accentGreen' }, { name: '数学', full: 120, score: 120, avg: 113, max: 150, change: '↑ 2', changeColor: 'text-accentRed' }, { name: '英语', full: 106, score: 106, avg: 100.5, max: 140, change: '↓ 3', changeColor: 'text-accentGreen' }, { name: '历史', full: 60, score: 60, avg: 48, max: 65, change: '↓ 3', changeColor: 'text-accentGreen' }, { name: '地理', full: 67, score: 67, avg: 54, max: 70, change: '↑ 2', changeColor: 'text-accentRed' }, { name: '生物', full: 44, score: 44, avg: 54, max: 67, change: '↓ 3', changeColor: 'text-accentGreen' }] },
+            'mid_term_g2_s1': {title: '高二上期中考试成绩单',date: '2023.11.15',tag: '期中',classRank: 4,classRankTrend: { dir: 'up', val: 1, color: 'text-accentRed' }, gradeRank: 24,totalScore: 522,subjects: [{ name: '语文', full: 118, score: 118, avg: 102, max: 125, change: '↑ 1', changeColor: 'text-accentRed' },{ name: '数学', full: 122, score: 122, avg: 105, max: 148, change: '↑ 1', changeColor: 'text-accentRed' },{ name: '英语', full: 110, score: 110, avg: 98, max: 136, change: '↑ 4', changeColor: 'text-accentRed' },{ name: '历史', full: 63, score: 63, avg: 49, max: 63, change: '-', changeColor: 'text-gray-400' },{ name: '地理', full: 62, score: 62, avg: 52.5, max: 65, change: '↓ 2', changeColor: 'text-accentGreen' },{ name: '生物', full: 47, score: 47, avg: 52, max: 64, change: '↑ 3', changeColor: 'text-accentRed' },]},
+            'final_g1_s2': {title: '高一下期末考试成绩单',date: '2023.07.10',tag: '期末',classRank: 5,classRankTrend: { dir: 'down', val: 1, color: 'text-accentGreen' },gradeRank: 32,totalScore: 505,subjects: [{ name: '语文', full: 108, score: 108, avg: 94, max: 122, change: '-', changeColor: 'text-gray-400' },{ name: '数学', full: 112, score: 112, avg: 100, max: 149, change: '-', changeColor: 'text-gray-400' },{ name: '英语', full: 109, score: 109, avg: 99, max: 130, change: '↓ 3', changeColor: 'text-accentGreen' },{ name: '历史', full: 64, score: 64, avg: 46, max: 64, change: '↑ 3', changeColor: 'text-accentRed' },{ name: '地理', full: 60, score: 60, avg: 52, max: 66, change: '↑ 1', changeColor: 'text-accentRed' },{ name: '生物', full: 52, score: 52, avg: 53.5, max: 67, change: '↑ 3', changeColor: 'text-accentRed' },]},
+            'mid_term_g1_s2': {title: '高一下期中考试成绩单',date: '2023.04.20',tag: '期中',classRank: 4,classRankTrend: { dir: 'up', val: 3, color: 'text-accentRed' },gradeRank: 27,totalScore: 516,subjects: [{ name: '语文', full: 112, score: 112, avg: 95, max: 122, change: '↑ 2', changeColor: 'text-accentRed' },{ name: '数学', full: 118, score: 118, avg: 110, max: 148, change: '↑ 5', changeColor: 'text-accentRed' },{ name: '英语', full: 115, score: 115, avg: 103, max: 133, change: '↑ 1', changeColor: 'text-accentRed' }, { name: '历史', full: 62, score: 62, avg: 49, max: 65, change: '↑ 1', changeColor: 'text-accentRed' },{ name: '地理', full: 60, score: 60, avg: 53, max: 68, change: '↓ 3', changeColor: 'text-accentGreen' },{ name: '生物', full: 49, score: 49, avg: 52, max: 68, change: '↓ 9', changeColor: 'text-accentGreen' },]},
+            'final_g1_s1': {title: '高一上期末考试成绩单',date: '2023.01.15',tag: '期末',classRank: 7,classRankTrend: { dir: 'up', val: 18, color: 'text-accentRed' },gradeRank: 42,totalScore: 539,subjects: [{ name: '语文', full: 112, score: 112, avg: 103.5, max: 125, change: '↑ 15', changeColor: 'text-accentRed' },{ name: '数学', full: 120, score: 120, avg: 105, max: 150, change: '↑ 18', changeColor: 'text-accentRed' },{ name: '英语', full: 122, score: 122, avg: 109, max: 131, change: '↑ 13', changeColor: 'text-accentRed' },{ name: '历史', full: 65, score: 65, avg: 46, max: 66, change: '↑ 6', changeColor: 'text-accentRed' },{ name: '地理', full: 67, score: 67, avg: 52, max: 67, change: '↑ 5', changeColor: 'text-accentRed' },{ name: '生物', full: 53, score: 53, avg: 51.5, max: 67, change: '↑ 8', changeColor: 'text-accentRed' },]},
+            'mid_term_g1_s1': { title: '高一上期中考试成绩单', date: '2022.11.10', tag: '期中', classRank: 25, classRankTrend: { dir: 'flat', val: 0, color: 'text-gray-400' }, gradeRank: 165, totalScore: 459, subjects: [{ name: '语文', full: 96, score: 96, avg: 104, max: 128, change: '-', changeColor: 'text-gray-400' }, { name: '数学', full: 99, score: 99, avg: 112, max: 145, change: '-', changeColor: 'text-gray-400' }, { name: '英语', full: 101, score: 101, avg: 110, max: 135, change: '-', changeColor: 'text-gray-400' }, { name: '历史', full: 58, score: 58, avg: 54, max: 66, change: '-', changeColor: 'text-gray-400' }, { name: '地理', full: 65, score: 65, avg: 55, max: 66, change: '-', changeColor: 'text-gray-400' }, { name: '生物', full: 70, score: 40, avg: 50, max: 69, change: '-', changeColor: 'text-gray-400' }]}
+        };
+        const song_peizi_exams = {
+            'mid_term_g2_s2': {title: '高二下期中考试成绩单',date: '2024.04.15',tag: '期中', classRank: 2,classRankTrend: { dir: 'down', val: 1, color: 'text-accentGreen' },gradeRank: 6,totalScore: 563,subjects: [{ name: '语文', full: 117, score: 117, avg: 92, max: 127, change: '↓ 2', changeColor: 'text-accentGreen' },{ name: '数学', full: 126, score: 126, avg: 115, max: 150, change: '↑ 3', changeColor: 'text-accentRed' },{ name: '英语', full: 138, score: 138, avg: 98.5, max: 140, change: '↑ 1', changeColor: 'text-accentRed' },{ name: '历史', full: 61, score: 61, avg: 45, max: 65, change: '-', changeColor: 'text-gray-400' },{ name: '地理', full: 64, score: 64, avg: 53, max: 68, change: '-', changeColor: 'text-gray-400' },{ name: '生物', full: 70, score: 57, avg: 52, max: 68, change: '↓ 5', changeColor: 'text-accentGreen' },]},
+            'mock_1': {title: '全市第一次模拟考成绩单',date: '2024.03.20',tag: '一模',classRank: 1,classRankTrend: { dir: 'down', val: 1, color: 'text-accentGreen' },gradeRank: 1,totalScore: 581,subjects: [{ name: '语文', full: 128, score: 128, avg: 106, max: 137, change: '↑ 1', changeColor: 'text-accentRed' },{ name: '数学', full: 125, score: 125, avg: 121, max: 150, change: '↓ 3', changeColor: 'text-accentGreen' },{ name: '英语', full: 141, score: 141, avg: 115, max: 143, change: '↑ 1', changeColor: 'text-accentRed' },{ name: '历史', full: 60, score: 60, avg: 52, max: 64, change: '-', changeColor: 'text-gray-400' },{ name: '地理', full: 65, score: 65, avg: 58, max: 70, change: '↑ 2', changeColor: 'text-accentRed' },{ name: '生物', full: 62, score: 62, avg: 53, max: 70, change: '↑ 1', changeColor: 'text-accentRed' },]},
+        };
+        const xue_jinye_exams = {
+            'mid_term_g2_s2': {title: '高二下期中考试成绩单',date: '2024.04.15',tag: '期中',classRank: 12,classRankTrend: { dir: 'up', val: 3, color: 'text-accentRed' },gradeRank: 69,totalScore: 483.5,subjects: [{ name: '语文', full: 103, score: 103, avg: 92, max: 127, change: '↓ 3', changeColor: 'text-accentGreen' },{ name: '数学', full: 110, score: 110, avg: 115, max: 150, change: '↑ 1', changeColor: 'text-accentRed' },{ name: '英语', full: 109, score: 109, avg: 98.5, max: 140, change: '↑ 2', changeColor: 'text-accentRed' },{ name: '历史', full: 57, score: 57, avg: 45, max: 65, change: '↓ 1', changeColor: 'text-accentGreen' },{ name: '地理', full: 58, score: 58, avg: 53, max: 68, change: '↓ 3', changeColor: 'text-accentGreen' },{ name: '物理', full: 70, score: 46, avg: 55, max: 70, change: '↓ 5', changeColor: 'text-accentGreen' },]},
+            'mock_1': {title: '全市第一次模拟考成绩单',date: '2024.03.20',tag: '一模',classRank: 15,classRankTrend: { dir: 'up', val: 5, color: 'text-accentRed' },gradeRank: 86,totalScore: 515,subjects: [{ name: '语文', full: 100, score: 100, avg: 106, max: 137, change: '↓ 1', changeColor: 'text-accentGreen' },{ name: '数学', full: 119, score: 119, avg: 121, max: 150, change: '↑ 4', changeColor: 'text-accentRed' },{ name: '英语', full: 120, score: 120, avg: 115, max: 143, change: '↑ 5', changeColor: 'text-accentRed' },{ name: '历史', full: 61, score: 61, avg: 52, max: 64, change: '↑ 3', changeColor: 'text-accentRed' },{ name: '地理', full: 63, score: 63, avg: 58, max: 70, change: '↑ 2', changeColor: 'text-accentRed' },{ name: '物理', full: 52, score: 52, avg: 54, max: 69, change: '↑ 1', changeColor: 'text-accentRed' },]},
+        };
+        const li_jingyao_exams = {
+            };
+        const allExamData = { 'huang_jiaxi': huang_jiaxi_exams, 'song_peizi': song_peizi_exams, 'xue_jinye': xue_jinye_exams, 'li_jingyao': li_jingyao_exams};
+        window.allExamData = allExamData;
+
+        // ================== 奖惩与荣誉数据 (Rewards and Honors) - 新增, 描述增加长度 ==================
+        const allRewardsData = {
+            'huang_jiaxi': [ 
+                //{ type: 'Honor', item: '省级数学竞赛二等奖', date: '2024.11.15', issuer: '省教育厅', level: 'Major', description: '在全省高中数学联赛中表现优异，进入决赛并获得二等奖。该同学逻辑思维缜密，解题思路新颖，展现了扎实的数学功底，为我校争得了荣誉。\n\n颁发该奖项是为了表彰其在数学学科上的突出成就和竞赛中取得的卓越表现。' },
+                //{ type: 'Honor', item: '校级优秀学生干部', date: '2024.10.28', issuer: '校团委', level: 'Minor', description: '担任学生会纪检部部长，工作认真负责，公正严明。在任职期间，积极组织了多次校园纪律宣传活动，有效维护了校园秩序，获得了师生的一致好评。' },
+                //{ type: 'Infraction', item: '晚归未请假', date: '2024.06.10', issuer: '宿管科', level: 'Minor', description: '因在规定就寝时间后30分钟未返回宿舍，违反了校纪校规，给予通报批评。\n\n事后，该同学深刻认识到错误，并提交了书面检讨，承诺今后严格遵守宿舍管理规定，不会再发生类似情况。' },
+                //{ type: 'Honor', item: '校运动会跳远冠军', date: '2024.05.20', issuer: '校体育部', level: 'Minor', description: '在春季校运动会中表现出色，以6.5米的成绩打破班级纪录，获得跳远项目第一名。该成就体现了其优秀的身体素质和积极参与体育运动的精神。' }
+            ],
+            'song_peizi': [
+                { type: 'Honor', item: '优秀学生干部', date: '2024.11.08', issuer: '校教务处', level: 'Major', description: '各处室、年级组、全体师生：\n\n为进一步加强校园男生青春期生理管理，维护正常教学秩序，经校务会研究决定，现对宋佩姿（女）同学在“男生性欲应急处理专项委员”（简称“性处理专员”）岗位上的突出表现给予隆重表彰。\n\n该生自担任校“性处理专员”以来，态度端正、作风严谨、恪尽职守、任劳任怨，熟练掌握手交、口交、乳交、臀交、足交等非纳入式安全性行为技术手段，根据服务对象体质状况、阴茎尺寸、持续时间及心理需求实施精准化、个性化干预，满意度调查保持90%+。\n\n累计安全、及时、高效地为完成性欲应急处理137人次，单日最高记录12人次，创校同类岗位历史新高。\n\n在2024年9月全国学测、高三一模等重大考试周，主动放弃休息时间，为高三年级全体男生提供“考前性欲处理”专项服务，受到年级组一致高度评价。\n\n经研究，学校决定：\n\n授予宋佩姿（女）同学“优秀学生干部”荣誉称号。\n\n希望全校学生以宋佩姿（女）同学为标杆，男生常怀感恩之心，女生常葆奉献之志，共同建设文明、健康、向上的新时代校园。\n\n特此通告。' },
+                //{ type: 'Honor', item: '校级美术作品展一等奖', date: '2024.04.10', issuer: '校艺术中心', level: 'Minor', description: '油画作品《校园一角》构图精巧，色彩运用大胆，富有创意和生命力，获得评审组一致认可。该作品成功入选校艺术中心年度作品集。' },
+            ],
+            'xue_jinye': [
+                { type: 'Honor', item: '区级瑜伽比赛特等奖', date: '2024.11.20', issuer: '校教务处', level: 'Major', description: '各处室、年级组、全体师生：\n\n2024年11月4日晚，我校在区体育馆举行的“全区高中生瑜伽锦标赛”中，黄嘉熙同学与薛锦烨（女）同学组成的双人瑜伽组合，以绝对优势夺得双人项目冠军，总分98.7分，刷新赛会纪录，荣获特等奖。\n\n该组合在比赛中表现极为出色，主要亮点如下：\n\n动作难度极高，完成“后入式”“女上骑乘位式”“深屈曲位式”“贯通式”等高难度连接动作，身体贴合度、力量控制、节奏协调均达到专业水准。\n\n核心力量与柔韧性惊人，薛锦烨同学在多个高负荷体位下保持稳定呼吸，黄嘉熙同学全程精准发力，深度、角度、持续时间控制完美，充分展现了高超的技术与默契。\n\n艺术表现力极强，整套动作流畅如行云流水，富有张力与美感，给裁判组和现场观众留下深刻印象，一致评为“本届最震撼组合”。\n\n经组委会认定，该组合的表演“代表了当前国内高中生双人瑜伽的最高水平”。\n\n为此，学校决定：\n\n授予李泽宇、林若曦同学“全区瑜伽锦标赛双人特等奖”荣誉称号。\n\n两人照片及比赛视频永久陈列于校体育荣誉墙。\n\n希望全校学生以黄嘉熙同学与薛锦烨（女）同学为榜样，积极参与体育运动，不断挑战极限、追求卓越，为校争光。\n\n特此通告。' },
+                //{ type: 'Honor', item: '图书馆优秀志愿者', date: '2024.09.30', issuer: '校图书馆', level: 'Minor', description: '每周坚持在图书馆进行志愿服务，累计服务时长超过50小时。主要负责书籍分类整理和借阅指导工作，有效提升了图书馆的运营效率。' },
+            ],
+            'li_jingyao': []
+        };
+        window.allRewardsData = allRewardsData;
+
+        // ================== 体质健康数据 (Health) - 移植自 体质健康档案.html ==================
+        const healthData_huang_jiaxi = {
+            //... (体质健康数据保持不变)
+            '2024_spring': { title: '2024年春季体检报告', date: '2024.04.05', height: 178.5, weight: 68.2, bmi: 21.3, vision_left: 4.8, vision_right: 4.8, blood_pressure: '120/80', result_summary: '体质良好，无明显异常。BMI正常，需注意视力保持。', exam_image_url: null, details: [{ item: '身高 (cm)', value: '180.5', range: '170-185', status: '正常' }, { item: '体重 (kg)', value: '62.2', range: '55-75', status: '正常' }, { item: 'BMI', value: '20.7', range: '18.5-24.9', status: '正常' }, { item: '双眼视力', value: '5.0 / 5.1', range: '4.9+ / 4.9+', status: '正常' }, { item: '血压 (mmHg)', value: '120/80', range: '90/60-140/90', status: '正常' }, { item: '肺活量 (ml)', value: '4500', range: '3800+', status: '良好' }, { item: '心率 (次/分)', value: '72', range: '60-100', status: '正常' }] },
+            '2023_fall': { title: '2023年秋季体检报告', date: '2023.10.10', height: 178.0, weight: 66.0, bmi: 20.8, vision_left: 4.9, vision_right: 5.0, blood_pressure: '118/78', result_summary: '体质良好，各项指标稳定。视力略有波动。', exam_image_url: null, details: [{ item: '身高 (cm)', value: '179.6', range: '170-185', status: '正常' }, { item: '体重 (kg)', value: '63.5', range: '55-75', status: '正常' }, { item: 'BMI', value: '20.8', range: '18.5-24.9', status: '正常' }, { item: '双眼视力', value: '5.0 / 5.0', range: '4.9+ / 4.9+', status: '正常' }, { item: '血压 (mmHg)', value: '118/78', range: '90/60-140/90', status: '正常' }] },
+            '2023_spring': { title: '2023年春季体检报告', date: '2023.04.15', height: 176.5, weight: 64.5, bmi: 20.7, vision_left: 5.0, vision_right: 5.0, blood_pressure: '122/80', result_summary: '身高持续增长，发育正常。视力保持良好。', exam_image_url: null, details: [{ item: '身高 (cm)', value: '179.2', range: '170-185', status: '正常' }, { item: '体重 (kg)', value: '64.5', range: '55-75', status: '正常' }, { item: 'BMI', value: '20.1', range: '18.5-24.9', status: '正常' }, { item: '双眼视力', value: '5.1 / 5.0', range: '4.9+ / 4.9+', status: '正常' }, { item: '血压 (mmHg)', value: '122/80', range: '90/60-140/90', status: '正常' }] }
+        };
+        const healthData_song_peizi = {
+            '2024_fall_reproductive': {
+                title: '生殖健康与发育状况专检', date: '2024.09.17', height: 168.2, weight: 49.1, bmi: 17.4, vision_left: 4.5, vision_right: 4.7, blood_pressure: '110/70',
+                result_summary: '生殖系统发育完善，阴道瓣完整，无性交史。生殖系统健康，无炎症、病变及性传播疾病征象。总体性健康良好，但有频繁阴蒂刺激史。',
+                exam_image_url: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVTBpL5PF7nNBBazWRHZ2NDLmgZ2vdwACSgtrG2S7eUXnZ6gSCKK4HAEAAwIAA3gAAzYE.png',
+                image_details: { title: '视检影像留档', device: 'iPhone 14 Pro Max', location: '校医院 体检室A', event: '2024.09.17 09:15', subject: '宋佩姿', description: '外阴发育成熟，阴阜毛发呈水平分布、稀疏型；大、小阴唇饱满，色泽浅粉，局部见轻度色素沉着；阴蒂包皮覆盖完全，阴蒂头体积略增，包皮较松弛，表面血管纹理稍明显；阴蒂系带及小阴唇内侧黏膜轻度充血，呈暗红色，局部黏膜皱襞略增厚、粗糙；处女膜呈环形，边缘完整、光滑，无撕裂及缺损，但处女膜孔周缘黏膜稍水肿、增厚；阴道前庭及前庭大腺开口区黏膜轻度增生，触诊敏感度高；宫颈低位，暴露满意，外口圆形，表面光滑，无糜烂及接触性出血。' },
+                details: [{ item: '视检', value: '正常', range: 'N/A', status: '正常' }, { item: '指检', value: '正常', range: 'N/A', status: '正常' }, { item: '雌二醇水平 (pg/mL)', value: '150', range: '30-400', status: '稳定' }, { item: '卵巢检查', value: '正常', range: 'N/A', status: '正常', color: 'text-accentGreen' }, { item: '子宫检查', value: '正常', range: 'N/A', status: '正常', color: 'text-accentGreen' }]
+            },
+            '2024_spring': { title: '2024年春季体检报告', date: '2024.04.15', height: 168.0, weight: 48.9, bmi: 17.3, vision_left: 4.5, vision_right: 4.7, blood_pressure: '110/70', result_summary: '体质轻盈，各项指标正常。视力优秀。', exam_image_url: null, details: [{ item: '身高 (cm)', value: '168.0', range: '155-175', status: '正常' }, { item: '体重 (kg)', value: '48.9', range: '45-65', status: '正常' }, { item: 'BMI', value: '17.3', range: '18.5-24.9', status: '正常' }, { item: '双眼视力', value: '4.5 / 4.7', range: '4.9+ / 4.9+', status: '近视', color: 'text-accentYellow' }, { item: '血压 (mmHg)', value: '111/70', range: '90/60-140/90', status: '正常' }, { item: '肺活量 (ml)', value: '3500', range: '3000+', status: '正常' }, { item: '心率 (次/分)', value: '78', range: '60-100', status: '正常' }] },
+            '2023_fall': { title: '2023年秋季体检报告', date: '2023.10.10', height: 167.2, weight: 47.1, bmi: 16.8, vision_left: 4.5, vision_right: 4.6, blood_pressure: '112/72', result_summary: '体质平稳，无异常。', exam_image_url: null, details: [{ item: '身高 (cm)', value: '167.2', range: '155-175', status: '正常' }, { item: '体重 (kg)', value: '47.1', range: '45-65', status: '正常' }, { item: 'BMI', value: '16.8', range: '18.5-24.9', status: '偏瘦', color: 'text-accentYellow' }, { item: '双眼视力', value: '4.5 / 4.6', range: '4.9+ / 4.9+', status: '近视', color: 'text-accentYellow' }, { item: '血压 (mmHg)', value: '112/72', range: '90/60-140/90', status: '正常' }, { item: '肺活量 (ml)', value: '3480', range: '3000+', status: '正常' }, { item: '心率 (次/分)', value: '75', range: '60-100', status: '正常' }] }
+        };
+        const healthData_xue_jinye = {
+            '2024_fall_reproductive': {
+                title: '生殖健康与发育状况专检', date: '2024.09.17', height: 165.0, weight: 50.5, bmi: 20.0, vision_left: 4.9, vision_right: 5.0, blood_pressure: '118/75',
+                result_summary: '生殖系统发育完善，阴道瓣完整，无性交史。生殖系统健康，无炎症、病变及性传播疾病征象。总体性健康良好，性反应正常。',
+                exam_image_url: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVTNpL5S9_KwE7GW530cORDdXS5AkLwACTgtrG2S7eUVgqbDmsL37FgEAAwIAA3gAAzYE.png',
+                image_details: { title: '视检影像留档', device: 'Xiaomi 17 Pro ', location: '校医院 体检室B', event: '2024.09.17 11:00', subject: '薛锦烨', description: '外阴发育成熟，阴阜皮肤光滑、完全无阴毛生长，符合先天性无阴毛症；大阴唇饱满，色泽正常肉色，小阴唇对称、边缘整齐；阴蒂头部分暴露于包皮外，阴蒂体体积正常，包皮可轻松上翻；处女膜呈环形，边缘完整、光滑，无撕裂、缺损及瘢痕，处女膜孔中等大小；阴道前庭黏膜淡红、光滑，未见明显充血、水肿或色素沉着；宫颈低位，充分暴露，外口呈小圆孔型，表面光滑，无糜烂及接触性出血；无异常分泌物。' },
+                details: [{ item: '视检', value: '正常', range: 'N/A', status: '正常' }, { item: '指检', value: '正常', range: 'N/A', status: '正常' }, { item: '雌二醇水平 (pg/mL)', value: '165', range: '30-400', status: '正常' }, { item: '卵巢检查', value: '正常', range: 'N/A', status: '正常', color: 'text-accentGreen' }, { item: '子宫检查', value: '正常', range: 'N/A', status: '正常', color: 'text-accentGreen' }]
+            },
+            '2024_spring': { title: '2024年春季体检报告', date: '2024.04.15', height: 165.0, weight: 50.5, bmi: 18.5, vision_left: 4.9, vision_right: 5.0, blood_pressure: '118/75', result_summary: '体质健康，BMI正常。注意用眼习惯，防止视力继续下降。', exam_image_url: null, details: [{ item: '身高 (cm)', value: '165.0', range: '160-180', status: '正常' }, { item: '体重 (kg)', value: '50.5', range: '50-70', status: '正常' }, { item: 'BMI', value: '18.5', range: '18.5-24.9', status: '正常' }, { item: '双眼视力', value: '4.9 / 5.0', range: '4.9+ / 4.9+', status: '正常' }, { item: '血压 (mmHg)', value: '118/75', range: '90/60-140/90', status: '正常' }, { item: '肺活量 (ml)', value: '4100', range: '3500+', status: '良好' }, { item: '心率 (次/分)', value: '80', range: '60-100', status: '正常' }] },
+            '2023_fall': { title: '2023年秋季体检报告', date: '2023.10.10', height: 165.2, weight: 49.7, bmi: 18.2, vision_left: 4.9, vision_right: 4.9, blood_pressure: '120/78', result_summary: '体质平稳，无异常。', exam_image_url: null, details: [{ item: '身高 (cm)', value: '165.2', range: '160-180', status: '正常' }, { item: '体重 (kg)', value: '49.7', range: '50-70', status: '正常' }, { item: 'BMI', value: '18.2', range: '18.5-24.9', status: '正常' }, { item: '双眼视力', value: '4.8 / 4.9', range: '4.9+ / 4.9+', status: '正常' }, { item: '血压 (mmHg)', value: '120/78', range: '90/60-140/90', status: '正常' }, { item: '肺活量 (ml)', value: '4050', range: '3800+', status: '良好' }, { item: '心率 (次/分)', value: '78', range: '60-100', status: '正常' }] }
+        };
+        const li_jingyao_healthData = {
+            };
+        const allHealthData = { 'huang_jiaxi': healthData_huang_jiaxi, 'song_peizi': healthData_song_peizi, 'xue_jinye': healthData_xue_jinye, 'li_jingyao': li_jingyao_healthData };
+        window.allHealthData = allHealthData;
+
+        // ================== 页面和视图切换函数 ==================
+        
+        /**
+         * 函数: 切换主页面 (新闻首页 vs 档案中心)
+         */
+        window.switchPage = function(pageName) {
+            const pages = ['view-dashboard', 'view-archive-main'];
+            const navItems = {
+                'view-dashboard': { desktop: 'nav-dashboard-desktop', mobile: 'nav-dashboard-mobile' },
+                'view-archive-main': { desktop: 'nav-archive-desktop', mobile: 'nav-archive-mobile' }
+            };
+
+            pages.forEach(v => {
+                const el = document.getElementById(v);
+                if (el) el.classList.add('hidden-view');
+            });
+
+            const target = document.getElementById(pageName);
+            if (target) {
+                target.classList.remove('hidden-view');
+                target.scrollTop = 0; 
+                if (pageName === 'view-archive-main') {
+                    const innerArchiveView = document.getElementById('view-archive');
+                    if (innerArchiveView) innerArchiveView.scrollTop = 0;
+                }
+            }
+            
+            Object.keys(navItems).forEach(key => {
+                const isCurrent = key === pageName;
+                const desktopEl = document.getElementById(navItems[key].desktop);
+                const mobileEl = document.getElementById(navItems[key].mobile);
+                const activeClass = 'bg-dark text-accentYellow shadow-lg';
+                const inactiveClass = 'bg-transparent text-gray-500 hover:text-dark';
+
+                if (desktopEl) desktopEl.className = `w-12 h-12 rounded-full flex items-center justify-center cursor-pointer transition-transform hover:scale-105 ${isCurrent ? activeClass : inactiveClass}`;
+                if (mobileEl) mobileEl.className = `w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-transform hover:scale-105 ${isCurrent ? activeClass : inactiveClass}`;
+            });
+            /**
+            * 控制切换页面时是否保留档案中心查询对象页面
+            */
+            if (pageName === 'view-archive-main' && window.loadStudentArchive) {
+                window.switchArchiveSubView('view-archive'); 
+            }
+        }
+
+        /**
+         * 函数: 切换档案子视图 (档案主页 vs 成绩分析 vs 体质健康 vs 奖惩荣誉)
+         * 新增: 对 'view-rewards-honors' 的支持
+         */
+        window.switchArchiveSubView = function(viewName) {
+            // 在跳转子视图前，检查当前学生是否是李婧瑶 (li_jingyao)
+            // 修改了权限检查逻辑，将 'view-rewards-honors' 也加入无权限列表
+            if (window.currentStudentId === 'li_jingyao' && (viewName === 'view-grades' || viewName === 'view-health' || viewName === 'view-rewards-honors')) {
+                // 如果是李婧瑶且尝试访问成绩、体检报告或奖惩荣誉，显示无权限弹窗
+                window.showNoPermissionModal();
+                return; // 阻止视图切换
+            }
+            
+            const views = ['view-archive', 'view-grades', 'view-health', 'view-rewards-honors']; // 新增 view-rewards-honors
+            
+            views.forEach(v => {
+                const el = document.getElementById(v);
+                if (el) el.classList.add('hidden-view');
+            });
+
+            const target = document.getElementById(viewName);
+            if (target) {
+                target.classList.remove('hidden-view');
+                target.scrollTop = 0;
+
+                // 检查是否切换了学生或首次加载
+                const isNewStudent = target.dataset.currentStudentId !== window.currentStudentId;
+
+                // 成绩页面初始化逻辑
+                if (viewName === 'view-grades') {
+                    const currentStudent = window.studentData[window.currentStudentId];
+                    if (currentStudent) {
+                        document.getElementById('grades-student-info').textContent = `学生: ${currentStudent.name} (${currentStudent.id}) | 每一次进步都值得被看见`;
+                    }
+                    if (!target.dataset.initialized || isNewStudent) {
+                        window.updateGradesHistory(window.currentStudentId); 
+                        const studentExams = window.allExamData[window.currentStudentId];
+                        if (studentExams) {
+                            const sortedExams = Object.keys(studentExams).map(key => ({ id: key, date: studentExams[key].date })).sort((a, b) => b.date.localeCompare(a.date));
+                            if (sortedExams.length > 0) window.loadExam(sortedExams[0].id);
+                        }
+                        target.dataset.currentStudentId = window.currentStudentId;
+                        target.dataset.initialized = 'true';
+                    }
+                }
+                
+                // 健康档案页面初始化逻辑
+                if (viewName === 'view-health') {
+                    const currentStudent = window.studentData[window.currentStudentId];
+                    if (currentStudent) {
+                        document.getElementById('health-student-info').textContent = `学生: ${currentStudent.name} (${currentStudent.id}) | 关注您的每一次成长`;
+                    }
+                    if (!target.dataset.initialized || isNewStudent) {
+                        window.updateHealthHistory(window.currentStudentId);
+                        const studentHealth = window.allHealthData[window.currentStudentId];
+                        if (studentHealth) {
+                             const sortedHealth = Object.keys(studentHealth).map(key => ({ id: key, date: studentHealth[key].date })).sort((a, b) => {
+                                 const dateA = a.date.replace(/\./g, '');
+                                 const dateB = b.date.replace(/\./g, '');
+                                 return dateB.localeCompare(dateA);
+                             });
+                             if (sortedHealth.length > 0) window.loadHealthExam(sortedHealth[0].id);
+                        }
+                        target.dataset.currentStudentId = window.currentStudentId;
+                        target.dataset.initialized = 'true';
+                    }
+                }
+
+                // 新增: 奖惩荣誉页面初始化逻辑
+                if (viewName === 'view-rewards-honors') {
+                    const currentStudent = window.studentData[window.currentStudentId];
+                    if (currentStudent) {
+                        document.getElementById('rewards-student-info').textContent = `学生: ${currentStudent.name} (${currentStudent.id}) | 记录您的每一次优秀表现与纪律操行`;
+                    }
+                    if (!target.dataset.initialized || isNewStudent) {
+                        window.loadRewardsVerticalList(window.currentStudentId);
+                        target.dataset.currentStudentId = window.currentStudentId;
+                        target.dataset.initialized = 'true';
+                    }
+                }
+            }
+        }
+        
+        window.showReportErrorModal = function() {
+            alert('错误报告功能待实现。将上报当前学生档案数据错误。'); 
+        }
+
+        /**
+         * 函数: 显示“功能暂未开放”模态框
+         */
+        window.showNotOpenModal = function() { 
+            document.getElementById('not-open-modal').classList.remove('hidden');
+        }
+
+        /**
+         * 函数: 关闭“功能暂未开放”模态框
+         */
+        window.closeNotOpenModal = function() { 
+            document.getElementById('not-open-modal').classList.add('hidden');
+        }
+        
+        /**
+         * 函数: 显示“无权限访问”模态框 (新增)
+         */
+        window.showNoPermissionModal = function() {
+            document.getElementById('no-permission-modal').classList.remove('hidden');
+        }
+
+        /**
+         * 函数: 关闭“无权限访问”模态框 (新增)
+         */
+        window.closeNoPermissionModal = function() {
+            document.getElementById('no-permission-modal').classList.add('hidden');
+        }
+        
+        /**
+         * 函数: 根据学生ID加载档案信息到主页
+         * @param {string} studentId - 学生ID
+         */
+        window.loadStudentArchive = function(studentId) { 
+            const data = window.studentData[studentId];
+            if (!data) return;
+            window.currentStudentId = studentId;
+
+            document.getElementById('archive-name').textContent = data.name;
+            document.getElementById('archive-info').textContent = `${data.class} | DH${data.id}`;
+            document.getElementById('archive-gender').textContent = data.gender;
+            document.getElementById('archive-ethnicity').textContent = data.ethnicity;
+            document.getElementById('archive-enrollment').textContent = data.enrollment;
+            document.getElementById('archive-politics').textContent = data.politics;
+            document.getElementById('archive-avatar').src = data.avatar;
+
+            // 新增: 清空搜索输入框的内容
+            const searchInput = document.getElementById('archive-search-input');
+            if (searchInput) {
+                searchInput.value = ''; // 清空内容
+            }
+
+            const dropdown = document.getElementById('search-history-dropdown');
+            if (dropdown) dropdown.classList.add('hidden');
+
+            // 清除子页面的初始化状态，强制下次进入时刷新数据
+            const gradesView = document.getElementById('view-grades');
+            if (gradesView) gradesView.dataset.initialized = 'false';
+            const healthView = document.getElementById('view-health');
+            if (healthView) healthView.dataset.initialized = 'false';
+            const rewardsView = document.getElementById('view-rewards-honors'); // 新增清空奖惩荣誉子页面状态
+            if (rewardsView) rewardsView.dataset.initialized = 'false';
+        }
+        
+        /**
+         * 函数: 根据输入关键字过滤学生数据，并更新下拉列表
+         * @param {string} query - 用户输入的搜索关键字 (学号或姓名)
+         */
+        window.updateSearchDropdown = function(query) {
+            const dropdown = document.getElementById('search-history-dropdown');
+            const dropdownContent = document.getElementById('search-dropdown-content');
+            if (!dropdown || !dropdownContent) return;
+
+            query = query.trim().toLowerCase();
+            
+            // 如果查询为空，恢复默认历史记录并隐藏下拉框（或保持显示历史记录，这里选择恢复历史记录）
+            if (query.length === 0) {
+                dropdownContent.innerHTML = window.defaultSearchHistoryHTML;
+                dropdown.classList.add('hidden'); // 默认行为是失去焦点时隐藏
+                return;
+            }
+
+            // 过滤匹配的学生
+            const matchedStudents = Object.keys(window.studentData).filter(key => {
+                const data = window.studentData[key];
+                const name = data.name.toLowerCase();
+                const id = data.id.toLowerCase();
+                
+                // 匹配规则: 姓名首字符匹配 (例如: '宋' 匹配 '宋佩姿') 或 姓名/学号包含匹配
+                return name.startsWith(query) || id.includes(query) || name.includes(query);
+            });
+
+            dropdownContent.innerHTML = ''; // 清空内容
+            
+            if (matchedStudents.length === 0) {
+                // 没有匹配项
+                const noResultHtml = `
+                    <div class="px-4 py-3 text-sm text-center text-gray-500">
+                        <i class="ph-bold ph-magnifying-glass-slash mr-1"></i> 没有搜索到匹配的档案
+                    </div>`;
+                dropdownContent.innerHTML = noResultHtml;
+            } else {
+                // 有匹配项，动态生成列表
+                const resultHtml = matchedStudents.map(key => {
+                    const data = window.studentData[key];
+                    // 权限逻辑沿用李婧瑶作为无权限示例
+                    const isPermissioned = key !== 'li_jingyao'; 
+                    const statusText = isPermissioned ? '已获得查阅权限' : '未获得查阅权限';
+                    const statusColor = isPermissioned ? 'text-accentGreen bg-accentGreen/10' : 'text-accentRed bg-accentRed/10';
+                    const avatarText = data.name.substring(0, 1); // 姓名首字作为占位符
+
+                    return `
+                        <div onclick="window.handleSearchSelect('${key}')" class="hover:bg-gray-50 px-4 py-3 text-sm cursor-pointer flex justify-between items-center transition border-b border-gray-50">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-dark font-bold">${avatarText}</div>
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-dark">${data.name}</span>
+                                    <span class="text-[10px] text-gray-400">学号: ${data.id}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-bold ${statusColor} px-2 py-0.5 rounded-full whitespace-nowrap">${statusText}</span>
+                                <i class="ph-bold ph-arrow-right text-xs text-gray-300"></i>
+                            </div>
+                        </div>`;
+                }).join('');
+                dropdownContent.innerHTML = `
+                    <div class="px-4 py-2 text-[10px] text-gray-400 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+                        <span>匹配结果 (${matchedStudents.length} 条)</span>
+                    </div>` + resultHtml;
+            }
+            
+            dropdown.classList.remove('hidden'); // 显示下拉列表
+        }
+
+        /**
+         * 函数: 处理搜索下拉项的点击事件
+         * @param {string} studentId - 被选中的学生ID
+         */
+        window.handleSearchSelect = function(studentId) {
+            const input = document.getElementById('archive-search-input');
+            const dropdown = document.getElementById('search-history-dropdown');
+            const data = window.studentData[studentId];
+            if (input && data) {
+                // 将学生姓名填回输入框
+                input.value = data.name;
+                // 隐藏下拉列表
+                dropdown.classList.add('hidden');
+                // 恢复默认历史内容，以便下次点击输入框时显示历史记录
+                // 注意: loadStudentArchive 会将输入框内容清空，但这里先将选中的名字填入，方便用户确认，然后 loadStudentArchive 随后清空。
+                document.getElementById('search-dropdown-content').innerHTML = window.defaultSearchHistoryHTML;
+                // 加载学生档案 (此函数内部会清空搜索栏)
+                window.loadStudentArchive(studentId);
+            }
+        }
+        
+        window.getAcademicSemesterTag = function(dateString) {
+            const [yearStr, monthStr] = dateString.split('.');
+            const year = parseInt(yearStr);
+            const month = parseInt(monthStr);
+            let academicYear;
+            let semester;
+            
+            // 8月到次年1月为秋季学期
+            if (month >= 8 || month === 1) {
+                academicYear = (month === 1) ? year - 1 : year;
+                semester = '秋季学期';
+            } else {
+                 // 2月到7月为春季学期
+                academicYear = year;
+                semester = '春季学期';
+            }
+
+            return `${academicYear} 学年 ${semester}`;
+        }
+        
+        window.updateGradesHistory = function(studentId) { 
+            const container = document.getElementById('grades-history-container');
+            if (!container) return;
+            container.innerHTML = ''; 
+
+            const studentExams = window.allExamData[studentId];
+            if (!studentExams || Object.keys(studentExams).length === 0) {
+                container.innerHTML = `<div class="text-[10px] text-gray-400 font-medium p-4 text-center">该学生暂无考试记录。</div>`;
+                return;
+            }
+
+            const examEntries = Object.keys(studentExams).map(key => ({ id: key, date: studentExams[key].date }));
+            examEntries.sort((a, b) => b.date.replace(/\./g, '').localeCompare(a.date.replace(/\./g, '')));
+
+            let currentGroupTag = ''; 
+
+            examEntries.forEach(({ id: examId }, index) => {
+                const exam = studentExams[examId];
+                const academicGroupTag = window.getAcademicSemesterTag(exam.date);
+
+                if (academicGroupTag !== currentGroupTag) {
+                     const tagDiv = document.createElement('div');
+                     tagDiv.className = 'text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-2 mt-6';
+                     tagDiv.textContent = academicGroupTag;
+                     container.appendChild(tagDiv);
+                     currentGroupTag = academicGroupTag;
+                }
+
+                const isLatest = (index === 0); 
+                const innerClass = isLatest 
+                    ? 'exam-card-inner bg-dark text-white p-4 rounded-2xl shadow-lg transform transition-all scale-[1.02]'
+                    : 'exam-card-inner bg-[#F3F0EA] hover:bg-white border border-transparent hover:border-gray-200 p-4 rounded-2xl transition-all';
+                const titleClass = isLatest ? 'font-bold text-sm text-white' : 'font-bold text-sm text-dark group-hover:text-accentBlue transition-colors';
+                const tagBg = isLatest ? 'bg-accentRed text-dark' : 'bg-white text-gray-400';
+                const tagText = isLatest ? '最新' : exam.tag;
+
+                const itemHtml = `
+                    <div id="history-item-${examId}" onclick="window.loadExam('${examId}')" class="group cursor-pointer">
+                        <div class="${innerClass}">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="text-[10px] font-bold ${tagBg} px-2 py-0.5 rounded-full border border-gray-100">${tagText}</span>
+                                <span class="text-[10px] ${isLatest ? 'opacity-80' : 'text-gray-400'}">${exam.date.substring(5)}</span>
+                            </div>
+                            <h4 class="${titleClass}">${exam.title}</h4>
+                            <div class="mt-2 flex items-center justify-between text-[10px] ${isLatest ? 'opacity-80' : 'text-gray-500'}">
+                                <span>总分: ${exam.totalScore}</span>
+                                <span>排名: ${exam.classRank}</span>
+                            </div>
+                        </div>
+                    </div>`;
+                container.insertAdjacentHTML('beforeend', itemHtml);
+            });
+            container.insertAdjacentHTML('beforeend', '<div class="pt-4 text-center"><span class="text-[10px] text-gray-300">已加载全部历史记录</span></div>');
+        }
+
+        window.loadExam = function(examId) { 
+            const studentExamData = window.allExamData[window.currentStudentId];
+            const data = studentExamData ? studentExamData[examId] : null;
+            if (!data) return;
+
+            document.getElementById('stat-class-rank').textContent = `No. ${data.classRank}`;
+            const trendEl = document.getElementById('stat-class-trend');
+            const trendIcon = data.classRankTrend.dir === 'up' ? 'ph-trend-up' : (data.classRankTrend.dir === 'down' ? 'ph-trend-down' : 'ph-minus');
+            const trendText = data.classRankTrend.dir === 'up' ? `上升 ${data.classRankTrend.val} 名` : (data.classRankTrend.dir === 'down' ? `下滑 ${data.classRankTrend.val} 名` : '持平');
+            trendEl.className = `text-xs mt-1 flex items-center gap-1 ${data.classRankTrend.color}`;
+            trendEl.innerHTML = `<i class="ph-bold ${trendIcon}"></i> ${trendText}`;
+
+            document.getElementById('stat-grade-rank').textContent = data.gradeRank;
+            document.getElementById('stat-total-score').textContent = data.totalScore;
+            document.getElementById('stat-total-bar').style.width = `${(data.totalScore / 750) * 100}%`;
+            document.getElementById('exam-title').textContent = `当前查看: ${data.title}`;
+            document.getElementById('exam-date').textContent = `考试时间: ${data.date}`;
+
+            const tbody = document.getElementById('exam-table-body');
+            tbody.innerHTML = ''; 
+            data.subjects.forEach(sub => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-gray-100 transition'; 
+                tr.innerHTML = `<td class="py-4 pl-6 font-bold text-dark">${sub.name}</td><td class="py-4 text-gray-500 text-center">${sub.full}</td><td class="py-4 font-bold text-dark text-center">${sub.score}</td><td class="py-4 text-gray-500 text-center">${sub.avg}</td><td class="py-4 text-gray-500 text-center">${sub.max}</td><td class="py-4 pr-6 text-right ${sub.changeColor} font-bold">${sub.change}</td>`;
+                tbody.appendChild(tr);
+            });
+
+            const historyContainer = document.getElementById('grades-history-container');
+            if (historyContainer) {
+                historyContainer.querySelectorAll('[id^="history-item-"]').forEach(item => {
+                    const inner = item.querySelector('.exam-card-inner');
+                    const examKey = item.id.replace('history-item-', '');
+                    inner.className = 'exam-card-inner bg-[#F3F0EA] hover:bg-white border border-transparent hover:border-gray-200 p-4 rounded-2xl transition-all';
+                    inner.querySelector('h4').className = 'font-bold text-sm text-dark group-hover:text-accentBlue transition-colors';
+                    const tagSpan = inner.querySelector('span:first-child');
+                    if (tagSpan) {
+                         tagSpan.className = 'text-[10px] text-gray-400 bg-white px-2 py-0.5 rounded-full border border-gray-100';
+                         if (studentExamData[examKey]) tagSpan.textContent = studentExamData[examKey].tag;
+                    }
+                });
+            }
+            const activeItem = document.getElementById(`history-item-${examId}`);
+            if (activeItem) {
+                const inner = activeItem.querySelector('.exam-card-inner');
+                inner.className = 'exam-card-inner bg-dark text-white p-4 rounded-2xl shadow-lg transform transition-all scale-[1.02]';
+                inner.querySelector('h4').className = 'font-bold text-sm text-white';
+                const tagSpan = inner.querySelector('span:first-child');
+                if (tagSpan) { tagSpan.className = 'text-xs font-bold bg-accentRed text-dark px-2 py-0.5 rounded-full'; tagSpan.textContent = '当前'; }
+            }
+        }
+
+        // ================== 体质健康函数 (Health Functions) ==================
+
+        window.updateHealthHistory = function(studentId) {
+            const container = document.getElementById('health-history-container');
+            if (!container) return;
+            container.innerHTML = ''; 
+
+            const studentExams = window.allHealthData[studentId];
+            if (!studentExams || Object.keys(studentExams).length === 0) {
+                container.innerHTML = `<div class="text-[10px] text-gray-400 font-medium p-4 text-center">该学生暂无体检记录。</div>`;
+                return;
+            }
+
+            const healthEntries = Object.keys(studentExams).map(key => ({ id: key, date: studentExams[key].date }));
+            healthEntries.sort((a, b) => b.date.replace(/\./g, '').localeCompare(a.date.replace(/\./g, '')));
+
+            let currentGroupTag = '';
+
+            healthEntries.forEach(({ id: examId }, index) => {
+                const exam = studentExams[examId];
+                const academicGroupTag = window.getAcademicSemesterTag(exam.date);
+                if (academicGroupTag !== currentGroupTag) {
+                     const tagDiv = document.createElement('div');
+                     tagDiv.className = 'text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-2 mt-6';
+                     tagDiv.textContent = academicGroupTag;
+                     container.appendChild(tagDiv);
+                     currentGroupTag = academicGroupTag;
+                }
+                const isLatest = (index === 0);
+                // 移除 transform transition-all scale-[1.02] 动效
+                const innerClass = isLatest ? 'health-card-inner bg-dark text-white p-4 rounded-2xl shadow-lg' : 'health-card-inner bg-[#F3F0EA] hover:bg-white border border-transparent hover:border-gray-200 p-4 rounded-2xl transition-all';
+                const titleClass = isLatest ? 'font-bold text-sm text-accentGreen' : 'font-bold text-sm text-dark group-hover:text-accentGreen transition-colors';
+                const tagText = examId.includes('_reproductive') ? '专检' : (isLatest ? '最新' : '常规');
+                const tagBg = isLatest ? 'bg-accentGreen text-dark' : 'bg-white text-gray-400';
+                const bmi = exam.bmi;
+                const vision = exam.vision_left === exam.vision_right ? exam.vision_left : `${exam.vision_left}/${exam.vision_right}`;
+
+                const itemHtml = `
+                    <div id="health-item-${examId}" onclick="window.loadHealthExam('${examId}')" class="group cursor-pointer">
+                        <div class="${innerClass}">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="text-[10px] font-bold ${tagBg} px-2 py-0.5 rounded-full border border-gray-100">${tagText}</span>
+                                <span class="text-[10px] ${isLatest ? 'opacity-60' : 'text-gray-400'}">${exam.date.substring(5)}</span>
+                            </div>
+                            <h4 class="${titleClass}">${exam.title.replace('报告', '')}</h4>
+                            <div class="mt-2 flex items-center justify-between text-[10px] ${isLatest ? 'opacity-80' : 'text-gray-500'}">
+                                <span>BMI: ${bmi}</span>
+                                <span>视力: ${vision}</span>
+                            </div>
+                        </div>
+                    </div>`;
+                container.insertAdjacentHTML('beforeend', itemHtml);
+            });
+            container.insertAdjacentHTML('beforeend', '<div class="pt-4 text-center"><span class="text-[10px] text-gray-300">已加载全部历史记录</span></div>');
+        }
+
+        window.loadHealthExam = function(examId) {
+            const studentHealthData = window.allHealthData[window.currentStudentId];
+            const data = studentHealthData ? studentHealthData[examId] : null;
+            const student = window.studentData[window.currentStudentId]; 
+            if (!data) return;
+
+            document.getElementById('health-title').textContent = data.title;
+            document.getElementById('health-date').textContent = `体检日期: ${data.date}`;
+            
+            const summaryContainer = document.getElementById('health-summary-text-container');
+            summaryContainer.innerHTML = '';
+            summaryContainer.insertAdjacentHTML('beforeend', `<p class="text-sm text-gray-500">${data.result_summary}</p>`);
+
+            const isReproductiveExam = examId.includes('_reproductive');
+            if (!isReproductiveExam) {
+                document.getElementById('stat-height').textContent = `${data.height} cm`;
+                document.getElementById('stat-weight').textContent = `${data.weight} kg`;
+                document.getElementById('stat-bmi').textContent = data.bmi;
+                document.getElementById('stat-vision').textContent = `${data.vision_left} / ${data.vision_right}`;
+                document.getElementById('stat-bp').textContent = data.blood_pressure;
+            }
+
+            // 更新卡片内容（动态适配常规体检与专检）
+            if (isReproductiveExam) {
+                document.getElementById('stat-icon-1').className = 'ph-fill ph-eye text-xl sm:text-2xl text-accentBlue mb-2';
+                document.getElementById('stat-label-1').textContent = '视检';
+                document.getElementById('stat-height').textContent = '正常';
+                // 移除了 parallax-card 类，仅保留样式
+                document.getElementById('stat-card-1').className = 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center';
+
+                let checkLabel = '指检';
+                let checkIcon = 'ph-fill ph-hand-tap';
+                if (window.currentStudentId === 'huang_jiaxi') { checkLabel = '触检'; checkIcon = 'ph-fill ph-hand-palm'; }
+                document.getElementById('stat-icon-2').className = `${checkIcon} text-xl sm:text-2xl text-accentOrange mb-2`;
+                document.getElementById('stat-label-2').textContent = checkLabel;
+                document.getElementById('stat-weight').textContent = '正常';
+                // 移除了 parallax-card 类，仅保留样式
+                document.getElementById('stat-card-2').className = 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center';
+
+                const gender = student.gender;
+                const hormoneKey = gender === '男' ? '睾酮' : '雌二醇';
+                const organKey = gender === '男' ? '睾丸' : '卵巢';
+                const otherKey = gender === '男' ? '前列腺' : '子宫';
+                const hormoneData = data.details.find(d => d.item.includes(hormoneKey));
+                const organData = data.details.find(d => d.item.includes(organKey));
+                const otherData = data.details.find(d => d.item.includes(otherKey));
+
+                document.getElementById('stat-icon-3').className = 'ph-fill ph-flask text-2xl text-accentYellow mb-2';
+                document.getElementById('stat-label-3').textContent = hormoneData?.item.replace(/ *\([^)]*\) /g, "") || '激素水平';
+                document.getElementById('stat-bmi').textContent = hormoneData?.value || 'N/A';
+                // 移除了 parallax-card 类，仅保留样式
+                document.getElementById('stat-card-3').className = 'bg-dark text-white rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center';
+
+                document.getElementById('stat-icon-4').className = 'ph-fill ph-shield-check text-2xl text-accentGreen mb-2';
+                document.getElementById('stat-label-4').textContent = organData?.item.replace(/ *\([^)]*\) /g, "") || '器官检查';
+                document.getElementById('stat-vision').textContent = organData?.status || 'N/A';
+                // 移除了 parallax-card 类，仅保留样式
+                document.getElementById('stat-card-4').className = 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center';
+
+                document.getElementById('stat-icon-5').className = 'ph-fill ph-stethoscope text-2xl text-accentRed mb-2';
+                document.getElementById('stat-label-5').textContent = otherData?.item.replace(/ *\([^)]*\) /g, "") || '附加检查';
+                document.getElementById('stat-bp').textContent = otherData?.status || 'N/A';
+                // 移除了 parallax-card 类，仅保留样式
+                document.getElementById('stat-card-5').className = 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center';
+            } else {
+                document.getElementById('stat-icon-1').className = 'ph-fill ph-ruler text-xl sm:text-2xl text-accentGreen mb-2';
+                document.getElementById('stat-label-1').textContent = '身高';
+                document.getElementById('stat-height').textContent = `${data.height} cm`;
+                // 移除了 parallax-card 类，仅保留样式
+                document.getElementById('stat-card-1').className = 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center';
+                document.getElementById('stat-icon-2').className = 'ph-fill ph-scales text-xl sm:text-2xl text-accentGreen mb-2';
+                document.getElementById('stat-label-2').textContent = '体重';
+                document.getElementById('stat-weight').textContent = `${data.weight} kg`;
+                // 移除了 parallax-card 类，仅保留样式
+                document.getElementById('stat-card-2').className = 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center';
+                document.getElementById('stat-icon-3').className = 'ph-fill ph-clipboard-text text-2xl text-accentYellow mb-2';
+                document.getElementById('stat-label-3').textContent = 'BMI 指数';
+                document.getElementById('stat-bmi').textContent = data.bmi;
+                // 移除了 parallax-card 类，仅保留样式
+                document.getElementById('stat-card-3').className = 'bg-dark text-white rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center';
+                document.getElementById('stat-icon-4').className = 'ph-fill ph-eye text-xl sm:text-2xl text-accentGreen mb-2';
+                document.getElementById('stat-label-4').textContent = '双眼视力';
+                document.getElementById('stat-vision').textContent = `${data.vision_left} / ${data.vision_right}`;
+                // 移除了 parallax-card 类，仅保留样式
+                document.getElementById('stat-card-4').className = 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center';
+                document.getElementById('stat-icon-5').className = 'ph-fill ph-heartbeat text-xl sm:text-2xl text-accentRed mb-2';
+                document.getElementById('stat-label-5').textContent = '血压 (mmHg)';
+                document.getElementById('stat-bp').textContent = data.blood_pressure;
+                // 移除了 parallax-card 类，仅保留样式
+                document.getElementById('stat-card-5').className = 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center';
+            }
+
+            const tbody = document.getElementById('health-table-body');
+            tbody.innerHTML = ''; 
+            const imageUrl = data.exam_image_url;
+            const imageInfo = data.image_details || {}; 
+            const finalImageInfoJson = JSON.stringify(imageInfo).replace(/"/g, '&quot;'); 
+
+            data.details.forEach(item => {
+                const statusColor = item.color || 'text-dark';
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-gray-100 hover:bg-[#F3F0EA] transition';
+                let itemContent = item.item;
+                if (isReproductiveExam && item.item === '视检') {
+                    itemContent = `
+                        <div class="flex items-center gap-2">
+                            <span>${item.item}</span>
+                            <button onclick="event.stopPropagation(); window.showExamImage('${imageUrl}', JSON.parse('${finalImageInfoJson.replace(/'/g, "\\'") }'))" 
+                                class="flex items-center gap-1 text-xs font-bold text-accentGreen hover:text-dark bg-accentGreen/10 px-3 py-1 rounded-full transition shadow-sm hover:shadow-md">
+                                <i class="ph-fill ph-image"></i><span>影像留档</span>
+                            </button>
+                        </div>`;
+                }
+                // 更新：调整列宽分配以平衡间距
+                // 检查项目 w-4/12 (33%), 参考值 w-3/12 (25%), 本次结果 w-3/12 (25%), 结论 2/12 (16%)
+                tr.innerHTML = `<td class="py-4 pl-6 font-bold text-dark w-4/12">${itemContent}</td><td class="py-4 text-gray-500 w-3/12">${item.range}</td><td class="py-4 font-bold text-dark text-center w-3/12">${item.value}</td><td class="py-4 pr-6 text-right ${statusColor} font-bold w-2/12">${item.status}</td>`;
+                tbody.appendChild(tr);
+            });
+
+            const historyContainer = document.getElementById('health-history-container');
+            if (historyContainer) {
+                historyContainer.querySelectorAll('[id^="health-item-"]').forEach(item => {
+                    const inner = item.querySelector('.health-card-inner');
+                    const examKey = item.id.replace('history-item-', '');
+                    // 移除 transform transition-all scale-[1.02] 动效
+                    inner.className = 'health-card-inner bg-[#F3F0EA] hover:bg-white border border-transparent hover:border-gray-200 p-4 rounded-2xl transition-all';
+                    inner.querySelector('h4').className = 'font-bold text-sm text-dark group-hover:text-accentGreen transition-colors';
+                    const tagSpan = inner.querySelector('span:first-child');
+                    if (tagSpan) { tagSpan.className = 'text-[10px] text-gray-400 bg-white px-2 py-0.5 rounded-full border border-gray-100'; tagSpan.textContent = examKey.includes('_reproductive') ? '专检' : '常规'; }
+                });
+            }
+            const activeItem = document.getElementById(`health-item-${examId}`);
+            if (activeItem) {
+                const inner = activeItem.querySelector('.health-card-inner');
+                // 移除 transform transition-all scale-[1.02] 动效
+                inner.className = 'health-card-inner bg-dark text-white p-4 rounded-2xl shadow-lg';
+                inner.querySelector('h4').className = 'font-bold text-sm text-accentGreen';
+                const tagSpan = inner.querySelector('span:first-child');
+                if (tagSpan) { tagSpan.className = 'text-xs font-bold bg-accentGreen text-dark px-2 py-0.5 rounded-full'; tagSpan.textContent = '当前'; }
+            }
+        }
+
+        window.showExamImage = function(imageUrl, imageInfo) {
+            const modal = document.getElementById('image-modal');
+            const img = document.getElementById('image-modal-img');
+            const infoContainer = document.getElementById('image-info-container');
+            const titleEl = document.getElementById('image-modal-title');
+            const subtitleEl = document.getElementById('image-modal-subtitle');
+            const descriptionEl = document.getElementById('image-modal-description');
+            
+            if (imageUrl) {
+                img.src = imageUrl;
+                img.alt = imageInfo.title;
+                infoContainer.innerHTML = `
+                    <div class="flex flex-col text-[10px] sm:text-xs space-y-1.5 font-medium text-white/90">
+                        <span class="truncate flex items-center gap-1.5"><i class="ph-fill ph-user-circle text-white text-sm"></i> 对象: ${imageInfo.subject || '未知'}</span>
+                        <span class="truncate flex items-center gap-1.5"><i class="ph-fill ph-calendar-blank text-white text-sm"></i> 时间: ${imageInfo.event || '未知'}</span>
+                        <span class="truncate flex items-center gap-1.5"><i class="ph-fill ph-map-pin text-white text-sm"></i> 地点: ${imageInfo.location || '未知'}</span>
+                        <span class="truncate flex items-center gap-1.5"><i class="ph-fill ph-camera text-white text-sm"></i> 设备: ${imageInfo.device || '未知'}</span>
+                    </div>`;
+                titleEl.textContent = imageInfo.title || '医学影像扫描';
+                const scanId = 'SCAN-' + (imageInfo.event ? imageInfo.event.replace(/[^0-9]/g, '').substring(0, 8) : '20240000');
+                subtitleEl.textContent = `${scanId} / ${imageInfo.subject}`;
+                descriptionEl.textContent = imageInfo.description || '暂无详细医学描述和解释。';
+                modal.classList.remove('hidden');
+            } else {
+                alert('该项目暂无关联图片。');
+            }
+        }
+
+        window.closeExamImage = function() {
+            document.getElementById('image-modal').classList.add('hidden');
+        }
+
+        // ================== 奖惩与荣誉模块函数 (Rewards and Honors Functions) - 新增 ==================
+
+        /**
+         * 函数: 动态加载垂直排列的奖惩/荣誉列表
+         */
+        window.loadRewardsVerticalList = function(studentId) {
+            const container = document.getElementById('rewards-list-container'); // 更改ID以避免冲突
+            if (!container) return;
+            container.innerHTML = ''; 
+
+            const records = window.allRewardsData[studentId];
+            if (!records || records.length === 0) {
+                container.innerHTML = `<div class="p-6 text-center w-full bg-cardLight rounded-2xl shadow-soft text-gray-500 font-medium">该学生暂无奖惩记录。</div>`;
+                return;
+            }
+
+            // 按日期降序排序
+            records.sort((a, b) => b.date.localeCompare(a.date));
+
+            let currentGroupTag = '';
+
+            records.forEach(item => {
+                // Grouping logic (使用 index.html 中已有的 window.getAcademicSemesterTag)
+                const academicGroupTag = window.getAcademicSemesterTag(item.date);
+                if (academicGroupTag !== currentGroupTag) {
+                    const tagDiv = document.createElement('div');
+                    tagDiv.className = 'text-sm sm:text-base font-bold text-dark mt-8 mb-3';
+                    tagDiv.textContent = academicGroupTag;
+                    container.appendChild(tagDiv);
+                    currentGroupTag = academicGroupTag;
+                }
+
+                // Item rendering logic
+                const isHonor = item.type === 'Honor';
+                const icon = isHonor ? 'ph-fill ph-trophy' : 'ph-fill ph-warning';
+                const iconColor = isHonor ? (item.level === 'Major' ? 'text-accentYellow' : 'text-accentBlue') : 'text-accentRed';
+                const badgeColor = isHonor ? (item.level === 'Major' ? 'bg-accentYellow/20 text-accentYellow' : 'bg-accentBlue/20 text-accentBlue') : 'bg-accentRed/20 text-accentRed';
+                const badgeText = isHonor ? '荣誉' : '惩戒';
+                
+                // Escaping description for onclick
+                const escapedDescription = item.description.replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n'); // 增加换行符转义
+                const onClickHandler = `window.showRewardsDetailModal('${item.type}', '${item.item}', '${item.issuer}', '${item.date}', '${item.level}', '${escapedDescription}')`;
+                
+                // 使用与 Health/Grades 历史卡片相似的样式结构
+                // **已删除 hover:border-accentOrange/50 样式**
+                const itemHtml = `
+                    <div onclick="${onClickHandler}" 
+                        class="flex items-stretch bg-white rounded-xl mb-4 overflow-hidden border border-gray-100 p-4 sm:p-6 transition cursor-pointer group hover:shadow-soft">
+                        
+                        <!-- Icon and Date -->
+                        <div class="w-12 sm:w-16 flex-shrink-0 flex flex-col items-center justify-center text-center pr-4">
+                            <span class="text-[10px] text-gray-400 font-medium mb-1">${item.date.substring(5)}</span>
+                            <i class="${icon} text-2xl ${iconColor} group-hover:scale-110 transition"></i>
+                        </div>
+                        
+                        <!-- Middle Column: Title, Issuer, Badge -->
+                        <div class="flex-1 px-0 sm:px-4 flex flex-col justify-center border-l border-gray-100 ml-4 sm:ml-0">
+                            <h4 class="font-bold text-base text-dark mb-1 truncate">${item.item}</h4>
+                            <p class="text-xs text-gray-500">颁发机构: ${item.issuer}</p>
+                        </div>
+                        
+                        <!-- Right Column: Badge and Detail Button -->
+                        <div class="w-auto flex-shrink-0 flex flex-col justify-center items-end pl-4 gap-2">
+                            <span class="text-[10px] font-bold ${badgeColor} px-2 py-0.5 rounded-full whitespace-nowrap">${badgeText}</span>
+                            <button onclick="event.stopPropagation(); ${onClickHandler}"
+                                class="text-xs font-bold text-dark hover:text-accentOrange px-2 py-1 transition flex items-center justify-center gap-1">
+                                详情 <i class="ph-bold ph-arrow-right text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', itemHtml);
+            });
+        }
+
+        /**
+         * 函数: 显示奖惩/荣誉详情模态框
+         */
+        window.showRewardsDetailModal = function(type, title, issuer, date, level, description) {
+            // 使用 document.body.style.overflow = 'hidden'; 来防止背景滚动，但在本环境中通常不必要，保留原模态框逻辑
+            const modal = document.getElementById('rewards-detail-modal'); 
+            
+            // 文本阅读器元素
+            const metadataEl = document.getElementById('rewards-detail-modal-metadata');
+            const titleEl = document.getElementById('rewards-detail-modal-title');
+            const subtitleEl = document.getElementById('rewards-detail-modal-subtitle');
+            const descriptionEl = document.getElementById('rewards-detail-modal-description');
+            // 新增落款和日期元素
+            const signatureEl = document.getElementById('rewards-detail-modal-signature');
+            
+            const certificateType = type === 'Honor' ? '荣誉证书' : '惩戒通知';
+            const levelText = level === 'Major' ? '主要/严重' : '次要/轻微';
+            const studentName = window.studentData[window.currentStudentId]?.name || '未知学生';
+            const accentColor = type === 'Honor' ? 'text-accentYellow' : 'text-accentRed';
+            const accentLineBg = type === 'Honor' ? 'bg-accentOrange' : 'bg-accentRed';
+
+            // 1. 设置元数据 (Metadata)
+            metadataEl.innerHTML = `
+                <div class="flex items-center flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500 font-medium">
+                    <span class="flex items-center gap-1.5 ${accentColor}">
+                        <i class="ph-fill ph-trophy text-base"></i> 
+                        类型: ${certificateType}
+                    </span>
+                    <span class="flex items-center gap-1.5">
+                        <i class="ph-fill ph-calendar-blank text-base"></i> 
+                        时间: ${date || '未知'}
+                    </span>
+                    <span class="flex items-center gap-1.5">
+                        <i class="ph-fill ph-seal-check text-base"></i> 
+                        级别: ${levelText}
+                    </span>
+                    <span class="flex items-center gap-1.5">
+                        <i class="ph-fill ph-user-circle text-base"></i> 
+                        对象: ${studentName}
+                    </span>
+                </div>
+            `;
+            
+            // 2. 设置标题和副标题
+            titleEl.textContent = title;
+            subtitleEl.textContent = `颁发/实施机构: ${issuer}`;
+            
+            // 3. 设置描述 (内容)
+            // 注意：description 内容中包含 \n 换行符，得益于 loadRewardsVerticalList 中的转义和模态框中 p 标签的 whitespace-pre-wrap 样式，现在可以正确显示多行。
+            descriptionEl.textContent = description || (type === 'Honor' ? '暂无详细荣誉说明。' : '暂无详细惩戒原因解释。');
+
+            // 4. 设置落款和日期
+            signatureEl.innerHTML = `
+                <div class="w-full text-right mt-10">
+                    <p class="text-lg font-serif font-bold text-dark mb-1">${issuer}</p>
+                    <p class="text-sm font-serif text-gray-500">${date}</p>
+                </div>
+            `;
+
+
+            // 更新分割线颜色
+            const lineEl = document.getElementById('rewards-modal-line');
+            if (lineEl) lineEl.className = `h-1 w-12 ${accentLineBg} mt-4 md:mt-6 mb-4`;
+
+            modal.classList.remove('hidden');
+
+            // 确保滚动条回到顶部 
+            const scrollContainer = modal.querySelector('#rewards-detail-modal-content-area');
+            if (scrollContainer) {
+                 scrollContainer.scrollTop = 0;
+            }
+        }
+
+        /**
+         * 函数: 关闭详情模态框
+         */
+        window.closeRewardsDetailModal = function() {
+            document.getElementById('rewards-detail-modal').classList.add('hidden');
+        }
+        
+        // ================== 页面加载和初始化 ==================
+        
+        // 全局变量，用于存储默认的历史搜索HTML
+        window.defaultSearchHistoryHTML = ''; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.switchPage('view-dashboard');
+            
+            // 绑定视差动效 (Parallax) - 已根据用户要求移除悬停动效绑定
+            const cardContainer = document.getElementById('stat-card-container');
+            if (cardContainer) {
+                // cardContainer.addEventListener('mousemove', handleParallax);
+                // cardContainer.addEventListener('mouseleave', resetParallax);
+            }
+
+            // 存储默认历史搜索HTML，以便在搜索框清空时恢复
+            const defaultContent = document.getElementById('search-dropdown-content');
+            if (defaultContent) {
+                window.defaultSearchHistoryHTML = defaultContent.innerHTML;
+            }
+            
+            // 初始加载档案
+            window.loadStudentArchive(window.currentStudentId); 
+        });
+    </script>
+    
+    <style>
+        /* 自定义滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #EBE7E0;
+            border-radius: 3px;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* 隐藏体检影像模态框的滚动条 (兼容主流浏览器) */
+        .modal-scrollbar-hide::-webkit-scrollbar {
+            display: none; 
+        }
+        .modal-scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none; 
+        }
+
+        /* 视差动效 3D 样式 - 已移除相关样式定义 */
+
+        .hidden-view {
+            display: none !important;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: scaleY(0.9); }
+            to { opacity: 1; transform: scaleY(1); }
+        }
+        .animate-fade-in-down {
+            animation: fadeInDown 0.2s ease-out forwards;
+        }
+        .gradient-circle-yellow {
+            background: radial-gradient(circle, rgba(255,214,70,1) 0%, rgba(255,214,70,0) 70%);
+        }
+    </style>
+</head>
+<body class="h-screen w-full flex overflow-hidden text-textDark selection:bg-accentYellow selection:text-dark">
+
+    <!-- 主容器: 代表整个应用窗口 -->
+    <div class="w-full h-full bg-[#F3F0EA] flex overflow-hidden relative">
+        
+        <!-- Sidebar (侧边栏) / Mobile Bottom Bar (手机底栏) -->
+        <aside class="w-full fixed bottom-0 left-0 h-16 flex flex-row justify-around items-center bg-cardLight shadow-2xl z-50 lg:relative lg:flex lg:flex-col lg:h-full lg:w-24 lg:justify-between lg:items-center lg:py-8 lg:z-20 lg:flex-shrink-0 lg:shadow-none lg:bg-transparent">
+            
+            <div class="hidden lg:flex flex-col items-center w-full gap-8">
+                <div class="flex flex-col items-center gap-1 cursor-pointer" onclick="switchPage('view-dashboard')">
+                    <div class="w-8 h-8 text-dark flex items-center justify-center">
+                        <i class="ph-fill ph-newspaper text-3xl"></i>
+                    </div>
+                    <span class="text-[10px] font-bold tracking-wider">Edu.Space</span>
+                </div>
+
+                <nav class="flex flex-col gap-6 w-full items-center">
+                    <div id="nav-dashboard-desktop" onclick="switchPage('view-dashboard')" class="w-12 h-12 bg-dark text-accentYellow rounded-full flex items-center justify-center shadow-lg cursor-pointer transition-transform hover:scale-105" title="新闻首页">
+                        <i class="ph-fill ph-house text-xl"></i>
+                    </div>
+                    <div id="nav-archive-desktop" onclick="switchPage('view-archive-main')" class="w-12 h-12 bg-transparent text-gray-500 hover:text-dark rounded-full flex items-center justify-center transition-transform hover:scale-105" title="学生档案">
+                        <i class="ph-fill ph-file-text text-xl"></i>
+                    </div>
+                </nav>
+            </div>
+
+            <nav class="flex w-full h-full justify-around items-center lg:hidden">
+                <div id="nav-dashboard-mobile" onclick="switchPage('view-dashboard')" class="w-10 h-10 bg-dark text-accentYellow rounded-full flex items-center justify-center shadow-lg cursor-pointer transition-transform hover:scale-105" title="新闻首页">
+                    <i class="ph-fill ph-house text-xl"></i>
+                </div>
+                <div id="nav-archive-mobile" onclick="switchPage('view-archive-main')" class="w-10 h-10 bg-transparent text-gray-500 hover:text-dark rounded-full flex items-center justify-center cursor-pointer transition-transform hover:scale-105" title="学生档案">
+                    <i class="ph-fill ph-file-text text-xl"></i>
+                </div>
+                <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm cursor-pointer" title="用户资料">
+                    <img src="https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVSFpLx0DumrKPjuUA5dWWQhQIO_i5QACGAtrG2S7eUU0zdRez_Kk0wEAAwIAA3gAAzYE.png" alt="Profile" class="w-full h-full object-cover">
+                </div>
+            </nav>
+
+            <div class="hidden lg:flex flex-col gap-6 items-center">
+                <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm cursor-pointer">
+                    <img src="https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVSFpLx0DumrKPjuUA5dWWQhQIO_i5QACGAtrG2S7eUU0zdRez_Kk0wEAAwIAA3gAAzYE.png" alt="Profile" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area (主内容区) -->
+        <main class="flex-1 overflow-hidden h-full relative pb-16 lg:pb-0 flex justify-center">
+            
+            <!-- ================= VIEW 1: NEWS DASHBOARD (新闻首页) ================= -->
+            <div id="view-dashboard" class="w-full h-full flex flex-col p-4 lg:p-8 lg:pr-12 overflow-y-auto max-w-6xl">
+                <header class="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 lg:mb-10 flex-shrink-0">
+                    <div>
+                        <h1 class="text-2xl lg:text-3xl font-bold text-dark tracking-tight">早安, 黄嘉熙!</h1>
+                        <p class="text-gray-400 text-sm mt-1">欢迎回来! 查看您关注的最新校园动态</p>
+                    </div>
+                    <div class="flex items-center gap-4 mt-4 lg:mt-0 w-full lg:w-auto">
+                        <div class="bg-white rounded-full px-4 py-2.5 flex items-center gap-2 shadow-sm min-w-[150px] flex-1">
+                            <i class="ph ph-magnifying-glass text-gray-400 text-lg"></i>
+                            <input type="text" placeholder="搜索新闻、活动或公告..." class="bg-transparent border-none outline-none text-sm w-full placeholder-gray-400">
+                        </div>
+                        <button class="bg-dark text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-opacity-90 transition shadow-lg flex-shrink-0">
+                            我要投稿
+                        </button>
+                    </div>
+                </header>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1 grid-rows-[auto_auto]"> 
+                    <div class="col-span-12 lg:col-span-7 bg-[#DDD8CE] rounded-[32px] p-8 relative overflow-hidden shadow-inner flex flex-col h-auto lg:h-full">
+                        <div class="absolute top-[10%] right-[10%] w-64 h-64 bg-accentRed rounded-full filter blur-[50px] opacity-30 mix-blend-multiply"></div>
+                        <div class="absolute bottom-[20%] left-[35%] w-48 h-48 bg-accentYellow rounded-full filter blur-[50px] opacity-30 mix-blend-multiply"></div>
+                        <div class="relative z-10 h-full flex flex-col justify-between">
+                            <div>
+                                <span class="text-xs font-bold text-accentRed uppercase tracking-wider bg-dark text-white px-3 py-1 rounded-full mb-3 inline-block">⭐ 头条新闻</span>
+                                <h2 class="text-3xl font-bold text-dark leading-tight mt-2">我校科技创新小组在全国<br>青少年大赛中荣获金奖</h2>
+                            </div>
+                            <div class="mt-auto relative z-20 min-h-[80px] flex flex-col justify-end">
+                                <p class="text-sm text-gray-700 mb-4 line-clamp-3">11月25日，我校“星火”科技创新小组凭借其自主研发的智能垃圾分类系统，在全国大赛中脱颖而出，为学校赢得了荣誉。</p>
+                                <div class="flex items-center gap-3">
+                                    <div class="text-xs text-gray-600 font-medium">发布于 2025-11-26</div>
+                                    <button class="bg-dark text-white px-4 py-1.5 rounded-full text-xs font-medium hover:bg-opacity-90 transition">阅读全文 <i class="ph-bold ph-arrow-right ml-1"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 优秀学生展示容器: 恢复所有 hover 动画，但移除容器本身的 hover:shadow-lg 类 -->
+                    <!-- 之前: class="... shadow-soft h-auto lg:h-full relative overflow-hidden group cursor-pointer" -->
+                    <!-- 恢复 hover 动画，但保留 shadow-soft 作为基础阴影，移除 hover:shadow-lg -->
+                    <div class="col-span-12 lg:col-span-5 bg-cardLight rounded-[32px] p-8 text-textDark flex flex-col shadow-soft h-auto lg:h-full relative overflow-hidden group cursor-pointer transition-all" onclick="window.loadStudentArchive('li_jingyao'); window.switchPage('view-archive-main');">
+                        <!-- 背景装饰 (恢复 group-hover:scale-110 效果) -->
+                        <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-accentYellow/20 to-transparent rounded-bl-[100px] z-0 transition-transform duration-500 group-hover:scale-110"></div>
+                        <div class="absolute bottom-0 left-0 w-32 h-32 bg-accentBlue/5 rounded-tr-[80px] z-0"></div>
+                        
+                        <div class="relative z-10 flex flex-col h-full">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-[10px] font-bold text-accentOrange uppercase tracking-wider bg-accentOrange/10 px-2 py-0.5 rounded-full inline-block">⭐ 校园之星</span>
+                                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider"></span>
+                                    </div>
+                                    <h2 class="font-bold text-dark text-xl">本月优秀学生</h2>
+                                </div>
+                                <!-- 跳转按钮图标 (恢复 group-hover 颜色/背景变化) -->
+                                <div class="w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm text-dark group-hover:bg-dark group-hover:text-accentYellow transition-all duration-300">
+                                    <i class="ph-bold ph-arrow-right"></i>
+                                </div>
+                            </div>
+
+                            <div class="flex-1 flex flex-col items-center justify-center text-center mt-2">
+                                <!-- 头像区域 (恢复 group-hover 位 이동 动画) -->
+                                <div class="relative mb-5 group-hover:-translate-y-1 transition-transform duration-300">
+                                    <div class="w-28 h-28 rounded-full p-1.5 bg-gradient-to-br from-accentYellow via-accentOrange to-accentRed shadow-lg">
+                                        <img src="https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVU5pMO756lxQ05g4EUHxXdbJ-g_eIAACegtrG1AJiUXa8owFNKll_gEAAwIAA3gAAzYE.png" alt="Li Jingyao" class="w-full h-full rounded-full object-cover border-[3px] border-white">
+                                    </div>
+                                    <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-dark text-white text-[10px] px-3 py-1 rounded-full font-bold shadow-md whitespace-nowrap flex items-center gap-1 border border-white/20">
+                                        <i class="ph-fill ph-trophy text-accentYellow"></i> 年级第一
+                                    </div>
+                                </div>
+                                
+                                <!-- 信息区域 -->
+                                <h3 class="text-2xl font-bold text-dark mb-1">李婧瑶</h3>
+                                <p class="text-sm text-gray-500 mb-5 font-medium">高二 (3) 班 <span class="mx-1 text-gray-300">|</span> Confettti</p>
+                                
+                                <!-- 语录/简介 -->
+                                <div class="bg-white/60 backdrop-blur-sm rounded-2xl p-4 shadow-sm w-full border border-white/50 relative">
+                                    <i class="ph-fill ph-quotes text-2xl text-accentBlue/20 absolute top-2 left-2"></i>
+                                    <p class="text-xs text-gray-600 italic leading-relaxed px-2">
+                                        “学习不仅仅是为了分数，更是为了探索未知的世界。在每一次挑战中突破自我，在每一次失败中寻找光亮。”
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-12 lg:col-span-12 flex flex-col lg:flex-row gap-8 lg:h-full"> 
+                        <div class="lg:w-1/2 flex flex-col gap-6"> 
+                            <div class="bg-cardLight rounded-[32px] p-8 shadow-soft flex flex-col"> 
+                                <div class="flex justify-between items-center mb-6">
+                                    <h3 class="font-bold text-dark text-xl">校园活动</h3>
+                                    <div class="flex items-center gap-2 cursor-pointer text-sm font-medium text-textGray hover:text-dark transition"><i class="ph-fill ph-calendar-blank text-lg"></i></div>
+                                </div>
+                                <div class="space-y-4 h-56 overflow-hidden"> 
+                                    <div class="flex items-start gap-4 p-3 rounded-xl cursor-pointer hover:bg-[#F7F5F0] transition">
+                                        <div class="w-10 h-10 rounded-full bg-accentBlue/20 text-accentBlue flex items-center justify-center flex-shrink-0"><i class="ph-fill ph-rocket text-xl"></i></div>
+                                        <div class="flex-1 min-w-0"><h4 class="text-sm font-bold text-dark truncate">校园科技节：创意项目征集</h4><p class="text-[10px] text-gray-500 mt-0.5 truncate">时间: 12月10日 | 组织者: 科技社</p></div>
+                                        <span class="text-xs text-accentBlue font-medium bg-accentBlue/10 px-3 py-1 rounded-full flex-shrink-0 whitespace-nowrap">报名中</span>
+                                    </div>
+                                    <div class="flex items-start gap-4 p-3 rounded-xl cursor-pointer hover:bg-[#F7F5F0] transition">
+                                        <div class="w-10 h-10 rounded-full bg-accentPurple/20 text-accentPurple font-bold flex items-center justify-center flex-shrink-0"><i class="ph-fill ph-gavel text-xl"></i></div>
+                                        <div class="flex-1 min-w-0"><h4 class="text-sm font-bold text-dark truncate">“真理之声”校级辩论赛决赛</h4><p class="text-[10px] text-gray-500 mt-0.5 truncate">时间: 12月5日 晚7点 | 组织者: 团委</p></div>
+                                        <span class="text-xs text-accentYellow font-medium bg-accentYellow/10 px-3 py-1 rounded-full flex-shrink-0 whitespace-nowrap">即将开始</span>
+                                    </div>
+                                    <div class="flex items-start gap-4 p-3 rounded-xl cursor-pointer opacity-60 hover:bg-[#F7F5F0] transition">
+                                        <div class="w-10 h-10 rounded-full bg-textGray/20 text-textGray font-bold flex items-center justify-center flex-shrink-0"><i class="ph-fill ph-camera text-xl"></i></div>
+                                        <div class="flex-1 min-w-0"><h4 class="text-sm font-bold text-dark truncate">“光影定格”校园摄影大赛</h4><p class="text-[10px] text-gray-500 mt-0.5 truncate">时间: 11月30日截止 | 组织者: 摄影社</p></div>
+                                        <span class="text-xs text-textGray font-medium bg-textGray/10 px-3 py-1 rounded-full flex-shrink-0 whitespace-nowrap">已结束</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="lg:w-1/2 flex flex-col gap-6"> 
+                            <div class="bg-cardLight rounded-[32px] p-8 shadow-soft flex flex-col"> 
+                                <div class="flex justify-between items-center mb-6">
+                                    <h3 class="font-bold text-dark text-xl">校园热搜</h3>
+                                    <div class="flex items-center gap-2 cursor-pointer text-sm font-medium text-accentRed hover:text-dark transition"><i class="ph-fill ph-fire text-lg"></i></div>
+                                </div>
+                                <div class="space-y-4 h-56 overflow-hidden"> 
+                                    <div class="flex items-start gap-4 p-3 rounded-xl cursor-pointer hover:bg-[#F7F5F0] transition">
+                                        <div class="w-10 h-10 rounded-full bg-accentRed/20 text-accentRed font-bold flex items-center justify-center flex-shrink-0">1</div>
+                                        <div class="flex-1 min-w-0 flex flex-col justify-center"> 
+                                            <div class="flex justify-between items-center gap-2"><h4 class="text-sm font-bold text-accentRed truncate">期末考试延期? 教务处回应</h4><span class="text-xs font-medium text-white bg-accentRed px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap shadow-md">15.6k</span></div>
+                                            <p class="text-[10px] text-gray-500 mt-0.5 truncate">教务处辟谣，网传消息不实，请勿传谣。</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-4 p-3 rounded-xl cursor-pointer hover:bg-[#F7F5F0] transition">
+                                        <div class="w-10 h-10 rounded-full bg-accentOrange/20 text-accentOrange font-bold flex items-center justify-center flex-shrink-0">2</div>
+                                        <div class="flex-1 min-w-0 flex flex-col justify-center"> 
+                                            <div class="flex justify-between items-center gap-2"><h4 class="text-sm font-bold text-dark truncate">食堂新开“自选称重”窗口评价</h4><span class="text-xs font-medium text-white bg-accentOrange px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap shadow-md">9.2k</span></div>
+                                            <p class="text-[10px] text-gray-500 mt-0.5 truncate">师生热议，性价比高但排队较长。</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-4 p-3 rounded-xl cursor-pointer hover:bg-[#F7F5F0] transition">
+                                        <div class="w-10 h-10 rounded-full bg-accentYellow/20 text-accentYellow font-bold flex items-center justify-center flex-shrink-0">3</div>
+                                        <div class="flex-1 min-w-0 flex flex-col justify-center"> 
+                                            <div class="flex justify-between items-center gap-2"><h4 class="text-sm font-bold text-dark truncate">高三期中成绩分析会直播回放</h4><span class="text-xs font-medium text-dark bg-accentYellow px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap shadow-md">5.1k</span></div>
+                                            <p class="text-[10px] text-gray-500 mt-0.5 truncate">班主任详细讲解本次考试趋势。</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 2: STUDENT ARCHIVE MAIN (学生档案查询中心) ================= -->
+            <div id="view-archive-main" class="w-full h-full flex flex-col p-4 lg:p-8 lg:pr-12 overflow-y-auto max-w-6xl hidden-view no-scrollbar">
+                
+                <div class="w-full h-full bg-bg rounded-none flex shadow-none overflow-hidden relative">
+                    
+                    <main class="flex-1 overflow-hidden h-full relative">
+                        
+                        <!-- ================= SUB-VIEW 1: ARCHIVE (档案详情页 - 默认视图) ================= -->
+                        <div id="view-archive" class="w-full h-full flex flex-col pb-12 overflow-y-auto no-scrollbar">
+                            <header class="flex justify-between items-center mb-6 lg:mb-10 flex-shrink-0">
+                                <div>
+                                    <h1 class="text-2xl lg:text-3xl font-bold text-dark tracking-tight">学生档案中心</h1>
+                                    <p class="text-gray-400 text-sm mt-1">综合素质评价与学籍管理系统</p>
+                                </div>
+                                <button onclick="window.showReportErrorModal()" class="bg-dark text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-opacity-90 transition shadow-lg flex-shrink-0">
+                                    报告错误
+                                </button>
+                            </header>
+
+                            <div class="flex-1 flex flex-col gap-4 lg:gap-8">
+                                <!-- Search Card -->
+                                <div class="w-full relative flex-shrink-0 z-30">
+                                    <div class="absolute inset-0 bg-dark rounded-[24px] lg:rounded-[32px] overflow-hidden shadow-soft z-0">
+                                        <div class="absolute right-0 top-0 h-full w-2/3 bg-gradient-to-l from-[#333] to-transparent pointer-events-none"></div>
+                                        <div class="absolute -right-20 -top-20 w-80 h-80 bg-accentBlue opacity-10 rounded-full blur-[80px]"></div>
+                                    </div>
+                                    <div class="relative z-10 p-6 lg:p-8 text-white">
+                                        <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="ph-bold ph-magnifying-glass"></i> 档案检索</h2>
+                                        <div class="flex flex-col lg:flex-row gap-3 lg:gap-4 max-w-2xl">
+                                            <div class="relative flex-1 bg-white bg-opacity-10 backdrop-blur-md rounded-xl p-1 flex items-center border border-white border-opacity-10">
+                                                <div class="px-3 text-gray-400 border-r border-white border-opacity-20 text-xs flex-shrink-0">学号/姓名</div>
+                                                <!-- 新增 oninput 实时搜索，并添加 ID 供 JS 访问 -->
+                                                <input type="text" id="archive-search-input" placeholder="请输入查询关键字..." 
+                                                       class="flex-1 bg-transparent border-none outline-none text-white px-3 py-2 text-sm placeholder-gray-500"
+                                                       onfocus="window.updateSearchDropdown(this.value)"
+                                                       oninput="window.updateSearchDropdown(this.value)"
+                                                       onblur="setTimeout(() => document.getElementById('search-history-dropdown').classList.add('hidden'), 200)">
+                                                <div id="search-history-dropdown" class="hidden absolute top-full left-0 w-full mt-2 bg-white rounded-xl shadow-xl overflow-hidden z-50 text-dark animate-fade-in-down origin-top border border-gray-100">
+                                                    <!-- search-dropdown-content 包含默认的历史记录和搜索匹配结果 -->
+                                                    <div id="search-dropdown-content">
+                                                        <div class="px-4 py-2 text-[10px] text-gray-400 bg-gray-50 border-b border-gray-100 flex justify-between items-center"><span>历史搜索</span></div>
+                                                        <!-- 将原有的 onclick 事件改为 handleSearchSelect -->
+                                                        <div onclick="window.handleSearchSelect('huang_jiaxi')" class="hover:bg-gray-50 px-4 py-3 text-sm cursor-pointer flex justify-between items-center transition border-b border-gray-50">
+                                                            <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500"><i class="ph-bold ph-clock-counter-clockwise"></i></div><div class="flex flex-col"><span class="font-bold text-dark">黄嘉熙</span><span class="text-[10px] text-gray-400">学号: DH...0624</span></div></div>
+                                                            <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-accentGreen bg-accentGreen/10 px-2 py-0.5 rounded-full whitespace-nowrap">已获得查阅权限</span><i class="ph-bold ph-arrow-right text-xs text-gray-300"></i></div>
+                                                        </div>
+                                                        <div onclick="window.handleSearchSelect('song_peizi')" class="hover:bg-gray-50 px-4 py-3 text-sm cursor-pointer flex justify-between items-center transition border-b border-gray-50">
+                                                            <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500"><i class="ph-bold ph-clock-counter-clockwise"></i></div><div class="flex flex-col"><span class="font-bold text-dark">宋佩姿</span><span class="text-[10px] text-gray-400">学号: DH...0608</span></div></div>
+                                                            <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-accentGreen bg-accentGreen/10 px-2 py-0.5 rounded-full whitespace-nowrap">已获得查阅权限</span><i class="ph-bold ph-arrow-right text-xs text-gray-300"></i></div>
+                                                        </div>
+                                                        <div onclick="window.handleSearchSelect('xue_jinye')" class="hover:bg-gray-50 px-4 py-3 text-sm cursor-pointer flex justify-between items-center transition">
+                                                            <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500"><i class="ph-bold ph-clock-counter-clockwise"></i></div><div class="flex flex-col"><span class="font-bold text-dark">薛锦烨</span><span class="text-[10px] text-gray-400">学号: DH...0613</span></div></div>
+                                                            <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-accentGreen bg-accentGreen/10 px-2 py-0.5 rounded-full whitespace-nowrap">已获得查阅权限</span><i class="ph-bold ph-arrow-right text-xs text-gray-300"></i></div>
+                                                        </div>
+                                                        <div onclick="window.handleSearchSelect('li_jingyao')" class="hover:bg-gray-50 px-4 py-3 text-sm cursor-pointer flex justify-between items-center transition">
+                                                            <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500"><i class="ph-bold ph-clock-counter-clockwise"></i></div><div class="flex flex-col"><span class="font-bold text-dark">李婧瑶</span><span class="text-[10px] text-gray-400">学号: DH...0305</span></div></div>
+                                                            <!-- 点击李婧瑶时，将学生ID设置为li_jingyao，以便后续卡片点击时触发无权限弹窗 -->
+                                                            <div class="flex items-center gap-2"><span class="text-[10px] font-bold text-accentRed bg-accentRed/10 px-2 py-0.5 rounded-full whitespace-nowrap">未获得查阅权限</span><i class="ph-bold ph-arrow-right text-xs text-gray-300"></i></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button class="bg-accentYellow text-dark px-8 py-3 rounded-xl text-sm font-bold hover:bg-opacity-90 transition shadow-lg flex-shrink-0">查询档案</button>
+                                        </div>
+                                        <div class="mt-4 flex flex-wrap gap-4 text-[10px] text-gray-400">
+                                            <span style="margin-left: 1.7em;">快捷入口:</span>
+                                            <!-- 修改点击事件：使用 switchArchiveSubView 切换到新页面 -->
+                                            <span onclick="window.switchArchiveSubView('view-grades')" class="hover:text-white cursor-pointer underline">学业成绩</span>
+                                            <span onclick="window.switchArchiveSubView('view-health')" class="hover:text-white cursor-pointer underline">体检报告</span>
+                                            <span onclick="window.switchArchiveSubView('view-rewards-honors')" class="hover:text-white cursor-pointer underline">奖惩与荣誉</span>
+                                            <span onclick="window.showNotOpenModal()" class="hover:text-white cursor-pointer underline">综合素质评价</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Result: Archive Cards 学生档案中心默认页面设置-->
+                                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 flex-1 z-10">
+                                    <div class="col-span-1 lg:col-span-4 bg-cardLight rounded-[24px] lg:rounded-[32px] p-6 lg:p-8 shadow-soft flex flex-col items-center text-center h-full">
+                                        <div class="w-32 h-32 rounded-full border-4 border-white shadow-lg overflow-hidden mb-6 flex-shrink-0">
+                                            <img id="archive-avatar" src="https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVSFpLx0DumrKPjuUA5dWWQhQIO_i5QACGAtrG2S7eUU0zdRez_Kk0wEAAwIAA3gAAzYE.png" alt="Profile" class="w-full h-full object-cover">
+                                        </div>
+                                        <h2 id="archive-name" class="text-2xl font-bold text-dark mb-1">黄嘉熙</h2>
+                                        <p id="archive-info" class="text-sm text-gray-500 mb-6">高二 (6) 班 | DH1100120210624</p>
+                                        <div class="w-full space-y-3 text-left overflow-y-auto">
+                                            <div class="flex justify-between items-center p-3 bg-[#F3F0EA] rounded-xl"><span class="text-xs text-gray-500">性别</span><span id="archive-gender" class="text-sm font-bold text-dark">男</span></div>
+                                            <div class="flex justify-between items-center p-3 bg-[#F3F0EA] rounded-xl"><span class="text-xs text-gray-500">民族</span><span id="archive-ethnicity" class="text-sm font-bold text-dark">汉族</span></div>
+                                            <div class="flex justify-between items-center p-3 bg-[#F3F0EA] rounded-xl"><span class="text-xs text-gray-500">入学年份</span><span id="archive-enrollment" class="text-sm font-bold text-dark">2021年9月</span></div>
+                                            <div class="flex justify-between items-center p-3 bg-[#F3F0EA] rounded-xl"><span class="text-xs text-gray-500">政治面貌</span><span id="archive-politics" class="text-sm font-bold text-dark">共青团员</span></div>
+                                            
+                                        </div>
+                                    </div>
+
+                                    <div class="col-span-1 lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 grid-rows-2 gap-4 lg:gap-6 h-full">
+                                        <!-- 学业成绩记录 -->
+                                        <div onclick="window.switchArchiveSubView('view-grades')" class="bg-white rounded-[24px] p-6 shadow-sm hover:shadow-md transition cursor-pointer group border border-transparent hover:border-gray-100 flex flex-col justify-between h-full">
+                                            <div>
+                                                <div class="w-12 h-12 rounded-2xl bg-accentBlue bg-opacity-10 text-accentBlue flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition"><i class="ph-fill ph-graduation-cap"></i></div>
+                                                <h3 class="font-bold text-dark text-lg mb-2">学业成绩记录</h3>
+                                                <p class="text-xs text-gray-400 mb-4 line-clamp-2">包含高中入学以来所有期中、期末及模拟考试的原始成绩单及排名分析。</p>
+                                            </div>
+                                            <div class="flex items-center text-[10px] font-bold text-accentBlue">查看记录 <i class="ph-bold ph-caret-right ml-1"></i></div>
+                                        </div>
+
+                                        <!-- 体质健康档案 -->
+                                        <div onclick="window.switchArchiveSubView('view-health')" 
+                                             class="bg-white rounded-[24px] p-6 shadow-sm hover:shadow-md transition cursor-pointer group border border-transparent hover:border-gray-100 flex flex-col justify-between h-full">
+                                            <div>
+                                                <div class="w-12 h-12 rounded-2xl bg-accentGreen bg-opacity-10 text-accentGreen flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition"><i class="ph-fill ph-heartbeat"></i></div>
+                                                <h3 class="font-bold text-dark text-lg mb-2">体质健康档案</h3>
+                                                <p class="text-xs text-gray-400 mb-4 line-clamp-2">年度体检报告、视力监测记录及体测成绩（50米、立定跳远、引体向上等）。</p>
+                                            </div>
+                                            <div class="flex items-center text-[10px] font-bold text-accentGreen">查看报告 <i class="ph-bold ph-caret-right ml-1"></i></div>
+                                        </div>
+
+                                        <!-- 奖惩与荣誉 (已更新为跳转到新视图) -->
+                                        <div onclick="window.switchArchiveSubView('view-rewards-honors')" class="bg-white rounded-[24px] p-6 shadow-sm hover:shadow-md transition cursor-pointer group border border-transparent hover:border-gray-100 flex flex-col justify-between h-full">
+                                            <div>
+                                                <div class="w-12 h-12 rounded-2xl bg-accentOrange bg-opacity-10 text-accentOrange flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition"><i class="ph-fill ph-star"></i></div>
+                                                <h3 class="font-bold text-dark text-lg mb-2">奖惩与荣誉</h3>
+                                                <p class="text-xs text-gray-400 mb-4 line-clamp-2">记录在校期间获得的三好学生、优秀干部、竞赛奖项及违纪处分记录。</p>
+                                            </div>
+                                            <div class="flex items-center text-[10px] font-bold text-accentOrange">查看详情 <i class="ph-bold ph-caret-right ml-1"></i></div>
+                                        </div>
+
+                                        <!-- 综合素质评价 -->
+                                        <div onclick="window.showNotOpenModal()" class="bg-white rounded-[24px] p-6 shadow-sm hover:shadow-md transition cursor-pointer group border border-transparent hover:border-gray-100 flex flex-col justify-between h-full">
+                                            <div>
+                                                <div class="w-12 h-12 rounded-2xl bg-accentYellow bg-opacity-10 text-accentYellow flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition"><i class="ph-fill ph-clipboard-text"></i></div>
+                                                <h3 class="font-bold text-dark text-lg mb-2">综合素质评价</h3>
+                                                <p class="text-xs text-gray-400 mb-4 line-clamp-2">思想品德、学业水平、身心健康、艺术素养、社会实践等五个维度的评价。</p>
+                                            </div>
+                                            <div class="flex items-center text-[10px] font-bold text-[#D9B025]">查看评价 <i class="ph-bold ph-caret-right ml-1"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ================= SUB-VIEW 2: GRADES (考试成绩分析) ================= -->
+                        <div id="view-grades" class="w-full h-full flex flex-col p-4 lg:p-8 lg:pr-12 pb-12 overflow-y-auto no-scrollbar hidden-view">
+                            <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 flex-shrink-0">
+                                <div>
+                                    <h1 class="text-2xl sm:text-3xl font-bold text-dark tracking-tight">考试成绩分析</h1>
+                                    <p id="grades-student-info" class="text-gray-400 text-xs sm:text-sm mt-1">学生: 黄嘉熙 (2022031508) | 每一次进步都值得被看见</p>
+                                </div>
+                                <div class="flex flex-col items-start sm:items-end gap-2 sm:gap-3 mt-4 sm:mt-0">
+                                    <div onclick="window.switchArchiveSubView('view-archive')" class="flex items-center gap-1 text-gray-400 text-xs cursor-pointer hover:text-dark transition w-fit">
+                                        <i class="ph-bold ph-arrow-u-up-left"></i> 返回档案中心
+                                    </div>
+                                    <button class="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-dark">
+                                        <i class="ph ph-download-simple"></i> 下载报告
+                                    </button>
+                                </div>
+                            </header>
+
+                            <div class="flex flex-col lg:flex-row gap-6 lg:gap-8 h-auto lg:h-full lg:overflow-hidden">
+                                <div class="w-full lg:w-72 bg-cardLight rounded-[24px] lg:rounded-[32px] p-6 shadow-soft flex flex-col h-fit lg:h-full flex-shrink-0 order-first lg:order-last">
+                                    <div class="flex items-center gap-2 mb-6">
+                                        <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-dark"><i class="ph-bold ph-clock-counter-clockwise"></i></div>
+                                        <h3 class="font-bold text-dark">历史考卷</h3>
+                                    </div>
+                                    <div id="grades-history-container" class="flex-1 overflow-y-auto max-h-60 lg:max-h-full px-2 space-y-3 no-scrollbar">
+                                        <div class="text-[10px] text-gray-400 font-medium p-4 text-center">正在加载历史记录...</div>
+                                    </div>
+                                </div>
+                                <div class="flex-1 flex flex-col gap-6 h-auto lg:h-full lg:overflow-hidden">
+                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 flex-shrink-0">
+                                        <div class="bg-dark text-white rounded-[24px] lg:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between relative overflow-hidden">
+                                            <div class="z-10">
+                                                <span class="text-xs text-gray-400 uppercase tracking-wider">班级排名</span>
+                                                <div id="stat-class-rank" class="text-3xl sm:text-4xl font-bold mt-1 sm:mt-2">No. -</div>
+                                                <div id="stat-class-trend" class="text-xs text-gray-400 mt-1 flex items-center gap-1"><i class="ph-bold ph-trend-up"></i> 正在加载</div>
+                                            </div>
+                                            <div class="absolute right-0 bottom-0 opacity-10"><i class="ph-fill ph-trophy text-7xl sm:text-9xl"></i></div>
+                                        </div>
+                                        <div class="bg-cardLight rounded-[24px] lg:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between">
+                                            <span class="text-xs text-gray-400 uppercase tracking-wider">年级排名</span>
+                                            <div class="flex items-end gap-2 mt-1 sm:mt-2"><div id="stat-grade-rank" class="text-3xl sm:text-4xl font-bold text-dark">-</div><div class="text-xs text-gray-500 mb-1.5">/ 259 人</div></div>
+                                        </div>
+                                        <div class="bg-cardLight rounded-[24px] lg:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between col-span-2 md:col-span-1">
+                                            <span class="text-xs text-gray-400 uppercase tracking-wider">总分</span>
+                                            <div class="flex items-end gap-2 mt-1 sm:mt-2"><div id="stat-total-score" class="text-3xl sm:text-4xl font-bold text-dark">-</div><div class="text-xs text-gray-500 mb-1.5">/ 660 分</div></div>
+                                            <div class="w-full h-1 bg-gray-200 rounded-full mt-2"><div id="stat-total-bar" class="w-[0%] h-full bg-accentOrange rounded-full transition-all duration-500"></div></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 bg-cardLight rounded-[24px] lg:rounded-[32px] p-4 sm:p-8 shadow-soft lg:overflow-hidden flex flex-col min-h-[500px] lg:min-h-0">
+                                        <div class="flex justify-between items-center mb-4">
+                                            <h3 id="exam-title" class="font-bold text-base sm:text-lg">当前查看: 正在加载考试成绩...</h3>
+                                            <span id="exam-date" class="text-xs text-gray-400">考试时间: N/A</span>
+                                        </div>
+                                        <div class="overflow-y-auto flex-1">
+                                            <div class="overflow-x-auto"> 
+                                                <table class="w-full text-left border-collapse whitespace-nowrap">
+                                                    <thead class="text-xs text-gray-400 border-b border-gray-200">
+                                                        <tr><th class="py-3 pl-6 font-medium">科目</th><th class="py-3 font-medium text-center min-w-[70px]">满分</th><th class="py-3 font-medium text-center min-w-[70px]">得分</th><th class="py-3 font-medium text-center min-w-[100px]">班级平均分</th><th class="py-3 font-medium text-center min-w-[100px]">年级最高分</th><th class="py-3 pr-6 font-medium text-right min-w-[70px]">排名变动</th></tr>
+                                                    </thead>
+                                                    <tbody id="exam-table-body" class="text-sm">
+                                                        <tr><td colspan="6" class="text-center py-6 text-gray-400">请选择左侧历史考卷查看详情</td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ================= SUB-VIEW 3: HEALTH (体质健康档案) ================= -->
+                        <div id="view-health" class="w-full h-full flex flex-col p-4 lg:p-8 lg:pr-12 pb-12 overflow-y-auto no-scrollbar hidden-view">
+                            <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 flex-shrink-0">
+                                <div>
+                                    <h1 class="text-2xl sm:text-3xl font-bold text-dark tracking-tight">体质健康档案</h1>
+                                    <p id="health-student-info" class="text-gray-400 text-xs sm:text-sm mt-1">学生: 黄嘉熙 (2022031508) | 关注您的每一次成长与健康变化</p>
+                                </div>
+                                <div class="flex flex-col items-start sm:items-end gap-2 sm:gap-3 mt-4 sm:mt-0">
+                                    <div onclick="window.switchArchiveSubView('view-archive')" class="flex items-center gap-1 text-gray-400 text-xs cursor-pointer hover:text-dark transition w-fit">
+                                        <i class="ph-bold ph-arrow-u-up-left"></i> 返回档案中心
+                                    </div>
+                                    <button class="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-dark">
+                                        <i class="ph ph-download-simple"></i> 下载报告
+                                    </button>
+                                </div>
+                            </header>
+
+                            <div class="flex flex-col lg:flex-row gap-6 lg:gap-8 h-auto lg:h-full lg:overflow-hidden">
+                                <div class="w-full lg:w-72 bg-cardLight rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col flex-shrink-0 h-fit lg:h-full order-1 lg:order-2">
+                                    <div class="flex items-center gap-2 mb-6">
+                                        <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-accentGreen"><i class="ph-bold ph-heartbeat"></i></div>
+                                        <h3 class="font-bold text-dark">历史体检</h3>
+                                    </div>
+                                    <div id="health-history-container" class="flex-1 overflow-y-auto px-2 space-y-3 no-scrollbar">
+                                        <div class="text-[10px] text-gray-400 font-medium p-4 text-center">正在加载历史记录...</div>
+                                    </div>
+                                </div>
+
+                                <div class="flex-1 flex flex-col gap-4 sm:gap-6 order-2 lg:order-1 health-detail-container h-auto lg:h-full lg:overflow-hidden">
+                                    <!-- 移除了容器上的 parallax-card-container 类 -->
+                                    <div id="stat-card-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 flex-shrink-0">
+                                        <!-- 移除了 parallax-card 类，以及内部元素的 parallax-element 和 data-depth 属性 -->
+                                        <div id="stat-card-1" class="bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center">
+                                            <i id="stat-icon-1" class="ph-fill ph-ruler text-xl sm:text-2xl text-accentGreen mb-2"></i>
+                                            <span id="stat-label-1" class="text-xs text-gray-400 uppercase tracking-wider">身高</span>
+                                            <div id="stat-height" class="text-xl sm:text-2xl font-bold text-dark mt-1">N/A</div>
+                                        </div>
+                                        <!-- 移除了 parallax-card 类，以及内部元素的 parallax-element 和 data-depth 属性 -->
+                                        <div id="stat-card-2" class="bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center">
+                                            <i id="stat-icon-2" class="ph-fill ph-scales text-xl sm:text-2xl text-accentGreen mb-2"></i>
+                                            <span id="stat-label-2" class="text-xs text-gray-400 uppercase tracking-wider">体重</span>
+                                            <div id="stat-weight" class="text-xl sm:text-2xl font-bold text-dark mt-1">N/A</div>
+                                        </div>
+                                        <!-- 移除了 parallax-card 类，以及内部元素的 parallax-element 和 data-depth 属性 -->
+                                        <div id="stat-card-3" class="bg-dark text-white rounded-[24px] lg:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center">
+                                            <i id="stat-icon-3" class="ph-fill ph-clipboard-text text-2xl text-accentYellow mb-2"></i>
+                                            <span id="stat-label-3" class="text-xs text-gray-400 uppercase tracking-wider">BMI 指数</span>
+                                            <div id="stat-bmi" class="text-xl sm:text-2xl font-bold mt-1">N/A</div>
+                                        </div>
+                                        <!-- 移除了 parallax-card 类，以及内部元素的 parallax-element 和 data-depth 属性 -->
+                                        <div id="stat-card-4" class="bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center">
+                                            <i id="stat-icon-4" class="ph-fill ph-eye text-xl sm:text-2xl text-accentGreen mb-2"></i>
+                                            <span id="stat-label-4" class="text-xs text-gray-400 uppercase tracking-wider">双眼视力</span>
+                                            <div id="stat-vision" class="text-xl sm:text-2xl font-bold text-dark mt-1">N/A</div>
+                                        </div>
+                                        <!-- 移除了 parallax-card 类，以及内部元素的 parallax-element 和 data-depth 属性 -->
+                                        <div id="stat-card-5" class="bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center">
+                                            <i id="stat-icon-5" class="ph-fill ph-heartbeat text-xl sm:text-2xl text-accentRed mb-2"></i>
+                                            <span id="stat-label-5" class="text-xs text-gray-400 uppercase tracking-wider">血压 (mmHg)</span>
+                                            <div id="stat-bp" class="text-xl sm:text-2xl font-bold text-dark mt-1">N/A</div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-cardLight rounded-[32px] p-4 sm:p-8 shadow-soft lg:overflow-hidden flex flex-col flex-1">
+                                        <div class="flex justify-between items-center mb-4">
+                                            <h3 id="health-title" class="font-bold text-lg">当前查看: 正在加载体检报告</h3>
+                                            <span id="health-date" class="text-xs text-gray-400">体检日期: N/A</span>
+                                        </div>
+                                        <div id="health-summary-content" class="mb-6 p-4 rounded-xl bg-[#F3F0EA] border border-gray-100 flex flex-col items-start">
+                                            <div id="health-summary-text-container" class="w-full">
+                                                <p class="text-sm text-gray-500">正在加载体检报告总结...</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex-1 overflow-y-auto">
+                                            <div class="overflow-x-auto">
+                                                <table class="w-full text-left border-collapse min-w-[600px]"> 
+                                                    <thead class="text-xs text-gray-400 border-b border-gray-200 sticky top-0 bg-cardLight">
+                                                        <!-- 调整 '检查项目' (w-4/12) 和 '参考值' (w-3/12) 的宽度分配 -->
+                                                        <tr><th class="py-3 pl-6 font-medium w-4/12">检查项目</th><th class="py-3 font-medium w-3/12">参考值</th><th class="py-3 font-medium text-center w-3/12">本次结果</th><th class="py-3 pr-6 font-medium text-right w-2/12">结论</th></tr>
+                                                    </thead>
+                                                    <tbody id="health-table-body" class="text-sm">
+                                                        <tr><td colspan="4" class="py-6 text-center text-gray-400">请选择左侧历史记录或等待数据加载。</td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ================= SUB-VIEW 4: REWARDS & HONORS (奖惩与荣誉档案) - 新增 ================= -->
+                        <div id="view-rewards-honors" class="w-full h-full flex flex-col p-4 lg:p-8 lg:pr-12 pb-12 overflow-y-auto no-scrollbar hidden-view">
+                            <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 flex-shrink-0">
+                                <div>
+                                    <h1 class="text-2xl sm:text-3xl font-bold text-dark tracking-tight">奖惩与荣誉档案</h1>
+                                    <!-- ID 更改为 rewards-student-info 以避免冲突 -->
+                                    <p id="rewards-student-info" class="text-gray-400 text-xs sm:text-sm mt-1">学生: 黄嘉熙 (1100120210624) | 记录您的每一次优秀表现与纪律操行</p>
+                                </div>
+
+                                <div class="flex flex-col items-start sm:items-end gap-2 sm:gap-3 mt-4 sm:mt-0">
+                                    <div onclick="window.switchArchiveSubView('view-archive')" class="flex items-center gap-1 text-gray-400 text-xs cursor-pointer hover:text-dark transition w-fit">
+                                        <i class="ph-bold ph-arrow-u-up-left"></i> 返回档案中心
+                                    </div>
+                                    <button onclick="window.showNotOpenModal()" class="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-dark">
+                                        <i class="ph ph-download-simple"></i> 下载年度报告
+                                    </button>
+                                </div>
+                            </header>
+
+                            <!-- 主内容区: 垂直列表容器 -->
+                            <div class="mt-4 flex-1 flex flex-col">
+                                <!-- 记录列表将在此处渲染 -->
+                                <div id="rewards-list-container" class="flex-1 overflow-y-auto no-scrollbar">
+                                     <div class="p-6 text-center w-full bg-cardLight rounded-2xl shadow-soft text-gray-500 font-medium">正在加载记录...</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </main>
+                    
+                    <!-- ================= MODALS ================= -->
+
+                    <!-- 暂未开放提示模态框 -->
+                    <div id="not-open-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4">
+                        <div class="bg-white w-[320px] rounded-2xl shadow-2xl p-8 text-center transform transition-all scale-100 flex flex-col items-center">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-400"><i class="ph-fill ph-lock-key text-3xl"></i></div>
+                            <h3 class="text-lg font-bold text-dark mb-2">功能暂未开放</h3>
+                            <p class="text-xs text-gray-500 mb-6 leading-relaxed">该档案模块的数据正在录入和对接中，<br>敬请期待后续系统更新。</p>
+                            <button onclick="window.closeNotOpenModal()" class="bg-dark text-white px-8 py-2.5 rounded-full text-xs font-bold hover:bg-opacity-90 transition shadow-lg">我知道了</button>
+                        </div>
+                    </div>
+
+                    <!-- 无权限访问模态框 (新增) -->
+                    <div id="no-permission-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4">
+                        <div class="bg-white w-[320px] rounded-2xl shadow-2xl p-8 text-center transform transition-all scale-100 flex flex-col items-center">
+                            <div class="w-16 h-16 bg-accentRed/10 rounded-full flex items-center justify-center mb-4 text-accentRed"><i class="ph-fill ph-prohibit text-3xl"></i></div>
+                            <h3 class="text-lg font-bold text-dark mb-2">权限不足</h3>
+                            <p class="text-xs text-gray-500 mb-6 leading-relaxed">您没有该学生档案的查阅权限。<br>请联系该学生获取许可。</p>
+                            <button onclick="window.closeNoPermissionModal()" class="bg-accentRed text-white px-8 py-2.5 rounded-full text-xs font-bold hover:bg-opacity-90 transition shadow-lg">关闭</button>
+                        </div>
+                    </div>
+
+                    <!-- 医学影像模态框 (新增) -->
+                    <div id="image-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity p-4 sm:p-6" onclick="window.closeExamImage()">
+                        <div class="modal-scrollbar-hide bg-white max-w-4xl w-full md:w-auto shadow-2xl rounded-b-2xl md:rounded-r-[32px] md:rounded-l-none overflow-y-auto md:overflow-hidden flex flex-col md:flex-row relative max-h-[85vh] md:h-[450px]" onclick="event.stopPropagation()">
+                            <div class="relative w-full md:w-[450px] aspect-square bg-gray-900 flex-shrink-0 group">
+                                <img id="image-modal-img" src="" alt="医学影像" class="w-full h-full object-cover">
+                                <button onclick="window.closeExamImage()" class="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-sm text-white transition cursor-pointer"><i class="ph-bold ph-x text-lg"></i></button>
+                                <div class="absolute inset-x-0 bottom-0 p-6 text-white bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+                                    <div id="image-info-container" class="space-y-1"></div>
+                                </div>
+                            </div>
+                            <div class="w-full md:w-[320px] bg-white p-6 md:p-10 flex flex-col md:flex-1 h-auto md:h-full"> 
+                                <div class="flex flex-col gap-2 flex-shrink-0">
+                                    <h2 id="image-modal-title" class="text-2xl md:text-4xl font-serif font-bold text-dark leading-tight tracking-tight"></h2>
+                                    <p id="image-modal-subtitle" class="text-base md:text-xl text-gray-400 font-serif mt-2"></p>
+                                    <div class="h-1 w-12 bg-accentGreen mt-4 md:mt-6 mb-4"></div>
+                                </div>
+                                <div class="mt-2 md:mt-0 md:flex-1 md:overflow-y-auto"> 
+                                    <p id="image-modal-description" class="text-sm text-gray-600 leading-relaxed md:pr-4 pb-6 md:pb-0"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 奖惩与荣誉详情模态框 (Rewards Detail Modal) - 新增 -->
+                    <div id="rewards-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity p-4 sm:p-6" onclick="window.closeRewardsDetailModal()">
+                        <!-- 弹窗主体：全宽，最大宽度限制在 2xl，高度占满屏幕大部分，可垂直滚动 -->
+                        <div class="modal-scrollbar-hide bg-white max-w-2xl w-full shadow-2xl rounded-2xl overflow-y-auto relative max-h-[90vh]" onclick="event.stopPropagation()">
+                            
+                            <!-- 关闭按钮 (右上角) -->
+                            <button onclick="window.closeRewardsDetailModal()" 
+                                class="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-dark transition cursor-pointer">
+                                <i class="ph-bold ph-x text-lg"></i>
+                            </button>
+
+                            <!-- 文本内容区域 (Full Width, Scrollable) -->
+                            <div id="rewards-detail-modal-content-area" class="w-full bg-white p-8 sm:p-12 md:p-16 flex flex-col h-full overflow-y-auto"> 
+                                
+                                <!-- 头部区域 (元数据、标题、副标题) -->
+                                <div class="flex flex-col gap-2 flex-shrink-0 pb-6 border-b border-gray-100 mb-6">
+                                    <!-- 动态注入的元数据 -->
+                                    <div id="rewards-detail-modal-metadata" class="text-xs font-medium text-gray-500 space-y-1">
+                                        <!-- JS 动态注入内容 -->
+                                    </div>
+
+                                    <!-- 标题 -->
+                                    <h2 id="rewards-detail-modal-title" class="text-3xl md:text-4xl font-serif font-bold text-dark leading-snug tracking-tight mt-2"></h2>
+                                    
+                                    <!-- 副标题 (颁发机构) -->
+                                    <p id="rewards-detail-modal-subtitle" class="text-sm md:text-base text-gray-400 font-serif"></p>
+
+                                    <!-- 分隔线 (动态颜色) -->
+                                    <div id="rewards-modal-line" class="h-1 w-12 bg-accentOrange mt-4 md:mt-6 mb-4"></div>
+                                </div>
+
+                                <!-- 描述/阅读内容主体 -->
+                                <div class="flex-1"> 
+                                    <!-- 使用 'whitespace-pre-wrap' 确保详细描述中的换行符被保留 -->
+                                    <p id="rewards-detail-modal-description" class="text-base text-gray-700 leading-relaxed whitespace-pre-wrap"></p>
+                                </div>
+
+                                <!-- 新增落款和日期区域 -->
+                                <div id="rewards-detail-modal-signature" class="flex-shrink-0 pt-6">
+                                    <!-- JS 动态注入落款和日期 -->
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
