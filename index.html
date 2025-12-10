@@ -193,16 +193,536 @@
 
         // 部门数据 (Data)
         const departments = {
-            presidium: { title: "主席团", subtitle: "Presidium", desc: "学生会核心决策机构。负责制定学生会发展规划、协调各部门工作、对接学校行政部门及领导学生会整体运作。", color: "accentRed", bgClass: "bg-accentRed", textClass: "text-accentRed", icon: "ph-crown", minister: { name: "黄嘉熙", initialsOverride: "黄", quote: "责任重于泰山，创新引领未来。我们将带领学生会成为更卓越的团队。", roleTitle: "主席" }, members: [{ name: "李婧瑶", role: "副主席", initialsOverride: "李"}, { name: "上官越", role: "副主席", initialsOverride: "上官"}], feature: { title: "学生会决策中心", icon: "ph-strategy", tags: ["Leadership", "Strategy"], desc: "主席团在此进行每周例会，审议各部门提案，并制定学期重大活动日历。我们是连接学生与学校管理层的核心桥梁。", widgetLabel: "本月提案处理", widgetStatus: "100%", widgetColor: "bg-accentRed", list: [{ label: "2022/12/28", title: "部长联席会议", sub: "13:00 @ C501" }, { label: "2023/01/11", title: "部长联席会议", sub: "13:00 @ C501" }, { label: "2023/01/25", title: "部长联席会议", sub: "13:00 @ 线上" }, { label: "2023/02/08", title: "部长联席会议", sub: "13:00 @ 线上" }] } },
-            secretariat: { title: "秘书处", subtitle: "Secretariat", desc: "学生会中枢行政机构。负责文书档案、会议记录、物资财务、内部考评，为组织运行提供制度与资源保障。", color: "accentTeal", bgClass: "bg-teal-400", textClass: "text-teal-500", icon: "ph-notebook", minister: { name: "周圣珺", initialsOverride: "周", quote: "细节决定成败，条理清晰是高效工作的基石。", roleTitle: "秘书长" }, members: [{ name: "宋佩姿", role: "行政助理/监事", initialsOverride: "宋" }, { name: "赵倩楠", role: "财务助理", initialsOverride: "赵"}], feature: { title: "学生会统筹中心", icon: "ph-files", tags: ["Archives", "Logistics"], desc: "统一管理学生会所有活动策划案存档、财务报表以及办公物资的借用与调度。", widgetLabel: "年度预算", widgetStatus: "充足", widgetColor: "bg-teal-500", list: [{ label: "2022/12/30", title: "2023年1月预算分配会", sub: "16:00 @ 线上" }, { label: "2023/01/31", title: "2023年2月预算分配会", sub: "16:00 @ 线上" }, { label: "2023/02/28", title: "2023年3月预算分配会", sub: "16:00 @ 线上" }, { label: "2023/03/31", title: "2023年4月预算分配会", sub: "16:00 @ 线上" }] } },
-            academic: { title: "学术部", subtitle: "Academic Department", desc: "学生会学术发展机构。负责制定学风建设方案、统筹学科竞赛与科普活动，对接教学部门并引领校园学习生态。", color: "accentBlue", bgClass: "bg-accentBlue", textClass: "text-accentBlue", icon: "ph-graduation-cap", minister: { name: "王子怡", initialsOverride: "王", quote: "知识的价值在于分享，我们致力于让每一个同学都能找到学习的乐趣。", roleTitle: "部长" }, members: [{ name: "顾语", role: "部员", initialsOverride: "顾"}, { name: "马嘉璟", role: "部员", initialsOverride: "马"}], feature: { title: "学术研习小组", icon: "ph-books", tags: ["Study Support", "Resources"], desc: "策划校内专题研讨会及讲座，搭建师生深度交流平台，营造校园浓厚学术氛围。", widgetLabel: "资料库访问量", widgetStatus: "High", widgetColor: "bg-accentBlue", list: [{ label: "2022/12/16", title: "高等数学兴趣会", sub: "14:00 @ 报告厅A" }, { label: "2023/01/13", title: "东华大学宣讲会", sub: "13:30 @ 报告厅C" }, { label: "2023/02/24", title: "最新高考政策解读", sub: "19:00 @ 报告厅A" }, { label: "N/A", title: "N/A", sub: "N/A" }] } },
-            discipline: { title: "纪律部", subtitle: "Discipline Department", desc: "学生会行为规范机构。负责检查出勤仪容、量化班级考评、维护公共秩序，向学校反馈纪律数据并督促改进。", color: "accentRed", bgClass: "bg-accentRed", textClass: "text-accentRed", icon: "ph-gavel", minister: { name: "李婧瑶", initialsOverride: "李", quote: "规则不是为了束缚，而是为了更自由地生长。严谨是我们的底色。", roleTitle: "部长" }, members: [{ name: "陈沁荷", role: "风纪委员", initialsOverride: "陈" }, { name: "林思妤", role: "风纪委员", initialsOverride: "林"}, { name: "张蕙如", role: "风纪委员", initialsOverride: "张" }], feature: { title: "校园纪律督导组/风纪委员会", icon: "ph-shield-check", tags: ["Inspection", "Safety"], desc: "由纪律部与德育处联合设立，专责每日巡查校园风纪、督导学生行为规范，即时纠偏、定期通报，营造公平有序、积极向上的校园环境。", widgetLabel: "风纪波动系数", widgetStatus: "高", widgetColor: "bg-accentRed", list: [{ label: "07:00", title: "早会考勤", sub: "操场" }, { label: "12:00", title: "食堂秩序巡检", sub: "食堂" }, { label: "14:30", title: "着装检查", sub: "教学楼 A/B" }, { label: "17:30", title: "校园巡检", sub: "全校" }] } },
-            ceremony: { title: "仪式部", subtitle: "Ceremony Department", desc: "学生会礼仪形象机构。负责升旗典礼、颁奖仪式、迎宾与礼服管理，用标准化礼仪展示校园精神风貌。", color: "accentPurple", bgClass: "bg-accentPurple", textClass: "text-accentPurple", icon: "ph-microphone-stage", minister: { name: "薛锦烨", initialsOverride: "薛", quote: "每一个细节都决定成败，在舞台上，我们代表学校的形象。", roleTitle: "部长" }, members: [{ name: "胡雨菲", role: "部员/礼仪队", initialsOverride: "胡" }, { name: "骆华凝", role: "部员/礼仪队", initialsOverride: "骆" }, { name: "马亦婕", role: "部员/礼仪队", initialsOverride: "马" }, { name: "田芯慈", role: "部员/礼仪队", initialsOverride: "田" }], feature: { title: "礼仪与主持培训中心", icon: "ph-flag", tags: ["Etiquette", "Hosting"], desc: "由仪式部与组织部联合成立，旨在系统提升礼仪队成员及各类活动主持人的仪表仪态、舞台表现力、语言表达能力和临场应变能力。", widgetLabel: "本周活动场次", widgetStatus: "3 Events", widgetColor: "bg-accentPurple", list: [{ label: "2023/01/05", title: "培训", sub: "16:00 @ B203" }, { label: "2023/01/12", title: "培训", sub: "16:00 @ B203" }, { label: "2023/02/23", title: "培训", sub: "16:00 @ B203" }, { label: "2023/03/02", title: "培训", sub: "16:00 @ B203" }] } },
-            publicity: { title: "宣传部", subtitle: "Publicity Department", desc: "学生会传播创意机构。负责视觉设计、新媒体运营、活动采编，对接校内外媒体并塑造学生会公共形象。", color: "accentOrange", bgClass: "bg-accentOrange", textClass: "text-accentOrange", icon: "ph-megaphone", minister: { name: "张琰清", initialsOverride: "张", quote: "让每一次发声都掷地有声，用设计点亮校园生活的每一个角落。", roleTitle: "部长" }, members: [{ name: "陈瑞琦", role: "部员", initialsOverride: "陈" }, { name: "何锦怡", role: "部员", initialsOverride: "何" }, { name: "王可依", role: "部员", initialsOverride: "王" }], feature: { title: "校园融媒体中心", icon: "ph-broadcast", tags: ["Media", "Design"], desc: "集广播、视频、平面设计于一体的创作枢纽。对内传递信息、对外展示形象。", widgetLabel: "推文累计阅读量", widgetStatus: "27w+", widgetColor: "bg-accentOrange", list: [{ label: "2023/01/10", title: "系列课程：如何设计一张海报？", sub: "09:00 B211" }, { label: "2023/02/21", title: "系列课程：声光电如何构建宣传格局", sub: "09:00 B211" }, { label: "2023/06/30", title: "校园开放日宣传活动", sub: "全校" }, { label: "N/A", title: "N/A", sub: "N/A" }] } },
-            sports: { title: "体育部", subtitle: "Sports Department", desc: "学生会体育事务机构。负责制定阳光体育计划、承办校内外赛事、管理运动社团，协同体育组提升学生体质。", color: "accentYellow", bgClass: "bg-accentYellow", textClass: "text-accentYellow", icon: "ph-trophy", minister: { name: "陆任佳", initialsOverride: "陆", quote: "制霸全国！不，制霸全校！体育精神就是永不言弃。", roleTitle: "部长" }, members: [{ name: "刘梓洋", role: "部员", initialsOverride: "刘" }, { name: "王心悦", role: "部员", initialsOverride: "王" }, { name: "杨杰", role: "部员", initialsOverride: "杨" }], feature: { title: "校级赛事筹备委员会", icon: "ph-basketball", tags: ["Equipment", "Events"], desc: "负责校运会、篮球联赛等校内大型体育赛事的前期策划、场地统筹、器材准备与秩序维护，为学生打造安全、专业、高效的校园竞技场所。", widgetLabel: "暂无赛事", widgetStatus: "N/A", widgetColor: "bg-accentYellow", list: [{ label: "2023/05/04", title: "夏季运动会", sub: "筹备中" }, { label: "N/A", title: "N/A", sub: "N/A" }, { label: "N/A", title: "N/A", sub: "N/A" }, { label: "N/A", title: "N/A", sub: "N/A" }] } },
-            societies: { title: "组织部", subtitle: "Societies Department", desc: "学生会项目指挥机构。负责策划重大活动流程、排班调度、应急管理与物资配置，确保各环节精准落地。", color: "accentGreen", bgClass: "bg-accentGreen", textClass: "text-accentGreen", icon: "ph-users-three", minister: { name: "上官越", initialsOverride: "上官", quote: "每一个兴趣都值得被尊重，我们为梦想提供生根发芽的土壤。", roleTitle: "部长" }, members: [{ name: "王可依", role: "部员", initialsOverride: "王" }, { name: "郁可唯", role: "部员", initialsOverride: "郁" }, { name: "张祉航", role: "部员", initialsOverride: "张" }], feature: { title: "社团发展基金会", icon: "ph-plant", tags: ["Funding", "Clubs"], desc: "专门负责审核社团活动经费申请，并举办每学期的社团招新活动，致力于打造独特的校园社团文化。", widgetLabel: "活跃社团数", widgetStatus: "48 个", widgetColor: "bg-accentGreen", list: [{ label: "2022/09/15", title: "社团招新会", sub: "14:00 @ 食堂" }, { label: "2022/09/20", title: "社团预算分配研讨会", sub: "10:00 @ C503" }, { label: "N/A", title: "N/A", sub: "N/A" }, { label: "N/A", title: "N/A", sub: "N/A" }] } },
-            pr: { title: "公共关系部", subtitle: "Public Relations", desc: "学生会对外联络机构。负责拓展赞助资源、维护校企及校际合作、筹措活动经费，为学生会发展注入外部支持。", color: "accentIndigo", bgClass: "bg-indigo-500", textClass: "text-indigo-500", icon: "ph-handshake", minister: { name: "马亦婕", initialsOverride: "马", quote: "人生没有彩排，每一天都是现场直播。交朋友，我们是认真的。", roleTitle: "部长" }, members: [{ name: "胡雨菲", role: "部员", initialsOverride: "胡" }, { name: "倪思文", role: "部员", initialsOverride: "倪" }, { name: "田芯慈", role: "部员", initialsOverride: "田" }], feature: { title: "校企合作孵化中心", icon: "ph-buildings", tags: ["Sponsorship", "Alumni"], desc: "由公共关系部与相关企业对接，帮助孵化学生创新项目、转化校园创意成果，为学生提供充足的资源支持。", widgetLabel: "本月赞助额", widgetStatus: "达成目标", widgetColor: "bg-indigo-500", list: [{ label: "2022/12/12", title: "校企合作项目孵化会议", sub: "11:00 @ 报告厅A" }, { label: "2023/01/06", title: "校企合作项目洽谈会", sub: "校外" }, { label: "N/A", title: "N/A", sub: "N/A" }, { label: "N/A", title: "N/A", sub: "N/A" }] } },
-            publicService: { title: "公共服务部", subtitle: "Public Service", desc: "学生会民生服务机构。负责收集校园生活意见、运营失物招领、策划公益项目，协同后勤部门优化公共福祉。", color: "accentRed", bgClass: "bg-accentRed", textClass: "text-accentRed", icon: "ph-heart", minister: { name: "谭诣茗", initialsOverride: "谭", quote: "服务同学是我们的宗旨，有困难请随时联系我们。", roleTitle: "部长" }, members: [{ name: "骆华凝", role: "部员", initialsOverride: "骆" }, { name: "年祺祺", role: "部员", initialsOverride: "年" }, { name: "宋佩姿", role: "部员", initialsOverride: "宋" }], feature: { title: "性别平等与情绪健康促进中心", icon: "ph-scales", tags: ["Gender Equality", "Emotional Health"], desc: "致力于创建一个包容、尊重和心理健康的校园环境。我们需要打破刻板印象，关注每一位同学的情绪福祉。提供匿名树洞倾诉服务。", widgetLabel: "今日情绪指数", widgetStatus: "良好", widgetColor: "bg-accentRed", list: [{ label: "Mon", title: "宋佩姿 (值班)", sub: "08:00-16:30 @ A305" }, { label: "Tue", title: "宋佩姿 (值班)", sub: "08:00-16:30 @ A305" }, { label: "Wed", title: "宋佩姿 (值班)", sub: "08:00-16:30 @ A305" }, { label: "Thu", title: "宋佩姿 (值班)", sub: "08:00-16:30 @ A305" }] } }
+            presidium: { 
+                title: "主席团", subtitle: "Presidium", desc: "学生会核心决策机构。负责制定学生会发展规划、协调各部门工作、对接学校行政部门及领导学生会整体运作。", 
+                color: "accentRed", 
+                bgClass: "bg-accentRed", 
+                textClass: "text-accentRed", 
+                icon: "ph-crown", 
+                minister: { 
+                    name: "黄嘉熙", 
+                    initialsOverride: "黄", 
+                    quote: "责任重于泰山，创新引领未来。我们将带领学生会成为更卓越的团队。", 
+                    roleTitle: "主席" 
+                }, 
+                members: [
+                    { name: "李婧瑶", role: "副主席", initialsOverride: "李"}, 
+                    { name: "上官越", role: "副主席", initialsOverride: "上官"}, 
+                    { name: "宋钰", role: "主席助理", initialsOverride: "宋"}
+                ], 
+                feature: { 
+                    title: "学生会决策中心", 
+                    icon: "ph-strategy", 
+                    tags: ["Leadership", "Strategy"], 
+                    desc: "主席团在此进行每周例会，审议各部门提案，并制定学期重大活动日历。我们是连接学生与学校管理层的核心桥梁。", 
+                    widgetLabel: "本月提案处理", 
+                    widgetStatus: "100%", 
+                    widgetColor: "bg-accentRed", 
+                    list: [
+                        { label: "2022/12/28", title: "部长联席会议", sub: "13:00 @ C501" }, 
+                        { label: "2023/01/11", title: "部长联席会议", sub: "13:00 @ C501" }, 
+                        { label: "2023/01/25", title: "部长联席会议", sub: "13:00 @ 线上" }, 
+                        { label: "2023/02/08", title: "部长联席会议", sub: "13:00 @ 线上" }
+                    ] 
+                },
+            },
+            secretariat: { 
+                title: "秘书处", 
+                subtitle: "Secretariat", 
+                desc: "学生会中枢行政机构。负责文书档案、会议记录、物资财务、内部考评，为组织运行提供制度与资源保障。", 
+                color: "accentTeal", 
+                bgClass: "bg-teal-400", 
+                textClass: "text-teal-500", 
+                icon: "ph-notebook", 
+                minister: { 
+                    name: "周圣珺", 
+                    initialsOverride: "周", 
+                    quote: "细节决定成败，条理清晰是高效工作的基石。", 
+                    roleTitle: "秘书长" 
+                }, 
+                members: [
+                    { name: "宋钰", role: "行政助理/监事", initialsOverride: "宋" }, 
+                    { name: "赵倩楠", role: "财务助理", initialsOverride: "赵"}
+                ], 
+                feature: { 
+                    title: "学生会统筹中心", 
+                    icon: "ph-files", 
+                    tags: ["Archives", "Logistics"], 
+                    desc: "统一管理学生会所有活动策划案存档、财务报表以及办公物资的借用与调度。", 
+                    widgetLabel: "年度预算", 
+                    widgetStatus: "充足", 
+                    widgetColor: "bg-teal-500", 
+                    list: [
+                        { label: "2022/12/30", title: "2023年1月预算分配会", sub: "16:00 @ 线上" }, 
+                        { label: "2023/01/31", title: "2023年2月预算分配会", sub: "16:00 @ 线上" }, 
+                        { label: "2023/02/28", title: "2023年3月预算分配会", sub: "16:00 @ 线上" }, 
+                        { label: "2023/03/31", title: "2023年4月预算分配会", sub: "16:00 @ 线上" }
+                    ] 
+                } 
+            },
+            academic: { 
+                title: "学术部", 
+                subtitle: "Academic Department", 
+                desc: "学生会学术发展机构。负责制定学风建设方案、统筹学科竞赛与科普活动，对接教学部门并引领校园学习生态。", 
+                color: "accentBlue", 
+                bgClass: "bg-accentBlue", 
+                textClass: "text-accentBlue", 
+                icon: "ph-graduation-cap", 
+                minister: { 
+                    name: "王子怡", 
+                    initialsOverride: "王", 
+                    quote: "知识的价值在于分享，我们致力于让每一个同学都能找到学习的乐趣。", 
+                    roleTitle: "部长" 
+                }, 
+                members: [
+                    { name: "顾语", role: "部员/监事", initialsOverride: "顾"}, 
+                    { name: "马嘉璟", role: "部员", initialsOverride: "马"},
+                    { name: "宋佩姿", role: "部员", initialsOverride: "宋"}
+                ], 
+                feature: { 
+                    title: "学术研习小组", 
+                    icon: "ph-books", 
+                    tags: ["Study Support", "Resources"], 
+                    desc: "策划校内专题研讨会及讲座，搭建师生深度交流平台，营造校园浓厚学术氛围。", 
+                    widgetLabel: "资料库访问量", 
+                    widgetStatus: "High", 
+                    widgetColor: "bg-accentBlue", 
+                    list: [
+                        { label: "2022/12/16", title: "高等数学兴趣会", sub: "14:00 @ 报告厅A" }, 
+                        { label: "2023/01/13", title: "东华大学宣讲会", sub: "13:30 @ 报告厅C" }, 
+                        { label: "2023/02/24", title: "最新高考政策解读", sub: "15:00 @ 报告厅A" }, 
+                        { label: "2023/02/25", title: "性知识论文指导会", sub: "15:00 @ 报告厅B" }
+                    ] 
+                } 
+            },
+            discipline: { 
+                title: "纪律部", 
+                subtitle: "Discipline Department", 
+                desc: "学生会行为规范机构。负责检查出勤仪容、量化班级考评、维护公共秩序，向学校反馈纪律数据并督促改进。", 
+                color: "accentRed", 
+                bgClass: "bg-accentRed", 
+                textClass: "text-accentRed", 
+                icon: "ph-gavel", 
+                minister: { 
+                    name: "李婧瑶", 
+                    initialsOverride: "李", 
+                    quote: "规则不是为了束缚，而是为了更自由地生长。严谨是我们的底色。", 
+                    roleTitle: "部长" 
+                }, 
+                    members: [
+                        { name: "黄嘉熙", role: "监事", initialsOverride: "黄" },
+                        { name: "陈沁荷", role: "风纪委员", initialsOverride: "陈" }, 
+                        { name: "林思妤", role: "风纪委员", initialsOverride: "林"}, 
+                        { name: "张蕙如", role: "风纪委员", initialsOverride: "张" }
+                    ], 
+                    feature: { 
+                        title: "校园纪律督导组/风纪委员会", 
+                        icon: "ph-shield-check", 
+                        tags: ["Inspection", "Safety"], 
+                        desc: "由纪律部与德育处联合设立，专责每日巡查校园风纪、督导学生行为规范，即时纠偏、定期通报，营造公平有序、积极向上的校园环境。", 
+                        widgetLabel: "风纪波动系数", 
+                        widgetStatus: "高", 
+                        widgetColor: "bg-accentRed", 
+                        list: [
+                            { label: "07:00", title: "早会考勤", sub: "操场" }, 
+                            { label: "12:00", title: "食堂秩序巡检", sub: "食堂" }, 
+                            { label: "14:30", title: "着装检查", sub: "教学楼 A/B" }, 
+                            { label: "17:30", title: "校园巡检", sub: "全校" }
+                        ] 
+                    },
+                    customInfo: {
+                        title: "日常巡查计划及风纪委员行为规范一览",
+                        content: `<div class="space-y-3 text-sm text-gray-600">
+                            <p>纪律部负责全校性相关纪律维护、校园性行为规范管理及安全措施执行。</p>
+                            <p>每日固定巡查内容：</p>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>07:10–08:10 对存在性需求的学生，需由风纪委员执行 <b>快速性处理</b> 或 <b>自行解决</b> 后才能入校，以降低校内性行为发生率。</li>
+                                <li>11:30–13:00 巡查食堂，快速受理 <b>突发性需求</b> 并安排合规处理，避免影响就餐秩序。</li>
+                                <li>17:30–19:00 全面清查教学区域，督促学生及时离校；对仍滞留的学生进行身份登记并引导离校，杜绝夜间校内滞留与安全隐患。</li>
+                            </ul>
+                            <div class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                <p class="text-xs mt-1">⚠️特别说明：<b>快速性处理</b> 包括但不仅限于 <b>有/无安全措施下的插入式、非插入式性行为</b>。</p>
+                            </div>
+                            <p>风纪委员行为规范：</p>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>到校时间不晚于07:00，离校不早于19:30。</li>
+                                <li>应当熟练掌握 <b>插入式性处理</b> 技巧，定期考核。</li>
+                                <li>统一着制服：西服外套、白色衬衫、领结、同色百褶短裙（裙长至臀部下缘）、黑色连裤丝袜、黑色皮鞋。</li>
+                            </ul>
+                            <div class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                <p class="text-xs mt-1">注：值勤期间应当使用乳贴，且不得着内裤，以确保快速响应与处理效率。</p>
+                            </div>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>随身常备充足计生用品（避孕药、润滑剂、医用湿巾等）。</li>
+                                <li>严禁在校园任何公共区域私下解决自身性需求；如有正当需求，须前往风纪委员办公室以规范流程处理。</li>
+                            </ul>
+                            <div class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                <p class="text-xs mt-1">注：欢迎全校学生共同监督，违者视为失职，取消风纪委员资格。</p>
+                            </div>
+                        </div>`
+                    }
+                },
+            ceremony: { 
+                title: "仪式部", 
+                subtitle: "Ceremony Department", 
+                desc: "学生会礼仪形象机构。负责升旗典礼、颁奖仪式、迎宾与礼服管理，用标准化礼仪展示校园精神风貌。", 
+                color: "accentPurple", 
+                bgClass: "bg-accentPurple", 
+                textClass: "text-accentPurple", 
+                icon: "ph-microphone-stage", 
+                minister: { 
+                    name: "薛锦烨", 
+                    initialsOverride: "薛", 
+                    quote: "每一个细节都决定成败，在舞台上，我们代表学校的形象。", 
+                    roleTitle: "部长" 
+                }, 
+                members: [
+                    { name: "黄嘉熙", role: "监事", initialsOverride: "黄" },
+                    { name: "胡雨菲", role: "部员/礼仪队", initialsOverride: "胡" }, 
+                    { name: "骆华凝", role: "部员/礼仪队", initialsOverride: "骆" }, 
+                    { name: "马亦婕", role: "部员/礼仪队", initialsOverride: "马" }, 
+                    { name: "田芯慈", role: "部员/礼仪队", initialsOverride: "田" }
+                ], 
+                feature: { 
+                    title: "礼仪与主持培训中心", 
+                    icon: "ph-flag", 
+                    tags: ["Etiquette", "Hosting"], 
+                    desc: "由仪式部与组织部联合成立，旨在系统提升礼仪队成员及各类活动主持人的仪表仪态、舞台表现力、语言表达能力和临场应变能力。", 
+                    widgetLabel: "本周活动场次", 
+                    widgetStatus: "3 Events", 
+                    widgetColor: "bg-accentPurple", 
+                    list: [
+                        { label: "2023/01/05", title: "培训", sub: "16:00 @ B203" }, 
+                        { label: "2023/01/12", title: "培训", sub: "16:00 @ B203" }, 
+                        { label: "2023/02/23", title: "培训", sub: "16:00 @ B203" }, 
+                        { label: "2023/03/02", title: "培训", sub: "16:00 @ B203" }
+                    ] 
+                },
+                customInfo: {
+                    title: "《礼仪部成员选拔及培训标准》（2022版）",
+                    content: `<div class="space-y-3 text-sm text-gray-600">
+                        <p>礼仪部作为学校对外形象与重大活动接待核心部门，所有成员须达到以下专业标准：</p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>身高 165cm+ 女性，BMI 18–20。</li>
+                            <li>性格开朗、大方、外向；思想积极、有责任感。</li>
+                            <li>五官端正，无可见痘印、纹身；颈、臂、腿裸露处无明显疤痕或畸形。</li>
+                            <li>流利的中/英文沟通能力。</li>
+                            <li>对 <b>标准礼仪姿态</b> 有较多了解。</li>
+                        </ul>
+                        <p>为确保礼仪队成员整体形象符合学校对外接待的最高标准，选拔终审阶段设置 <b>“全裸形体展示”</b> 环节：</p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>候选人应当在指定评审室中自然脱去全部衣物。</li>
+                            <li>候选人应当按指令依次完成：站姿→礼仪走姿→正面/侧面/背面转身→标准分腿展示→坐姿及私处近距离检视</li>
+                        </ul>
+                        <p>非初次候选人（自述或体检显示非处女）将自动进入 <b>“性交技能专业考核”</b> 环节，由仪式部监事担任考官，考核流程如下：</p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>候选人应当完成自我介绍。</li>
+                            <li>候选人应当跪坐在考官正前方，保持适当距离。</li>
+                        </ul>
+                        <div class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                            <p class="text-xs mt-1">考核内容①：使用 <b>标准礼仪口交技巧</b>，直至考官射精。</p>
+                            <div class="mt-1 p-3 bg-accentPurple/20 rounded-lg border border-accentPurple">
+                                <p class="text-xs mt-1"><b>标准礼仪口交技巧</b>：女性嘴唇轻触龟头，以顺时针画圈湿润，舌尖轻点马眼三次;缓慢下沉至能容纳的最大深度，喉部放松，保持3秒静止不动，随后以匀速上下，舌面始终贴合阴茎下侧；射精前2秒完成“一沉到底”，龟头抵喉，喉部主动收缩三次；射精后缓缓送出阴茎，张嘴展示口腔内精液，确认后闭嘴完整咽下。</p>
+                            </div>
+                            <p class="text-xs mt-1">考核内容②：使用 <b>标准礼仪手交技巧</b>，直至考官射精。</p>
+                            <div class="mt-1 p-3 bg-accentPurple/20 rounded-lg border border-accentPurple">
+                                <p class="text-xs mt-1"><b>标准礼仪手交技巧</b>：女性双手轻叠成杯形，掌心确保温热；先以指腹轻柔描摹龟头轮廓三圈（顺时针→逆时针→顺时针）；右手虎口卡住阴茎根部轻轻上提，左手五指并拢从根部向龟头缓慢推进；双手交替螺旋上升，每上升一圈在冠状沟处停留0.5秒轻刮一次，共六圈；右手固定根部微震，左手集中于龟头–冠状沟区间高速小幅度打圈，同时拇指轻压尿道口，频率由慢到快；射精前0.5秒双手迅速下移至根部并轻握，感受脉动；射精后立即改用温热掌心完整包裹阴茎，轻柔顺时针按摩三次。</p>
+                            </div>
+                        </div>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>候选人应当做好性交准备。</li>
+                        </ul>
+                        <div class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                            <p class="text-xs mt-1">考核内容③：候选人应当完成一次 <b>“礼仪迎宾”</b>。</p>
+                            <div class="mt-1 p-3 bg-accentPurple/20 rounded-lg border border-accentPurple">
+                                <p class="text-xs mt-1"><b>“礼仪迎宾”</b>，又名“阴水净尘”，是指女性上位跨坐，双手扶肩，阴茎贴于腹部但不插入，臀部前后小幅度滑动，用湿润的大阴唇来回摩擦整根阴茎20-30次的动作。</p>
+                            </div>
+                            <p class="text-xs mt-1">考核内容④：候选人应当完成一次 <b>“礼仪深吻”</b>。</p>
+                            <div class="mt-1 p-3 bg-accentPurple/20 rounded-lg border border-accentPurple">
+                                <p class="text-xs mt-1"><b>“礼仪深吻”</b>，又名“一沉到底” 或 “全根吞没”，是指女性上位跨坐，双手扶肩，臀部先抬高，然后缓慢下沉，将阴茎完全吞没、一次性尽可能深地插入到底的动作。</p>
+                            </div>
+                            <p class="text-xs mt-1">考核内容⑤：候选人应当完成一次 <b>完整且无安全措施的插入式性行为</b>。</p>
+                            <p class="text-xs mt-1">考核内容⑥：候选人性交时的 <b>表情管理、声音控制、主动迎合与情绪调动能力</b>。</p>
+                            <p class="text-xs mt-1">考核内容⑦：候选人性交时的 <b>内部包裹紧致度、湿润度、温度及整体性交体验舒适度</b>。</p>
+                        </div>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>考官在候选人体内射精。</li>
+                        </ul>
+                        <div class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                            <p class="text-xs mt-1">考核内容⑧：候选人应当完成一次 <b>真实高潮</b>（5分钟内）。</p>
+                            <div class="mt-1 p-3 bg-accentPurple/20 rounded-lg border border-accentPurple">
+                                <p class="text-xs mt-1"><b>表演性高潮</b>：仅通过声音、表情、肢体动作模拟高潮痉挛。</p>
+                                <p class="text-xs mt-1"><b>真实高潮</b>：阴道平滑肌出现节律性强烈收缩，盆底肌群出现明显非自主痉挛。</p>
+                            </div>
+                            <p class="text-xs mt-1">考核内容⑨：候选人应当完成一次 <b>手动排精</b>。</p>
+                            <div class="mt-1 p-3 bg-accentPurple/20 rounded-lg border border-accentPurple">
+                                <p class="text-xs mt-1"><b>手动排精</b>：阴茎退出后，女性立即改成标准跪坐（双膝分开与肩同宽，臀部完全贴脚跟，腰背挺直，胸部前挺）；双手合拢，掌心向上，轻托阴道口；腰腹轻收力，配合骨盆前倾，将体内精液完整挤出至掌心；双手缓缓举至胸前平视高度，展示掌心精液；再将双手举至唇边，舌尖轻舔掌心，咽下剩余部分；立即前倾背身，臀部高抬，胸部紧贴地面，双手从后向前伸出，手指于两侧掰开大阴唇，展示阴道内无残留精液，直至男性确认。</p>
+                            </div>
+                            <p class="text-xs mt-1">考核内容⑩：候选人应当完成一次 <b>“礼仪洗浊”</b>。</p>
+                            <div class="mt-1 p-3 bg-accentPurple/20 rounded-lg border border-accentPurple">
+                                <p class="text-xs mt-1"><b>“礼仪洗浊”</b>，是指女性跪行至男性双腿间，双膝并拢，臀部贴脚跟，上身挺直，双手轻托阴茎根部，舌尖先从根部至龟头缓慢舔舐一圈，将残留精液卷入口腔并咽下，接着含住龟头轻吸三下，再整根深含一次，缓慢退出，随后舌面平铺，由下向上舔拭两侧睾丸，最后嘴唇轻吻龟头，臀部微抬，双手交叠于大腿，行90°鞠躬的动作。</p>
+                            </div>
+                        </div>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>考核结束。</li>
+                        </ul>
+                        <p>仪式部/礼仪队录取名单公示</p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li><b>薛锦烨</b> 通过 “全裸形体展示”。</li>
+                            <li><b>胡雨菲</b> 通过 “全裸形体展示” 和 “性交技能专业考核”。</li>
+                            <li><b>骆华凝</b> 通过 “全裸形体展示”。</li>
+                            <li><b>马亦婕</b> 通过 “全裸形体展示” 和 “性交技能专业考核”。</li>
+                            <li><b>田芯慈</b> 通过 “全裸形体展示” 和 “性交技能专业考核”。</li>
+
+                        </ul>
+
+                    </div>`
+                }
+            },
+            publicity: { 
+                title: "宣传部", 
+                subtitle: "Publicity Department", 
+                desc: "学生会传播创意机构。负责视觉设计、新媒体运营、活动采编，对接校内外媒体并塑造学生会公共形象。", 
+                color: "accentOrange", 
+                bgClass: "bg-accentOrange", 
+                textClass: "text-accentOrange", 
+                icon: "ph-megaphone", 
+                minister: { 
+                    name: "张琰清", 
+                    initialsOverride: "张", 
+                    quote: "让每一次发声都掷地有声，用设计点亮校园生活的每一个角落。", 
+                    roleTitle: "部长" }, 
+                    members: [
+                        { name: "陈瑞琦", role: "部员/监事", initialsOverride: "陈" }, 
+                        { name: "何锦怡", role: "部员", initialsOverride: "何" }, 
+                        { name: "王可依", role: "部员", initialsOverride: "王" }
+                    ], 
+                    feature: { 
+                        title: "校园融媒体中心", 
+                        icon: "ph-broadcast", 
+                        tags: ["Media", "Design"], 
+                        desc: "集广播、视频、平面设计于一体的创作枢纽。对内传递信息、对外展示形象。", 
+                        widgetLabel: "推文累计阅读量", 
+                        widgetStatus: "27w+", 
+                        widgetColor: "bg-accentOrange", 
+                        list: [
+                            { label: "2023/01/10", title: "系列课程：如何设计一张海报？", sub: "09:00 B211" }, 
+                            { label: "2023/02/21", title: "系列课程：声光电如何构建宣传格局", sub: "09:00 B211" }, 
+                            { label: "2023/06/30", title: "校园开放日宣传活动", sub: "全校" }, 
+                            { label: "N/A", title: "N/A", sub: "N/A" }
+                        ] 
+                    },
+                    customInfo: {
+                        title: "《2023年度工作任务细则》",
+                        content: `<div class="space-y-3 text-sm text-gray-600">
+                            <p>宣传部负责全校形象传播与信息发布工作，本年度主要任务如下：</p>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>校园广播运营</li>
+                                <div class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                    <p class="text-xs mt-1">负责早中晚三档广播节目编播、午夜电台“校园夜话”栏目制作。</p>
+                                </div>
+                                <li>活动宣传策划与执行</li>
+                                <div class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                    <p class="text-xs mt-1">负责校内所有重大活动的宣传物料设计、海报、短视频及现场氛围渲染。</p>
+                                </div>
+                                <li>新媒体矩阵运营</li>
+                                <div class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                    <p class="text-xs mt-1">负责学校官方抖音、B站、小红书、微信视频号等账号日常更新与热点策划。</p>
+                                </div>
+                                <li>生理健康教育视频录制</li>
+                                <div class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                    <p class="text-xs mt-1">负责 <b>性健康教育课程配套影像资料</b> 的拍摄与制作。内容包括但不限于：</p>
+                                    <p class="text-xs mt-1">① 避孕套正确使用教学</p>
+                                    <p class="text-xs mt-1">② 安全非插入式技巧科普</p>
+                                    <p class="text-xs mt-1">③ 高潮生理反应详解</p>
+                                    <p class="text-xs mt-1">④ 常见体位适配指南</p>
+                                    <p class="text-xs mt-1">……</p>
+                                </div>
+                            </ul>
+                            
+                        </div>`
+                    }
+                },
+            sports: { 
+                title: "体育部", 
+                subtitle: "Sports Department", 
+                desc: "学生会体育事务机构。负责制定阳光体育计划、承办校内外赛事、管理运动社团，协同体育组提升学生体质。", 
+                color: "accentYellow", 
+                bgClass: "bg-accentYellow", 
+                textClass: "text-accentYellow", 
+                icon: "ph-trophy", 
+                minister: { 
+                    name: "陆任佳", 
+                    initialsOverride: "陆", 
+                    quote: "制霸全国！不，制霸全校！体育精神就是永不言弃。", 
+                    roleTitle: "部长" 
+                }, 
+                members: [
+                    { name: "刘梓洋", role: "部员/监事", initialsOverride: "刘" }, 
+                    { name: "王心悦", role: "部员", initialsOverride: "王" }, 
+                    { name: "杨杰", role: "部员", initialsOverride: "杨" }
+                ],  
+                feature: { 
+                    title: "校级赛事筹备委员会", 
+                    icon: "ph-basketball", 
+                    tags: ["Equipment", "Events"], 
+                    desc: "负责校运会、篮球联赛等校内大型体育赛事的前期策划、场地统筹、器材准备与秩序维护，为学生打造安全、专业、高效的校园竞技场所。", 
+                    widgetLabel: "暂无赛事", 
+                    widgetStatus: "N/A", 
+                    widgetColor: "bg-accentYellow", 
+                    list: [
+                        { label: "2023/05/04", title: "夏季运动会", sub: "筹备中" }, 
+                        { label: "N/A", title: "N/A", sub: "N/A" }, 
+                        { label: "N/A", title: "N/A", sub: "N/A" }, 
+                        { label: "N/A", title: "N/A", sub: "N/A" }
+                    ] 
+                } 
+            },
+            societies: { 
+                title: "组织部", 
+                subtitle: "Societies Department", 
+                desc: "学生会项目指挥机构。负责策划重大活动流程、排班调度、应急管理与物资配置，确保各环节精准落地。", 
+                color: "accentGreen", 
+                bgClass: "bg-accentGreen", 
+                textClass: "text-accentGreen", 
+                icon: "ph-users-three", 
+                minister: { 
+                    name: "上官越", 
+                    initialsOverride: "上官", 
+                    quote: "每一个兴趣都值得被尊重，我们为梦想提供生根发芽的土壤。", 
+                    roleTitle: "部长" 
+                }, 
+                members: [
+                    { name: "王可依", role: "部员/监事", initialsOverride: "王" }, 
+                    { name: "郁可唯", role: "部员", initialsOverride: "郁" }, 
+                    { name: "张祉航", role: "部员", initialsOverride: "张" }
+                ], 
+                feature: { 
+                    title: "社团发展基金会", 
+                    icon: "ph-plant", 
+                    tags: ["Funding", "Clubs"], 
+                    desc: "专门负责审核社团活动经费申请，并举办每学期的社团招新活动，致力于打造独特的校园社团文化。", 
+                    widgetLabel: "活跃社团数", 
+                    widgetStatus: "48 个", 
+                    widgetColor: "bg-accentGreen", 
+                    list: [
+                        { label: "2022/09/15", title: "社团招新会", sub: "14:00 @ 食堂" }, 
+                        { label: "2022/09/20", title: "社团预算分配研讨会", sub: "10:00 @ C503" }, 
+                        { label: "N/A", title: "N/A", sub: "N/A" }, 
+                        { label: "N/A", title: "N/A", sub: "N/A" }
+                    ] 
+                } 
+            },
+            pr: { 
+                title: "公共关系部", 
+                subtitle: "Public Relations", 
+                desc: "学生会对外联络机构。负责拓展赞助资源、维护校企及校际合作、筹措活动经费，为学生会发展注入外部支持。", 
+                color: "accentIndigo", 
+                bgClass: "bg-indigo-500", 
+                textClass: "text-indigo-500", 
+                icon: "ph-handshake", 
+                minister: { 
+                    name: "马亦婕", 
+                    initialsOverride: "马", 
+                    quote: "让每一份青春，都被资本看见。", roleTitle: "部长" 
+                }, 
+                members: [
+                    { name: "黄嘉熙", role: "监事", initialsOverride: "黄" },
+                    { name: "胡雨菲", role: "行政顾问（B级）", initialsOverride: "胡" }, 
+                    { name: "倪思文", role: "投资顾问（C级）", initialsOverride: "倪" }, 
+                    { name: "田芯慈", role: "投资顾问（C级）", initialsOverride: "田" },
+                    { name: "薛锦烨", role: "投资顾问（D级）", initialsOverride: "薛" }
+                ], 
+                feature: { 
+                    title: "校企合作孵化中心", 
+                    icon: "ph-buildings", 
+                    tags: ["Sponsorship", "Alumni"], 
+                    desc: "为具备商业潜质的高中生创业项目提供企业对接、导师指导、种子轮投资与资源落地支持，是“产学研一体化”重点建设单位。", 
+                    widgetLabel: "本月赞助额", 
+                    widgetStatus: "达成目标", 
+                    widgetColor: "bg-indigo-500", 
+                    list: [
+                        { label: "2022/12/12", title: "校企合作项目孵化会议", sub: "11:00 @ 报告厅A" }, 
+                        { label: "2023/01/06", title: "校企合作项目洽谈会", sub: "校外" }, 
+                        { label: "N/A", title: "N/A", sub: "N/A" }, 
+                        { label: "N/A", title: "N/A", sub: "N/A" }
+                    ] 
+                },
+                customInfo: {
+                    title: "顾问分级制度",
+                    content: `<div class="space-y-3 text-sm text-gray-600">
+                        <p>本中心实行<b>顾问分级制度</b>。所有企业、成员、协调人都必须严格遵守顾问本人当前登记的级别，任何越级要求均视为严重违规。</p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>A级：支持7×24小时专属服务，包括但不限于 <b>插入式性交</b> 等服务。</li>
+                            <li>B级：支持5×12小时专属服务，包括但不限于 <b>插入式性交</b> 等服务。</li>
+                        </ul>
+                        <div class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                            <p class="text-xs mt-1">⚠️特别说明：任何可能导致妊娠或健康风险的最终行为，均须提前取得顾问本人明确书面同意。</p>
+                        </div>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>C级：支持5×8小时专属服务，仅限 <b>非插入式性交</b> 等服务。</li>
+                            <li>D级：支持5×4小时（非法定节假日）服务，仅限 <b>商务出席、礼节性陪同</b> 等服务。</li>
+                        </ul>
+                        <p>本制度旨在让每一位选择为学校与项目贡献个人价值的同学，都能在完全自愿、可控、舒适的边界内，实现青春与资本的最优衔接。</p>
+                    </div>`
+                }
+            },
+            publicService: { 
+                title: "公共服务部", 
+                subtitle: "Public Service", 
+                desc: "学生会民生服务机构。负责管理性健康与性处理服务，统筹计生用品供给、性开放主题活动组织，确保全体学生安全、及时地解决性需求。", 
+                color: "accentRed", 
+                bgClass: "bg-accentRed", 
+                textClass: "text-accentRed", 
+                icon: "ph-heart", 
+                minister: { 
+                    name: "谭诣茗", 
+                    initialsOverride: "谭", 
+                    quote: "服务同学是我们的宗旨，有困难请随时联系我们。", 
+                    roleTitle: "部长" 
+                }, 
+                members: [
+                    { name: "黄嘉熙", role: "监事", initialsOverride: "黄" },
+                    { name: "骆华凝", role: "性处理委员", initialsOverride: "骆" }, 
+                    { name: "年祺祺", role: "性处理委员", initialsOverride: "年" }, 
+                    { name: "宋佩姿", role: "性处理委员", initialsOverride: "宋" }
+                ], 
+                feature: { 
+                    title: "性别平等与情绪健康促进中心", 
+                    icon: "ph-scales", 
+                    tags: ["Gender Equality", "Emotional Health"], 
+                    desc: "为全体在校学生提供安全、可控、零妊娠风险的情绪疏导与亲密关系实训服务，协助青少年在青春期顺利完成情绪管理、压力释放与亲密技巧的健康成长。", 
+                    widgetLabel: "今日情绪指数", 
+                    widgetStatus: "良好", 
+                    widgetColor: "bg-accentRed", 
+                    list: [
+                        { label: "Mon", title: "宋佩姿 (值班)", sub: "08:00-16:30 @ A305" }, 
+                        { label: "Tue", title: "宋佩姿 (值班)", sub: "08:00-16:30 @ A305" }, 
+                        { label: "Wed", title: "宋佩姿 (值班)", sub: "08:00-16:30 @ A305" }, 
+                        { label: "Thu", title: "宋佩姿 (值班)", sub: "08:00-16:30 @ A305" }
+                    ] 
+                },
+                customInfo: {
+                    title: "公共服务部服务细则",
+                    content: `<div class="space-y-3 text-sm text-gray-600">
+                        <p>公共服务部下属 <b>“性别平等与情绪健康促进中心”</b> 每周指定一名同学轮值。轮值期间，该同学向全体在校学生（男性）提供完全免费、安全可控的 <b>非插入式性处理</b> 服务。</p>
+                        <p>主要服务内容：</p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li><b>口交、手交、乳交、股交、足交</b> 等非插入式性处理项目。</li>
+                        </ul>
+                        <div class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                            <p class="text-xs mt-1">注：2023年12月11日起，宋佩姿（部员）可提供在有安全措施保护下的 <b>插入式性处理</b> 服务。</p>
+                        </div>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>支持使用佩戴医用指套的手指，进行规范的 <b>外部爱抚与前戏技巧</b> 实训。</li>
+                            <li>拥抱、陪伴与深度倾诉。</li>
+                        </ul>
+                        <p>所有服务均以学生自愿为前提，轮值同学保留随时终止权。</p>
+
+                        
+                    </div>`
+                }
+            }
         };
         // Modal DOM Elements for Departments (延迟初始化)
         let mHeaderBg, mIcon, mTitle, mDesc, mMinisterAvatarContainer, mMinisterName, mMinisterBadge, 
@@ -236,11 +756,37 @@
         });
 
         // Department Modal Logic
+        let currentDeptIdForInfo = null;
+
         function openDepartmentModal(deptId) {
+            // ====================================================
+            // [核心修改] 每次打开部门详情时，强制隐藏内部的自定义浮窗
+            // 确保用户总是先看到核心成员列表，而不是上次残留的页面
+            // ====================================================
+            const overlay = document.getElementById('dept-info-overlay');
+            if (overlay) {
+                overlay.classList.add('hidden');
+            }
+            currentDeptIdForInfo = deptId;
             const data = departments[deptId];
             if (!data || !document.getElementById('department-modal')) return;
 
             const modalEl = document.getElementById('department-modal');
+            // ============================================
+            // [新增] 动态设置 i 按钮的悬停颜色 (Theme Color)
+            // ============================================
+            const infoBtn = document.getElementById('dept-info-trigger');
+            if (infoBtn) {
+                // 定义基础样式
+                const baseClass = "w-6 h-6 rounded-full border border-gray-200 text-gray-400 flex items-center justify-center transition-colors shadow-sm cursor-pointer z-10";
+                
+                // 根据部门 color 属性生成动态 hover 样式
+                // 例如: hover:bg-accentRed hover:border-accentRed hover:text-white
+                const themeHoverClass = `hover:bg-${data.color} hover:border-${data.color} hover:text-white`;
+                
+                // 重新赋值 className
+                infoBtn.className = `${baseClass} ${themeHoverClass}`;
+            }
             const backdropEl = document.getElementById('modal-backdrop'); // ✅ 已修正: 移除 -dept
             const contentEl = document.getElementById('modal-content');   // ✅ 已修正: 移除 -dept
 
@@ -320,6 +866,7 @@
             const backdropEl = document.getElementById('modal-backdrop'); // ✅ 已修正: 移除 -dept
             const contentEl = document.getElementById('modal-content');   // ✅ 已修正: 移除 -dept
             if (!backdropEl || !contentEl || !modalEl) return; 
+            
 
             backdropEl.classList.add('opacity-0');
             contentEl.classList.remove('opacity-100', 'scale-100');
@@ -339,35 +886,554 @@
         let currentStudentId = 'huang_jiaxi'; 
         window.currentStudentId = currentStudentId; 
         const studentData = {
-            'huang_jiaxi': { name: '黄嘉熙', id: '1100120210624', class: '高二 (6) 班', gender: '男', ethnicity: '汉族', position: '校学生会 主席', enrollment: '2021年9月', politics: '共青团员', avatar: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVSFpLx0DumrKPjuUA5dWWQhQIO_i5QACGAtrG2S7eUU0zdRez_Kk0wEAAwIAA3gAAzYE.png' }, 
-            'song_peizi': { name: '宋佩姿', id: '1100120210608', class: '高二 (6) 班', gender: '女', ethnicity: '汉族', position: '公共服务部 部员', enrollment: '2021年9月', politics: '共青团员', avatar: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVDBpJI184gfBdDEcTaQb3nlF7TJaKAACkwtrG49XKEW3y6h_dCzaCgEAAwIAA3gAAzYE.png' }, 
-            'xue_jinye': { name: '薛锦烨', id: '1100120210613', class: '高二 (6) 班', gender: '女', ethnicity: '汉族', position: '仪式部 部长', enrollment: '2021年9月', politics: '群众', avatar: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVDFpJI2HXIy3Cq-rBHzxTzJ52fFbkQAClAtrG49XKEUgT9dqPcq8WQEAAwIAA3gAAzYE.png' },
-            'li_jingyao': { name: '李婧瑶', id: '1100120210305', class: '高二 (3) 班', gender: '女', ethnicity: '汉族', position: '纪律部 部长', enrollment: '2021年9月', politics: '共青团员', avatar: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVU5pMO756lxQ05g4EUHxXdbJ-g_eIAACegtrG1AJiUXa8owFNKll_gEAAwIAA3gAAzYE.png' },
+            'huang_jiaxi': { 
+                name: '黄嘉熙', 
+                id: '1100120210624', 
+                class: '高二 (6) 班', 
+                gender: '男', 
+                ethnicity: '汉族', 
+                position: '校学生会 主席', 
+                enrollment: '2021年9月', 
+                politics: '共青团员', 
+                avatar: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVSFpLx0DumrKPjuUA5dWWQhQIO_i5QACGAtrG2S7eUU0zdRez_Kk0wEAAwIAA3gAAzYE.png' 
+            }, 
+            'song_peizi': { 
+                name: '宋佩姿', 
+                id: '1100120210608', 
+                class: '高二 (6) 班', 
+                gender: '女', 
+                ethnicity: '汉族', 
+                position: '公共服务部 部员', 
+                enrollment: '2021年9月', 
+                politics: '共青团员', 
+                avatar: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVDBpJI184gfBdDEcTaQb3nlF7TJaKAACkwtrG49XKEW3y6h_dCzaCgEAAwIAA3gAAzYE.png' 
+            }, 
+            'xue_jinye': { 
+                name: '薛锦烨', 
+                id: '1100120210613', 
+                class: '高二 (6) 班', 
+                gender: '女', 
+                ethnicity: '汉族', 
+                position: '仪式部 部长', 
+                enrollment: '2021年9月', 
+                politics: '群众', 
+                avatar: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVDFpJI2HXIy3Cq-rBHzxTzJ52fFbkQAClAtrG49XKEUgT9dqPcq8WQEAAwIAA3gAAzYE.png' 
+            },
+            'li_jingyao': { 
+                name: '李婧瑶', 
+                id: '1100120210305', 
+                class: '高二 (3) 班', 
+                gender: '女', 
+                ethnicity: '汉族', 
+                position: '纪律部 部长', 
+                enrollment: '2021年9月', 
+                politics: '共青团员', 
+                avatar: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVU5pMO756lxQ05g4EUHxXdbJ-g_eIAACegtrG1AJiUXa8owFNKll_gEAAwIAA3gAAzYE.png' 
+            },
         };
         window.studentData = studentData;
-        
-        const huang_jiaxi_exams = { 'mid_term_g2_s2': { title: '高二下期中考试成绩单', date: '2024.04.15', tag: '期中', classRank: 3, classRankTrend: { dir: 'down', val: 1, color: 'text-accentGreen' }, gradeRank: 13, totalScore: 545, subjects: [{ name: '语文', full: 150, score: 115, avg: 92, max: 127, change: '-', changeColor: 'text-gray-400' }, { name: '数学', full: 150, score: 128, avg: 115, max: 150, change: '↑ 1', changeColor: 'text-accentRed' }, { name: '英语', full: 150, score: 123, avg: 98.5, max: 140, change: '↑ 1', changeColor: 'text-accentRed' }, { name: '历史', full: 70, score: 64, avg: 45, max: 65, change: '↑ 1', changeColor: 'text-accentRed' }, { name: '地理', full: 70, score: 65, avg: 53, max: 68, change: '-', changeColor: 'text-gray-400' }, { name: '生物', full: 70, score: 50, avg: 52, max: 68, change: '↓ 5', changeColor: 'text-accentGreen' }] }, 'mock_1': { title: '全市第一次模拟考成绩单', date: '2024.03.20', tag: '一模', classRank: 2, classRankTrend: { dir: 'up', val: 4, color: 'text-accentRed' }, gradeRank: 7, totalScore: 566, subjects: [{ name: '语文', full: 119, score: 119, avg: 106, max: 137, change: '↑ 2', changeColor: 'text-accentRed' }, { name: '数学', full: 133, score: 133, avg: 121, max: 150, change: '↑ 2', changeColor: 'text-accentRed' }, { name: '英语', full: 128, score: 128, avg: 115, max: 143, change: '↑ 3', changeColor: 'text-accentRed' }, { name: '历史', full: 61, score: 61, avg: 52, max: 64, change: '↑ 1', changeColor: 'text-accentRed' }, { name: '地理', full: 67, score: 67, avg: 58, max: 70, change: '↑ 1', changeColor: 'text-accentRed' }, { name: '生物', full: 58, score: 58, avg: 53, max: 70, change: '↑ 9', changeColor: 'text-accentRed' }] }, 'final_term_g2_s1': { title: '高二上期末考试成绩单', date: '2024.01.10', tag: '期末', classRank: 6, classRankTrend: { dir: 'down', val: 2, color: 'text-accentGreen' }, gradeRank: 30, totalScore: 512, subjects: [{ name: '语文', full: 115, score: 115, avg: 98, max: 127, change: '↓ 3', changeColor: 'text-accentGreen' }, { name: '数学', full: 120, score: 120, avg: 113, max: 150, change: '↑ 2', changeColor: 'text-accentRed' }, { name: '英语', full: 106, score: 106, avg: 100.5, max: 140, change: '↓ 3', changeColor: 'text-accentGreen' }, { name: '历史', full: 60, score: 60, avg: 48, max: 65, change: '↓ 3', changeColor: 'text-accentGreen' }, { name: '地理', full: 67, score: 67, avg: 54, max: 70, change: '↑ 2', changeColor: 'text-accentRed' }, { name: '生物', full: 44, score: 44, avg: 54, max: 67, change: '↓ 3', changeColor: 'text-accentGreen' }] }, 'mid_term_g2_s1': {title: '高二上期中考试成绩单',date: '2023.11.15',tag: '期中',classRank: 4,classRankTrend: { dir: 'up', val: 1, color: 'text-accentRed' }, gradeRank: 24,totalScore: 522,subjects: [{ name: '语文', full: 118, score: 118, avg: 102, max: 125, change: '↑ 1', changeColor: 'text-accentRed' },{ name: '数学', full: 122, score: 122, avg: 105, max: 148, change: '↑ 1', changeColor: 'text-accentRed' },{ name: '英语', full: 110, score: 110, avg: 98, max: 136, change: '↑ 4', changeColor: 'text-accentRed' },{ name: '历史', full: 63, score: 63, avg: 49, max: 63, change: '-', changeColor: 'text-gray-400' },{ name: '地理', full: 62, score: 62, avg: 52.5, max: 65, change: '↓ 2', changeColor: 'text-accentGreen' },{ name: '生物', full: 47, score: 47, avg: 52, max: 64, change: '↑ 3', changeColor: 'text-accentRed' },]}, 'final_g1_s2': {title: '高一下期末考试成绩单',date: '2023.07.10',tag: '期末',classRank: 5,classRankTrend: { dir: 'down', val: 1, color: 'text-accentGreen' },gradeRank: 32,totalScore: 505,subjects: [{ name: '语文', full: 108, score: 108, avg: 94, max: 122, change: '-', changeColor: 'text-gray-400' },{ name: '数学', full: 112, score: 112, avg: 100, max: 149, change: '-', changeColor: 'text-gray-400' },{ name: '英语', full: 109, score: 109, avg: 99, max: 130, change: '↓ 3', changeColor: 'text-accentGreen' },{ name: '历史', full: 64, score: 64, avg: 46, max: 64, change: '↑ 3', changeColor: 'text-accentRed' },{ name: '地理', full: 60, score: 60, avg: 52, max: 66, change: '↑ 1', changeColor: 'text-accentRed' },{ name: '生物', full: 52, score: 52, avg: 53.5, max: 67, change: '↑ 3', changeColor: 'text-accentRed' },]}, 'mid_term_g1_s2': {title: '高一下期中考试成绩单',date: '2023.04.20',tag: '期中',classRank: 4,classRankTrend: { dir: 'up', val: 3, color: 'text-accentRed' },gradeRank: 27,totalScore: 516,subjects: [{ name: '语文', full: 112, score: 112, avg: 95, max: 122, change: '↑ 2', changeColor: 'text-accentRed' },{ name: '数学', full: 118, score: 118, avg: 110, max: 148, change: '↑ 5', changeColor: 'text-accentRed' },{ name: '英语', full: 115, score: 115, avg: 103, max: 133, change: '↑ 1', changeColor: 'text-accentRed' }, { name: '历史', full: 62, score: 62, avg: 49, max: 65, change: '↑ 1', changeColor: 'text-accentRed' },{ name: '地理', full: 60, score: 60, avg: 53, max: 68, change: '↓ 3', changeColor: 'text-accentGreen' },{ name: '生物', full: 49, score: 49, avg: 52, max: 68, change: '↓ 9', changeColor: 'text-accentGreen' },]}, 'final_g1_s1': {title: '高一上期末考试成绩单',date: '2023.01.15',tag: '期末',classRank: 7,classRankTrend: { dir: 'up', val: 18, color: 'text-accentRed' },gradeRank: 42,totalScore: 539,subjects: [{ name: '语文', full: 112, score: 112, avg: 103.5, max: 125, change: '↑ 15', changeColor: 'text-accentRed' },{ name: '数学', full: 120, score: 120, avg: 105, max: 150, change: '↑ 18', changeColor: 'text-accentRed' },{ name: '英语', full: 122, score: 122, avg: 109, max: 131, change: '↑ 13', changeColor: 'text-accentRed' },{ name: '历史', full: 65, score: 65, avg: 46, max: 66, change: '↑ 6', changeColor: 'text-accentRed' },{ name: '地理', full: 67, score: 67, avg: 52, max: 67, change: '↑ 5', changeColor: 'text-accentRed' },{ name: '生物', full: 53, score: 53, avg: 51.5, max: 67, change: '↑ 8', changeColor: 'text-accentRed' },]}, 'mid_term_g1_s1': { title: '高一上期中考试成绩单', date: '2022.11.10', tag: '期中', classRank: 25, classRankTrend: { dir: 'flat', val: 0, color: 'text-gray-400' }, gradeRank: 165, totalScore: 459, subjects: [{ name: '语文', full: 96, score: 96, avg: 104, max: 128, change: '-', changeColor: 'text-gray-400' }, { name: '数学', full: 99, score: 99, avg: 112, max: 145, change: '-', changeColor: 'text-gray-400' }, { name: '英语', full: 101, score: 101, avg: 110, max: 135, change: '-', changeColor: 'text-gray-400' }, { name: '历史', full: 58, score: 58, avg: 54, max: 66, change: '-', changeColor: 'text-gray-400' }, { name: '地理', full: 65, score: 65, avg: 55, max: 66, change: '-', changeColor: 'text-gray-400' }, { name: '生物', full: 70, score: 40, avg: 50, max: 69, change: '-', changeColor: 'text-gray-400' }]} };
-        const song_peizi_exams = { 'mid_term_g2_s2': {title: '高二下期中考试成绩单',date: '2024.04.15',tag: '期中', classRank: 2,classRankTrend: { dir: 'down', val: 1, color: 'text-accentGreen' },gradeRank: 6,totalScore: 563,subjects: [{ name: '语文', full: 117, score: 117, avg: 92, max: 127, change: '↓ 2', changeColor: 'text-accentGreen' },{ name: '数学', full: 126, score: 126, avg: 115, max: 150, change: '↑ 3', changeColor: 'text-accentRed' },{ name: '英语', full: 138, score: 138, avg: 98.5, max: 140, change: '↑ 1', changeColor: 'text-accentRed' },{ name: '历史', full: 61, score: 61, avg: 45, max: 65, change: '-', changeColor: 'text-gray-400' },{ name: '地理', full: 64, score: 64, avg: 53, max: 68, change: '-', changeColor: 'text-gray-400' },{ name: '生物', full: 70, score: 57, avg: 52, max: 68, change: '↓ 5', changeColor: 'text-accentGreen' },]}, 'mock_1': {title: '全市第一次模拟考成绩单',date: '2024.03.20',tag: '一模',classRank: 1,classRankTrend: { dir: 'down', val: 1, color: 'text-accentGreen' },gradeRank: 1,totalScore: 581,subjects: [{ name: '语文', full: 128, score: 128, avg: 106, max: 137, change: '↑ 1', changeColor: 'text-accentRed' },{ name: '数学', full: 125, score: 125, avg: 121, max: 150, change: '↓ 3', changeColor: 'text-accentGreen' },{ name: '英语', full: 141, score: 141, avg: 115, max: 143, change: '↑ 1', changeColor: 'text-accentRed' },{ name: '历史', full: 60, score: 60, avg: 52, max: 64, change: '-', changeColor: 'text-gray-400' },{ name: '地理', full: 65, score: 65, avg: 58, max: 70, change: '↑ 2', changeColor: 'text-accentRed' },{ name: '生物', full: 62, score: 62, avg: 53, max: 70, change: '↑ 1', changeColor: 'text-accentRed' },]}, };
-        const xue_jinye_exams = { 'mid_term_g2_s2': {title: '高二下期中考试成绩单',date: '2024.04.15',tag: '期中',classRank: 12,classRankTrend: { dir: 'up', val: 3, color: 'text-accentRed' },gradeRank: 69,totalScore: 483.5,subjects: [{ name: '语文', full: 103, score: 103, avg: 92, max: 127, change: '↓ 3', changeColor: 'text-accentGreen' },{ name: '数学', full: 110, score: 110, avg: 115, max: 150, change: '↑ 1', changeColor: 'text-accentRed' },{ name: '英语', full: 109, score: 109, avg: 98.5, max: 140, change: '↑ 2', changeColor: 'text-accentRed' },{ name: '历史', full: 57, score: 57, avg: 45, max: 65, change: '↓ 1', changeColor: 'text-accentGreen' },{ name: '地理', full: 58, score: 58, avg: 53, max: 68, change: '↓ 3', changeColor: 'text-accentGreen' },{ name: '物理', full: 70, score: 46, avg: 55, max: 70, change: '↓ 5', changeColor: 'text-accentGreen' },]}, 'mock_1': {title: '全市第一次模拟考成绩单',date: '2024.03.20',tag: '一模',classRank: 15,classRankTrend: { dir: 'up', val: 5, color: 'text-accentRed' },gradeRank: 86,totalScore: 515,subjects: [{ name: '语文', full: 100, score: 100, avg: 106, max: 137, change: '↓ 1', changeColor: 'text-accentGreen' },{ name: '数学', full: 119, score: 119, avg: 121, max: 150, change: '↑ 4', changeColor: 'text-accentRed' },{ name: '英语', full: 120, score: 120, avg: 115, max: 143, change: '↑ 5', changeColor: 'text-accentRed' },{ name: '历史', full: 61, score: 61, avg: 52, max: 64, change: '↑ 3', changeColor: 'text-accentRed' },{ name: '地理', full: 63, score: 63, avg: 58, max: 70, change: '↑ 2', changeColor: 'text-accentRed' },{ name: '物理', full: 52, score: 52, avg: 54, max: 69, change: '↑ 1', changeColor: 'text-accentRed' },]}, };
+        // 黄嘉熙 (Huang Jiaxi) 的模拟成绩 (文科) - 仅展示近两次
+        const huang_jiaxi_exams = { 
+            //'mid_term_g2_s2': { 
+            //    title: '高二下期中考试成绩单', 
+            //    date: '2024.04.15', 
+            //    tag: '期中', 
+            //    classRank: 3, 
+            //    classRankTrend: { dir: 'down', val: 1, color: 'text-accentGreen' }, 
+            //    gradeRank: 13, 
+            //    totalScore: 545, 
+            //    subjects: [
+            //        { name: '语文', full: 150, score: 115, avg: 92, max: 127, change: '-', changeColor: 'text-gray-400' }, 
+            //        { name: '数学', full: 150, score: 128, avg: 115, max: 150, change: '↑ 1', changeColor: 'text-accentRed' }, 
+            //        { name: '英语', full: 150, score: 123, avg: 98.5, max: 140, change: '↑ 1', changeColor: 'text-accentRed' }, 
+            //        { name: '历史', full: 70, score: 64, avg: 45, max: 65, change: '↑ 1', changeColor: 'text-accentRed' }, 
+            //        { name: '地理', full: 70, score: 65, avg: 53, max: 68, change: '-', changeColor: 'text-gray-400' }, 
+            //        { name: '生物', full: 70, score: 50, avg: 52, max: 68, change: '↓ 5', changeColor: 'text-accentGreen' }
+            //    ] 
+            //}, 
+            'mock_1': { 
+                title: '全市第一次模拟考', 
+                date: '2023.01', 
+                tag: '一模', 
+                classRank: 2, 
+                classRankTrend: { dir: 'up', val: 4, color: 'text-accentRed' }, 
+                gradeRank: 7, 
+                totalScore: 566, 
+                subjects: [
+                    { name: '语文', full: 119, score: 119, avg: 106, max: 137, change: '↑ 2', changeColor: 'text-accentRed' }, 
+                    { name: '数学', full: 133, score: 133, avg: 121, max: 150, change: '↑ 2', changeColor: 'text-accentRed' }, 
+                    { name: '英语', full: 128, score: 128, avg: 115, max: 143, change: '↑ 3', changeColor: 'text-accentRed' }, 
+                    { name: '历史', full: 61, score: 61, avg: 52, max: 64, change: '↑ 1', changeColor: 'text-accentRed' }, 
+                    { name: '地理', full: 67, score: 67, avg: 58, max: 70, change: '↑ 1', changeColor: 'text-accentRed' }, 
+                    { name: '生物', full: 58, score: 58, avg: 53, max: 70, change: '↑ 9', changeColor: 'text-accentRed' }
+                ] 
+            }, 
+            'final_term_g2_s1': { 
+                title: '高二年级第二次质量监测', 
+                date: '2022.11', 
+                tag: '月考', 
+                classRank: 6, 
+                classRankTrend: { dir: 'down', val: 2, color: 'text-accentGreen' }, 
+                gradeRank: 30, 
+                totalScore: 512, 
+                subjects: [
+                    { name: '语文', full: 115, score: 115, avg: 98, max: 127, change: '↓ 3', changeColor: 'text-accentGreen' }, 
+                    { name: '数学', full: 120, score: 120, avg: 113, max: 150, change: '↑ 2', changeColor: 'text-accentRed' }, 
+                    { name: '英语', full: 106, score: 106, avg: 100.5, max: 140, change: '↓ 3', changeColor: 'text-accentGreen' }, 
+                    { name: '历史', full: 60, score: 60, avg: 48, max: 65, change: '↓ 3', changeColor: 'text-accentGreen' }, 
+                    { name: '地理', full: 67, score: 67, avg: 54, max: 70, change: '↑ 2', changeColor: 'text-accentRed' }, 
+                    { name: '生物', full: 44, score: 44, avg: 54, max: 67, change: '↓ 3', changeColor: 'text-accentGreen' }
+                ] 
+            }, 
+            'mid_term_g2_s1': {
+                title: '高二年级第一次质量监测',
+                date: '2022.09',
+                tag: '月考',
+                classRank: 4,
+                classRankTrend: { dir: 'up', val: 1, color: 'text-accentRed' }, 
+                gradeRank: 24,
+                totalScore: 522,
+                subjects: [
+                    { name: '语文', full: 118, score: 118, avg: 102, max: 125, change: '↑ 1', changeColor: 'text-accentRed' },
+                    { name: '数学', full: 122, score: 122, avg: 105, max: 148, change: '↑ 1', changeColor: 'text-accentRed' },
+                    { name: '英语', full: 110, score: 110, avg: 98, max: 136, change: '↑ 4', changeColor: 'text-accentRed' },
+                    { name: '历史', full: 63, score: 63, avg: 49, max: 63, change: '-', changeColor: 'text-gray-400' },
+                    { name: '地理', full: 62, score: 62, avg: 52.5, max: 65, change: '↓ 2', changeColor: 'text-accentGreen' },
+                    { name: '生物', full: 47, score: 47, avg: 52, max: 64, change: '↑ 3', changeColor: 'text-accentRed' },
+                ]
+            }, 
+        };
+        // 宋佩姿 (Song Peizi) 的模拟成绩 (偏文科) - 仅展示近两次
+        const song_peizi_exams = {
+            //'mid_term_g2_s2': {
+            //    title: '高二下期中考试成绩单',
+            //    date: '2024.04.15',
+            //    tag: '期中',
+            //    classRank: 2,
+            //    classRankTrend: { dir: 'down', val: 1, color: 'text-accentGreen' },
+            //    gradeRank: 6,
+            //    totalScore: 563,
+            //    subjects: [
+            //        { name: '语文', full: 117, score: 117, avg: 92, max: 127, change: '↓ 2', changeColor: 'text-accentGreen' },
+            //        { name: '数学', full: 126, score: 126, avg: 115, max: 150, change: '↑ 3', changeColor: 'text-accentRed' },
+            //        { name: '英语', full: 138, score: 138, avg: 98.5, max: 140, change: '↑ 1', changeColor: 'text-accentRed' },
+            //        { name: '历史', full: 61, score: 61, avg: 45, max: 65, change: '-', changeColor: 'text-gray-400' },
+            //        { name: '地理', full: 64, score: 64, avg: 53, max: 68, change: '-', changeColor: 'text-gray-400' },
+            //        { name: '生物', full: 70, score: 57, avg: 52, max: 68, change: '↓ 5', changeColor: 'text-accentGreen' },
+            //    ]
+            //},
+            'mock_1': {
+                title: '全市第一次模拟考',
+                date: '2023.01',
+                tag: '一模',
+                classRank: 1,
+                classRankTrend: { dir: 'down', val: 1, color: 'text-accentGreen' },
+                gradeRank: 2,
+                totalScore: 581,
+                subjects: [
+                    { name: '语文', full: 128, score: 128, avg: 106, max: 137, change: '↑ 1', changeColor: 'text-accentRed' },
+                    { name: '数学', full: 125, score: 125, avg: 121, max: 150, change: '↓ 3', changeColor: 'text-accentGreen' },
+                    { name: '英语', full: 141, score: 141, avg: 115, max: 143, change: '↑ 1', changeColor: 'text-accentRed' },
+                    { name: '历史', full: 60, score: 60, avg: 52, max: 64, change: '-', changeColor: 'text-gray-400' },
+                    { name: '地理', full: 65, score: 65, avg: 58, max: 70, change: '↑ 2', changeColor: 'text-accentRed' },
+                    { name: '生物', full: 62, score: 62, avg: 53, max: 70, change: '↑ 1', changeColor: 'text-accentRed' },
+                ]
+            },
+        };
+       // 薛锦烨 (Xue Jinye) 的模拟成绩 (理科) - 仅展示近两次
+        const xue_jinye_exams = {
+            //'mid_term_g2_s2': {
+            //    title: '高二下期中考试成绩单',
+            //    date: '2024.04.15',
+            //    tag: '期中',
+            //    classRank: 12,
+            //    classRankTrend: { dir: 'up', val: 3, color: 'text-accentRed' },
+            //    gradeRank: 69,
+            //    totalScore: 483.5,
+            //    subjects: [
+            //        { name: '语文', full: 103, score: 103, avg: 92, max: 127, change: '↓ 3', changeColor: 'text-accentGreen' },
+            //        { name: '数学', full: 110, score: 110, avg: 115, max: 150, change: '↑ 1', changeColor: 'text-accentRed' },
+            //        { name: '英语', full: 109, score: 109, avg: 98.5, max: 140, change: '↑ 2', changeColor: 'text-accentRed' },
+            //        { name: '历史', full: 57, score: 57, avg: 45, max: 65, change: '↓ 1', changeColor: 'text-accentGreen' },
+            //        { name: '地理', full: 58, score: 58, avg: 53, max: 68, change: '↓ 3', changeColor: 'text-accentGreen' },
+            //        { name: '物理', full: 46, score: 46, avg: 55, max: 70, change: '↓ 5', changeColor: 'text-accentGreen' },
+            //    ]
+            //},
+            'mock_1': {
+                title: '全市第一次模拟考成绩单',
+                date: '2023.01',
+                tag: '一模',
+                classRank: 15,
+                classRankTrend: { dir: 'up', val: 5, color: 'text-accentRed' },
+                gradeRank: 86,
+                totalScore: 515,
+                subjects: [
+                    { name: '语文', full: 100, score: 100, avg: 106, max: 137, change: '↓ 1', changeColor: 'text-accentGreen' },
+                    { name: '数学', full: 119, score: 119, avg: 121, max: 150, change: '↑ 4', changeColor: 'text-accentRed' },
+                    { name: '英语', full: 120, score: 120, avg: 115, max: 143, change: '↑ 5', changeColor: 'text-accentRed' },
+                    { name: '历史', full: 61, score: 61, avg: 52, max: 64, change: '↑ 3', changeColor: 'text-accentRed' },
+                    { name: '地理', full: 63, score: 63, avg: 58, max: 70, change: '↑ 2', changeColor: 'text-accentRed' },
+                    { name: '物理', full: 52, score: 52, avg: 54, max: 69, change: '↑ 1', changeColor: 'text-accentRed' },
+                ]
+            },
+        };
         const li_jingyao_exams = {};
         const allExamData = { 'huang_jiaxi': huang_jiaxi_exams, 'song_peizi': song_peizi_exams, 'xue_jinye': xue_jinye_exams, 'li_jingyao': li_jingyao_exams};
         window.allExamData = allExamData;
         const allRewardsData = {
-            'huang_jiaxi': [],
+            'huang_jiaxi': [
+                { 
+                    type: 'Honor', 
+                    item: '市级瑜伽比赛（双人）金奖', 
+                    date: '2022.10.21', 
+                    issuer: '校教务处', 
+                    level: 'Major', 
+                    description: '亲爱的黄嘉熙同学：\n\n欣闻你在近期举办的“莲花杯”瑜伽比赛（东华赛区）中表现卓越，凭借精湛的技艺、默契的配合和坚韧的意志品质，一举斩获“体式展示（双人）”金奖，学校师生深感骄傲和振奋！\n\n在此，学校谨代表全体师生，向你致以最热烈的祝贺和崇高的敬意！\n\n你的成就，不仅是个人长期刻苦训练和不懈努力的结晶，更是我校学生追求卓越、全面发展的生动体现。你在比赛中展现出的沉着冷静和高水平的竞技风貌，为全校同学树立了优秀的榜样。\n\n希望你珍视这份荣誉，继续保持这份对体育精神的执着与热爱，在今后的学习和生活中再接再厉，不断突破自我，继续发挥模范带头作用。\n\n再次祝贺你！\n\n此致，\n\n敬礼！' 
+                },
+                { 
+                    type: 'Infraction', 
+                    item: '违纪处分', 
+                    date: '2022.12.19', 
+                    issuer: '校教务处', 
+                    level: 'Minor', 
+                    description: '各级部、班级：\n\n经查，2022年12月19日15时47分许，高二（6）班黄嘉熙同学（男，17岁）与高二（6）班宋佩姿同学（女，16岁）在教学楼西侧楼梯间转角发生性行为。\n\n该区域为监控覆盖区域，事发过程被完整记录。经核实，两人全程未使用安全套等任何防护措施，且黄嘉熙同学多次在宋佩姿同学体内射精，存在较大健康与安全隐患，违反《私立东华高级中学学生日常行为规范》第三十七条“必须采取必要安全防护措施”之规定。\n\n鉴于两人主观恶意不深、系初次违纪，且性行为本身不属禁止事项，仅因未落实安全防护要求，故定性为一般违纪。\n\n根据校纪校规有关规定，经德育处联合各部门讨论，给予以下处理：\n\n1. 给予黄嘉熙、宋佩姿同学各警告处分一次；\n\n2. 安排二人自11月18日起承担一周教学楼西侧楼梯间及周边区域的清扫保洁义务服务。\n\n希望全校学生引以为戒，在发生性行为时务必采取充分、有效的安全防护措施，保护自己也尊重他人，共同维护健康文明的校园环境。\n\n特此通报。' 
+                },
+                {
+                    type: 'Infraction', 
+                    item: '违纪处分', 
+                    date: '2022.12.28', 
+                    issuer: '校教务处', 
+                    level: 'Minor', 
+                    description: '各级部、班级：\n\n经查，2022年12月28日14时30分许，高二（6）班黄嘉熙同学（男，17岁）与高二（6）班薛锦烨同学（女，16岁）在体育课结束后未及时离场，在体育馆乒乓球房内于乒乓球桌上发生性行为，致使球桌台面严重变形、边缘开裂、支撑结构损坏，直接维修费用预计人民币2800余元。\n\n该区域为监控覆盖区域，事发过程被完整记录。经核实，两人全程未使用安全套等任何防护措施，且黄嘉熙同学多次在薛锦烨同学体内射精，存在较大健康与安全隐患，违反《私立东华高级中学学生日常行为规范》第三十七条“必须采取必要安全防护措施”之规定。\n\n根据校纪校规有关规定，经德育处联合各部门讨论，给予以下处理：\n\n1. 给予黄嘉熙、薛锦烨同学各警告处分一次；\n\n2. 赔偿乒乓球桌维修费用。\n\n3. 安排二人自11月22日起承担一周教学乒乓球房的清扫保洁义务服务。\n\n希望全校学生引以为戒，在发生性行为时务必采取充分、有效的安全防护措施，保护自己也尊重他人，共同维护健康文明的校园环境。\n\n特此通报。' 
+                },
+            ],
             'song_peizi': [
-                { type: 'Honor', item: '优秀学生干部', date: '2024.11.08', issuer: '校教务处', level: 'Major', description: '各年级、各班级、学生会各部门：\n\n我校学生会公共服务部性别平等与情绪健康促进中心自成立以来，始终秉持“尊重差异、守护心灵”的宗旨，积极营造平等、温暖、互助的校园氛围。在过去的一个月里，高二（3）班宋佩姿同学作为轮值部长，以高度的责任感与专业精神，主动承担情绪疏导与心理支持工作，表现突出，成效显著。\n\n经核实，宋佩姿同学累计完成一对一情绪辅导32人次，组织小组活动4场。其耐心倾听、共情回应、科学引导的工作方式，有效缓解了同学们的焦虑与压力，获得师生一致好评。\n\n为表彰先进、树立榜样，经校务会研究决定：\n\n1. 授予宋佩姿同学“校园心理健康服务先进个人”荣誉称号；\n\n2. 颁发荣誉证书及奖学金人民币伍佰元；\n\n3. 号召全体同学以宋佩姿同学为榜样，积极关注自身与他人情绪健康，共同构建温暖、包容、向上的校园文化。\n\n希望宋佩姿同学珍惜荣誉，再接再厉，在今后的学习与工作中继续发挥模范带头作用。\n\n特此公告。' },
+                { 
+                    type: 'Honor', 
+                    item: '优秀学生干部', 
+                    date: '2022.12.26', 
+                    issuer: '校教务处', 
+                    level: 'Major', 
+                    description: '各级部、班级：\n\n我校学生会公共服务部下设的性别平等与情绪健康促进中心，自成立以来，始终秉持“尊重差异、守护心灵”的宗旨，致力于营造平等、温暖、互助的校园文化。\n\n本月，宋佩姿同学作为轮值部长，以高度的责任感、卓越的专业精神和饱满的热情，主动投身于学生情绪疏导与心理支持工作，表现突出，成果显著。\n\n经核实，宋佩姿同学累计为32人次提供了高质量的一对一情绪辅导，并成功组织了4场富有成效的小组活动。她以耐心倾听、共情回应、科学引导的工作方法，切实有效地缓解了同学们的心理压力与焦虑情绪，赢得了广大师生的一致赞扬和高度肯定。\n\n为表彰先进、树立典型，经校务会研究决定，对宋佩姿同学进行如下嘉奖：\n\n1. 授予宋佩姿同学“校园心理健康服务先进个人”荣誉称号。\n\n2. 颁发荣誉证书，并奖励奖学金人民币伍佰元整。\n\n3. 号召全校师生以宋佩姿同学为榜样，积极关注自身及身边同学的情绪健康，共同构建温暖、包容、积极向上的和谐校园文化。\n\n希望宋佩姿同学珍惜荣誉，再接再厉，在未来的学习与工作中继续发挥模范带头作用，为我校心理健康服务工作做出更大的贡献。\n\n特此公告。' 
+                },
+                { 
+                    type: 'Honor', 
+                    item: '三好学生', 
+                    date: '2022.12.26', 
+                    issuer: '校教务处', 
+                    level: 'Major', 
+                    description: '亲爱的宋佩姿同学：\n\n欣闻你在德、智、体、美、劳诸方面表现突出，经班级民主推选、年级组综合考评、校行政会议审议通过，荣获我校 2024—2025 学年度“三好学生”荣誉称号。在此，学校谨向你致以最热烈的祝贺和诚挚的赞扬！\n\n希望你珍惜这份荣誉，戒骄戒躁，在未来的学习和成长道路上，继续保持昂扬的斗志和饱满的热情，不断追求更高的目标，成为一名对社会、对国家有贡献的优秀人才。\n\n特此祝贺，以资鼓励。' 
+                },
+                { 
+                    type: 'Honor', 
+                    item: '勇气之星', 
+                    date: '2023.01.03', 
+                    issuer: '东华市公安总局', 
+                    level: 'Major', 
+                    description: '各级部、班级：\n\n2024年12月8日，你校初中部“生理与心理健康教育实践课”上发生一起性质恶劣的暴力侵害事件。助教宋佩姿同学在明知对方已严重越界、明确拒绝并强烈反抗的情况下，遭受无防护暴力性侵并被体内射精。\n\n事发后，宋佩姿同学临危不惧、理性应对，积极配合校医室和有关部门，成功提取出22毫升精液样本，为公安机关快速锁定嫌疑人、提取DNA证据提供了决定性支撑。其行为充分体现了高度的法治意识、证据意识与自我保护能力，是全校师生学习的楷模。\n\n经校务会研究，报区教育局党组批准，决定：\n\n授予宋佩姿同学“勇气之星”荣誉称号。\n\n希望全校女生学习宋佩姿同学临危不乱、勇敢护己的宝贵精神，男生引以为戒，牢固树立“尊重与同意”是不可触碰的红线。\n\n特此通告。' 
+                },
+                {
+                    type: 'Infraction', 
+                    item: '违纪处分', 
+                    date: '2022.12', 
+                    issuer: '校教务处', 
+                    level: 'Minor', 
+                    description: '各级部、班级：\n\n经查，2022年12月19日15时47分许，高二（6）班黄嘉熙同学（男，17岁）与高二（6）班宋佩姿同学（女，16岁）在教学楼西侧楼梯间转角发生性行为。\n\n该区域为监控覆盖区域，事发过程被完整记录。经核实，两人全程未使用安全套等任何防护措施，且黄嘉熙同学多次在宋佩姿同学体内射精，存在较大健康与安全隐患，违反《私立东华高级中学学生日常行为规范》第三十七条“必须采取必要安全防护措施”之规定。\n\n鉴于两人主观恶意不深、系初次违纪，且性行为本身不属禁止事项，仅因未落实安全防护要求，故定性为一般违纪。\n\n根据校纪校规有关规定，经德育处联合各部门讨论，给予以下处理：\n\n1. 给予黄嘉熙、宋佩姿同学各警告处分一次；\n\n2. 安排二人自11月18日起承担一周教学楼西侧楼梯间及周边区域的清扫保洁义务服务。\n\n希望全校学生引以为戒，在发生性行为时务必采取充分、有效的安全防护措施，保护自己也尊重他人，共同维护健康文明的校园环境。\n\n特此通报。' 
+                },
             ],
             'xue_jinye': [
-                { type: 'Honor', item: '区级瑜伽比赛特等奖', date: '2024.11.20', issuer: '校教务处', level: 'Major', description: '各处室、年级组、全体师生：\n\n2024年11月4日晚，我校在区体育馆举行的“全区高中生瑜伽锦标赛”中，黄嘉熙同学与薛锦烨（女）同学组成的双人瑜伽组合，以绝对优势夺得双人项目冠军，总分98.7分，刷新赛会纪录，荣获特等奖。\n\n该组合在比赛中表现极为出色，主要亮点如下：\n\n动作难度极高，完成“后入式”“女上骑乘位式”“深屈曲位式”“贯通式”等高难度连接动作，身体贴合度、力量控制、节奏协调均达到专业水准。\n\n核心力量与柔韧性惊人，薛锦烨同学在多个高负荷体位下保持稳定呼吸，黄嘉熙同学全程精准发力，深度、角度、持续时间控制完美，充分展现了高超的技术与默契。\n\n经组委会认定，该组合的表演“代表了当前国内高中生双人瑜伽的最高水平”。\n\n为此，学校决定：\n\n授予李泽宇、林若曦同学“全区瑜伽锦标赛双人特等奖”荣誉称号。\n\n两人照片及比赛视频永久陈列于校体育荣誉墙。\n\n希望全校学生以黄嘉熙同学与薛锦烨（女）同学为榜样，积极参与体育运动，不断挑战极限、追求卓越，为校争光。\n\n特此通告。' },
+                { 
+                    type: 'Honor', 
+                    item: '市级瑜伽比赛（双人）金奖', 
+                    date: '2022.10.21', 
+                    issuer: '校教务处', 
+                    level: 'Major', 
+                    description: '亲爱的薛锦烨同学：\n\n欣闻你在近期举办的“莲花杯”瑜伽比赛（东华赛区）中表现卓越，凭借精湛的技艺、默契的配合和坚韧的意志品质，一举斩获“体式展示（双人）”金奖，学校师生深感骄傲和振奋！\n\n在此，学校谨代表全体师生，向你致以最热烈的祝贺和崇高的敬意！\n\n你的成就，不仅是个人长期刻苦训练和不懈努力的结晶，更是我校学生追求卓越、全面发展的生动体现。你在比赛中展现出的沉着冷静和高水平的竞技风貌，为全校同学树立了优秀的榜样。\n\n希望你珍视这份荣誉，继续保持这份对体育精神的执着与热爱，在今后的学习和生活中再接再厉，不断突破自我，继续发挥模范带头作用。\n\n再次祝贺你！\n\n此致，\n\n敬礼！' 
+                },
+                {
+                    type: 'Infraction', 
+                    item: '违纪处分', 
+                    date: '2022.12.28', 
+                    issuer: '校教务处', 
+                    level: 'Minor', 
+                    description: '各级部、班级：\n\n经查，2022年12月28日14时30分许，高二（6）班黄嘉熙同学（男，17岁）与高二（6）班薛锦烨同学（女，16岁）在体育课结束后未及时离场，在体育馆乒乓球房内于乒乓球桌上发生性行为，致使球桌台面严重变形、边缘开裂、支撑结构损坏，直接维修费用预计人民币2800余元。\n\n该区域为监控覆盖区域，事发过程被完整记录。经核实，两人全程未使用安全套等任何防护措施，且黄嘉熙同学多次在薛锦烨同学体内射精，存在较大健康与安全隐患，违反《私立东华高级中学学生日常行为规范》第三十七条“必须采取必要安全防护措施”之规定。\n\n根据校纪校规有关规定，经德育处联合各部门讨论，给予以下处理：\n\n1. 给予黄嘉熙、薛锦烨同学各警告处分一次；\n\n2. 赔偿乒乓球桌维修费用。\n\n3. 安排二人自11月22日起承担一周教学乒乓球房的清扫保洁义务服务。\n\n希望全校学生引以为戒，在发生性行为时务必采取充分、有效的安全防护措施，保护自己也尊重他人，共同维护健康文明的校园环境。\n\n特此通报。' 
+                },
             ],
             'li_jingyao': []
         };
         window.allRewardsData = allRewardsData;
-        const healthData_huang_jiaxi = { '2024_spring': { title: '2024年春季体检报告', date: '2024.04.05', height: 178.5, weight: 68.2, bmi: 21.3, vision_left: 4.8, vision_right: 4.8, blood_pressure: '120/80', result_summary: '体质良好，无明显异常。BMI正常，需注意视力保持。', exam_image_url: null, details: [{ item: '身高 (cm)', value: '180.5', range: '170-185', status: '正常' }, { item: '体重 (kg)', value: '62.2', range: '55-75', status: '正常' }, { item: 'BMI', value: '20.7', range: '18.5-24.9', status: '正常' }, { item: '双眼视力', value: '5.0 / 5.1', range: '4.9+ / 4.9+', status: '正常' }, { item: '血压 (mmHg)', value: '120/80', range: '90/60-140/90', status: '正常' }, { item: '肺活量 (ml)', value: '4500', range: '3800+', status: '良好' }, { item: '心率 (次/分)', value: '72', range: '60-100', status: '正常' }] }, '2023_fall': { title: '2023年秋季体检报告', date: '2023.10.10', height: 178.0, weight: 66.0, bmi: 20.8, vision_left: 4.9, vision_right: 5.0, blood_pressure: '118/78', result_summary: '体质良好，各项指标稳定。视力略有波动。', exam_image_url: null, details: [{ item: '身高 (cm)', value: '179.6', range: '170-185', status: '正常' }, { item: '体重 (kg)', value: '63.5', range: '55-75', status: '正常' }, { item: 'BMI', value: '20.8', range: '18.5-24.9', status: '正常' }, { item: '双眼视力', value: '5.0 / 5.0', range: '4.9+ / 4.9+', status: '正常' }, { item: '血压 (mmHg)', value: '118/78', range: '90/60-140/90', status: '正常' }] }, '2023_spring': { title: '2023年春季体检报告', date: '2023.04.15', height: 176.5, weight: 64.5, bmi: 20.7, vision_left: 5.0, vision_right: 5.0, blood_pressure: '122/80', result_summary: '身高持续增长，发育正常。视力保持良好。', exam_image_url: null, details: [{ item: '身高 (cm)', value: '179.2', range: '170-185', status: '正常' }, { item: '体重 (kg)', value: '64.5', range: '55-75', status: '正常' }, { item: 'BMI', value: '20.1', range: '18.5-24.9', status: '正常' }, { item: '双眼视力', value: '5.1 / 5.0', range: '4.9+ / 4.9+', status: '正常' }, { item: '血压 (mmHg)', value: '122/80', range: '90/60-140/90', status: '正常' }] } };
-        const healthData_song_peizi = { '2024_fall_reproductive': { title: '生殖健康与发育状况专检', date: '2024.09.17', height: 168.2, weight: 49.1, bmi: 17.4, vision_left: 4.5, vision_right: 4.7, blood_pressure: '110/70', result_summary: '生殖系统发育完善，阴道瓣完整，无性交史。生殖系统健康，无炎症、病变及性传播疾病征象。总体性健康良好，但有频繁阴蒂刺激史。', exam_image_url: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVTBpL5PF7nNBBazWRHZ2NDLmgZ2vdwACSgtrG2S7eUXnZ6gSCKK4HAEAAwIAA3gAAzYE.png', image_details: { title: '视检影像留档', device: 'iPhone 14 Pro Max', location: '校医院 体检室A', event: '2024.09.17 09:15', subject: '宋佩姿', description: '外阴发育成熟，阴阜毛发呈水平分布、稀疏型；大、小阴唇饱满，色泽浅粉，局部见轻度色素沉着；阴蒂包皮覆盖完全，阴蒂头体积略增，包皮较松弛，表面血管纹理稍明显；阴蒂系带及小阴唇内侧黏膜轻度充血，呈暗红色，局部黏膜皱襞略增厚、粗糙；处女膜呈环形，边缘完整、光滑，无撕裂及缺损，但处女膜孔周缘黏膜稍水肿、增厚；阴道前庭及前庭大腺开口区黏膜轻度增生，触诊敏感度高；宫颈低位，暴露满意，外口圆形，表面光滑，无糜烂及接触性出血。' }, details: [{ item: '视检', value: '正常', range: 'N/A', status: '正常' }, { item: '指检', value: '正常', range: 'N/A', status: '正常' }, { item: '雌二醇水平 (pg/mL)', value: '150', range: '30-400', status: '稳定' }, { item: '卵巢检查', value: '正常', range: 'N/A', status: '正常', color: 'text-accentGreen' }, { item: '子宫检查', value: '正常', range: 'N/A', status: '正常', color: 'text-accentGreen' }] }, '2024_spring': { title: '2024年春季体检报告', date: '2024.04.15', height: 168.0, weight: 48.9, bmi: 17.3, vision_left: 4.5, vision_right: 4.7, blood_pressure: '110/70', result_summary: '体质轻盈，各项指标正常。视力优秀。', exam_image_url: null, details: [{ item: '身高 (cm)', value: '168.0', range: '155-175', status: '正常' }, { item: '体重 (kg)', value: '48.9', range: '45-65', status: '正常' }, { item: 'BMI', value: '17.3', range: '18.5-24.9', status: '正常' }, { item: '双眼视力', value: '4.5 / 4.7', range: '4.9+ / 4.9+', status: '近视', color: 'text-accentYellow' }, { item: '血压 (mmHg)', value: '111/70', range: '90/60-140/90', status: '正常' }, { item: '肺活量 (ml)', value: '3500', range: '3000+', status: '正常' }, { item: '心率 (次/分)', value: '78', range: '60-100', status: '正常' }] }, '2023_fall': { title: '2023年秋季体检报告', date: '2023.10.10', height: 167.2, weight: 47.1, bmi: 16.8, vision_left: 4.5, vision_right: 4.6, blood_pressure: '112/72', result_summary: '体质平稳，无异常。', exam_image_url: null, details: [{ item: '身高 (cm)', value: '167.2', range: '155-175', status: '正常' }, { item: '体重 (kg)', value: '47.1', range: '45-65', status: '正常' }, { item: 'BMI', value: '16.8', range: '18.5-24.9', status: '偏瘦', color: 'text-accentYellow' }, { item: '双眼视力', value: '4.5 / 4.6', range: '4.9+ / 4.9+', status: '近视', color: 'text-accentYellow' }, { item: '血压 (mmHg)', value: '112/72', range: '90/60-140/90', status: '正常' }, { item: '肺活量 (ml)', value: '3480', range: '3000+', status: '正常' }, { item: '心率 (次/分)', value: '75', range: '60-100', status: '正常' }] } };
-        const healthData_xue_jinye = { '2024_fall_reproductive': { title: '生殖健康与发育状况专检', date: '2024.09.17', height: 165.0, weight: 50.5, bmi: 20.0, vision_left: 4.9, vision_right: 5.0, blood_pressure: '118/75', result_summary: '生殖系统发育完善，阴道瓣完整，无性交史。生殖系统健康，无炎症、病变及性传播疾病征象。总体性健康良好，性反应正常。', exam_image_url: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVTNpL5S9_KwE7GW530cORDdXS5AkLwACTgtrG2S7eUVgqbDmsL37FgEAAwIAA3gAAzYE.png', image_details: { title: '视检影像留档', device: 'Xiaomi 17 Pro ', location: '校医院 体检室B', event: '2024.09.17 11:00', subject: '薛锦烨', description: '外阴发育成熟，阴阜皮肤光滑、完全无阴毛生长，符合先天性无阴毛症；大阴唇饱满，色泽正常肉色，小阴唇对称、边缘整齐；阴蒂头部分暴露于包皮外，阴蒂体体积正常，包皮可轻松上翻；处女膜呈环形，边缘完整、光滑，无撕裂、缺损及瘢痕，处女膜孔中等大小；阴道前庭黏膜淡红、光滑，未见明显充血、水肿或色素沉着；宫颈低位，充分暴露，外口呈小圆孔型，表面光滑，无糜烂及接触性出血；无异常分泌物。' }, details: [{ item: '视检', value: '正常', range: 'N/A', status: '正常' }, { item: '指检', value: '正常', range: 'N/A', status: '正常' }, { item: '雌二醇水平 (pg/mL)', value: '165', range: '30-400', status: '正常' }, { item: '卵巢检查', value: '正常', range: 'N/A', status: '正常', color: 'text-accentGreen' }, { item: '子宫检查', value: '正常', range: 'N/A', status: '正常', color: 'text-accentGreen' }] }, '2024_spring': { title: '2024年春季体检报告', date: '2024.04.15', height: 165.0, weight: 50.5, bmi: 18.5, vision_left: 4.9, vision_right: 5.0, blood_pressure: '118/75', result_summary: '体质健康，BMI正常。注意用眼习惯，防止视力继续下降。', exam_image_url: null, details: [{ item: '身高 (cm)', value: '165.0', range: '160-180', status: '正常' }, { item: '体重 (kg)', value: '50.5', range: '50-70', status: '正常' }, { item: 'BMI', value: '18.5', range: '18.5-24.9', status: '正常' }, { item: '双眼视力', value: '4.9 / 5.0', range: '4.9+ / 4.9+', status: '正常' }, { item: '血压 (mmHg)', value: '118/75', range: '90/60-140/90', status: '正常' }, { item: '肺活量 (ml)', value: '4100', range: '3500+', status: '良好' }, { item: '心率 (次/分)', value: '80', range: '60-100', status: '正常' }] }, '2023_fall': { title: '2023年秋季体检报告', date: '2023.10.10', height: 165.2, weight: 49.7, bmi: 18.2, vision_left: 4.9, vision_right: 4.9, blood_pressure: '120/78', result_summary: '体质平稳，无异常。', exam_image_url: null, details: [{ item: '身高 (cm)', value: '165.2', range: '160-180', status: '正常' }, { item: '体重 (kg)', value: '49.7', range: '50-70', status: '正常' }, { item: 'BMI', value: '18.2', range: '18.5-24.9', status: '正常' }, { item: '双眼视力', value: '4.8 / 4.9', range: '4.9+ / 4.9+', status: '正常' }, { item: '血压 (mmHg)', value: '120/78', range: '90/60-140/90', status: '正常' }, { item: '肺活量 (ml)', value: '4050', range: '3800+', status: '良好' }, { item: '心率 (次/分)', value: '78', range: '60-100', status: '正常' }] } };
+        const healthData_huang_jiaxi = { 
+            '2022_fall': { 
+                title: '2022年秋季体检报告', 
+                date: '2022.11.10', 
+                height: 178.5, 
+                weight: 68.2, 
+                bmi: 21.3, 
+                vision_left: 4.8, 
+                vision_right: 4.8, 
+                blood_pressure: '120/80', 
+                heartbeat: 72,
+                result_summary: '体质良好，无明显异常。BMI正常，需注意视力保持。', 
+                exam_image_url: null, 
+                hasImageArchive: 0,
+                details: [
+                    { item: '身高 (cm)', value: '180.5', range: '170-185', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '体重 (kg)', value: '62.2', range: '55-75', status: '正常', color: 'text-accentGreen' }, 
+                    { item: 'BMI', value: '20.7', range: '18.5-24.9', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '双眼视力', value: '5.0 / 5.1', range: '4.9+ / 4.9+', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '血压 (mmHg)', value: '120/80', range: '90/60-140/90', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '肺活量 (ml)', value: '4500', range: '3800+', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '心率 (bpm)', value: '72', range: '60-100', status: '正常', color: 'text-accentGreen' }, 
+                ] 
+            }, 
+            '2022_spring': { 
+                title: '2022年春季体检报告', 
+                date: '2022.04.05', 
+                height: 178.0, 
+                weight: 66.0, 
+                bmi: 20.8, 
+                vision_left: 4.9, 
+                vision_right: 5.0, 
+                blood_pressure: '118/78', 
+                heartbeat: 75,
+                result_summary: '体质良好，各项指标稳定。视力略有波动。', 
+                exam_image_url: null,
+                hasImageArchive: 0, 
+                details: [
+                    { item: '身高 (cm)', value: '179.6', range: '170-185', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '体重 (kg)', value: '63.5', range: '55-75', status: '正常', color: 'text-accentGreen' },  
+                    { item: 'BMI', value: '20.8', range: '18.5-24.9', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '双眼视力', value: '5.0 / 5.0', range: '4.9+ / 4.9+', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '血压 (mmHg)', value: '118/78', range: '90/60-140/90', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '肺活量 (ml)', value: '4500', range: '3800+', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '心率 (bpm)', value: '75', range: '60-100', status: '正常', color: 'text-accentGreen' }, 
+                ] 
+            }, 
+            //'2021_fall': { 
+            //    title: '2021年秋季体检报告', 
+            //    date: '2021.10.15', 
+            //    height: 176.5, 
+            //    weight: 64.5, 
+            //    bmi: 20.7, 
+            //    vision_left: 5.0, 
+            //    vision_right: 5.0, 
+            //    blood_pressure: '122/80', 
+            //    result_summary: '身高持续增长，发育正常。视力保持良好。', 
+            //    exam_image_url: null, 
+            //    details: [
+            //        { item: '身高 (cm)', value: '179.2', range: '170-185', status: '正常' }, 
+            //        { item: '体重 (kg)', value: '64.5', range: '55-75', status: '正常' }, 
+            //        { item: 'BMI', value: '20.1', range: '18.5-24.9', status: '正常' }, 
+            //        { item: '双眼视力', value: '5.1 / 5.0', range: '4.9+ / 4.9+', status: '正常' }, 
+            //        { item: '血压 (mmHg)', value: '122/80', range: '90/60-140/90', status: '正常' }
+            //    ] 
+            //} 
+        };
+        const healthData_song_peizi = { 
+            '2022_fall_urgent': { 
+                title: '初次性行为后评估', 
+                date: '2022.12.19', 
+                thermometer: '36.5',
+                heartbeat: '78',
+                blood_pressure: '112/75', 
+                activity: '17',
+                consciousness: '清醒',
+                bmi: 17.5, 
+                vision_left: 4.6, 
+                vision_right: 4.7, 
+                result_summary: '（两小时前发生初次性行为）外阴无异常外伤，阴道瓣已破裂并见新鲜裂口，阴道壁中度充血/红肿但无深层撕裂，宫颈外观正常，后穹窿分泌物中检测到大量活跃精子残留。', 
+                exam_image_url: null, 
+                hasImageArchive: 0,
+                details: [
+                    { item: '视检', value: '正常', range: 'N/A', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '指检', value: '正常', range: 'N/A', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '体内存留精液量 (mL)', value: '7.3', range: '0.5-1.5', status: '过多', color: 'text-accentRed' }, 
+                    { item: 'RPR/TPPA', value: '阴性', range: 'N/A', status: '阴性', color: 'text-accentGreen' }, 
+                    { item: 'PCR', value: '阴性', range: 'N/A', status: '阴性', color: 'text-accentGreen' }, 
+                    { item: 'HIV(ELISA)', value: '阴性', range: 'N/A', status: '阴性', color: 'text-accentGreen' }, 
+                ] 
+            }, 
+            '2022_fall_reproductive': { 
+                title: '生殖健康与发育状况专检', 
+                date: '2022.11.10', 
+                height: 168.2, 
+                weight: 49.1, 
+                bmi: 17.4, 
+                vision_left: 4.5, 
+                vision_right: 4.7, 
+                blood_pressure: '110/70', 
+                result_summary: '生殖系统发育完善，阴道瓣完整，无性交史。生殖系统健康，无炎症、病变及性传播疾病征象。总体性健康良好，但有频繁阴蒂刺激史。', 
+                exam_image_url: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVTBpL5PF7nNBBazWRHZ2NDLmgZ2vdwACSgtrG2S7eUXnZ6gSCKK4HAEAAwIAA3gAAzYE.png', 
+                hasImageArchive: 1,
+                image_details: { 
+                    title: '视检影像留档', 
+                    device: 'iPhone 14 Pro Max', 
+                    location: '校医院 体检室A', 
+                    event: '2022.11.10 11:15', 
+                    subject: '宋佩姿', 
+                    description: '外阴发育成熟，阴阜毛发呈水平分布、稀疏型；大、小阴唇饱满，色泽浅粉，局部见轻度色素沉着；阴蒂包皮覆盖完全，阴蒂头体积略增，包皮较松弛，表面血管纹理稍明显；阴蒂系带及小阴唇内侧黏膜轻度充血，呈暗红色，局部黏膜皱襞略增厚、粗糙；处女膜呈环形，边缘完整、光滑，无撕裂及缺损，但处女膜孔周缘黏膜稍水肿、增厚；阴道前庭及前庭大腺开口区黏膜轻度增生，触诊敏感度高；宫颈低位，暴露满意，外口圆形，表面光滑，无糜烂及接触性出血。' 
+                }, 
+                details: [
+                    { item: '视检', value: '正常', range: 'N/A', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '指检', value: '正常', range: 'N/A', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '雌二醇水平 (pg/mL)', value: '150', range: '30-400', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '卵巢检查', value: '正常', range: 'N/A', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '子宫检查', value: '正常', range: 'N/A', status: '正常', color: 'text-accentGreen' }
+                ] 
+            }, 
+            '2022_fall': { 
+                title: '2022年秋季体检报告', 
+                date: '2022.11.10', 
+                height: 168.0, 
+                weight: 48.9, 
+                bmi: 17.3, 
+                vision_left: 4.5, 
+                vision_right: 4.7, 
+                blood_pressure: '110/70', 
+                heartbeat: 78,
+                result_summary: '体质轻盈，各项指标正常。视力优秀。', 
+                exam_image_url: null, 
+                hasImageArchive: 0, 
+                details: [
+                    { item: '身高 (cm)', value: '168.0', range: '155-175', status: '正常', color: 'text-accentGreen' },  
+                    { item: '体重 (kg)', value: '48.9', range: '45-65', status: '正常', color: 'text-accentGreen' }, 
+                    { item: 'BMI', value: '17.3', range: '18.5-24.9', status: '正常', color: 'text-accentGreen' },  
+                    { item: '双眼视力', value: '4.5 / 4.7', range: '4.9+ / 4.9+', status: '近视', color: 'text-accentRed' }, 
+                    { item: '血压 (mmHg)', value: '111/70', range: '90/60-140/90', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '肺活量 (ml)', value: '3500', range: '3000+', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '心率 (bpm)', value: '78', range: '60-100', status: '正常', color: 'text-accentGreen' }, 
+                ] 
+            }, 
+            '2022_spring': { 
+                title: '2022年春季体检报告', 
+                date: '2022.04.05', 
+                height: 167.2, 
+                weight: 47.1, 
+                bmi: 16.8, 
+                vision_left: 4.5, 
+                vision_right: 4.6, 
+                blood_pressure: '112/72', 
+                heartbeat: 75,
+                result_summary: '体质平稳，无异常。', 
+                exam_image_url: null, 
+                hasImageArchive: 0, 
+                details: [
+                    { item: '身高 (cm)', value: '167.2', range: '155-175', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '体重 (kg)', value: '47.1', range: '45-65', status: '正常', color: 'text-accentGreen' },  
+                    { item: 'BMI', value: '16.8', range: '18.5-24.9', status: '偏瘦', color: 'text-accentRed' }, 
+                    { item: '双眼视力', value: '4.5 / 4.6', range: '4.9+ / 4.9+', status: '近视', color: 'text-accentRed' }, 
+                    { item: '血压 (mmHg)', value: '112/72', range: '90/60-140/90', status: '正常', color: 'text-accentGreen' },  
+                    { item: '肺活量 (ml)', value: '3480', range: '3000+', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '心率 (bpm)', value: '75', range: '60-100', status: '正常', color: 'text-accentGreen' }
+                ] 
+            } 
+        };
+        const healthData_xue_jinye = { 
+            '2022_fall_urgent': { 
+                title: '初次性行为后评估', 
+                date: '2022.12.28', 
+                thermometer: '36.8',
+                heartbeat: '78',
+                blood_pressure: '115/72', 
+                activity: '18',
+                consciousness: '清醒',
+                bmi: 18.3, 
+                vision_left: 4.9, 
+                vision_right: 5.0, 
+                result_summary: '（三小时前发生初次性行为）外阴无异常外伤，阴道瓣已破裂并见新鲜裂口，阴道壁中度充血/红肿但无深层撕裂，宫颈外观正常，后穹窿分泌物中检测到大量活跃精子残留。', 
+                exam_image_url: null, 
+                hasImageArchive: 0,
+                details: [
+                    { item: '视检', value: '正常', range: 'N/A', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '指检', value: '正常', range: 'N/A', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '体内存留精液量 (mL)', value: '5.2', range: '0.5-1.5', status: '过多', color: 'text-accentRed' }, 
+                    { item: 'RPR/TPPA', value: '阴性', range: 'N/A', status: '阴性', color: 'text-accentGreen' }, 
+                    { item: 'PCR', value: '阴性', range: 'N/A', status: '阴性', color: 'text-accentGreen' }, 
+                    { item: 'HIV', value: '阴性', range: 'N/A', status: '阴性', color: 'text-accentGreen' }, 
+                ] 
+            }, 
+            '2022_fall_reproductive': { 
+                title: '生殖健康与发育状况专检', 
+                date: '2022.11.10', 
+                height: 165.2, 
+                weight: 50.1, 
+                bmi: 18.4, 
+                vision_left: 4.9, 
+                vision_right: 5.0, 
+                blood_pressure: '118/75', 
+                result_summary: '生殖系统发育完善，阴道瓣完整，无性交史。生殖系统健康，无炎症、病变及性传播疾病征象。总体性健康良好，性反应正常。', 
+                exam_image_url: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVTNpL5S9_KwE7GW530cORDdXS5AkLwACTgtrG2S7eUVgqbDmsL37FgEAAwIAA3gAAzYE.png', 
+                hasImageArchive: 1, 
+                image_details: { 
+                    title: '视检影像留档', 
+                    device: 'Xiaomi 17 Pro ', 
+                    location: '校医院 体检室B', 
+                    event: '2022.11.10 11:03', 
+                    subject: '薛锦烨', 
+                    description: '外阴发育成熟，阴阜皮肤光滑、完全无阴毛生长，符合先天性无阴毛症；大阴唇饱满，色泽正常肉色，小阴唇对称、边缘整齐；阴蒂头部分暴露于包皮外，阴蒂体体积正常，包皮可轻松上翻；处女膜呈环形，边缘完整、光滑，无撕裂、缺损及瘢痕，处女膜孔中等大小；阴道前庭黏膜淡红、光滑，未见明显充血、水肿或色素沉着；宫颈低位，充分暴露，外口呈小圆孔型，表面光滑，无糜烂及接触性出血；无异常分泌物。' 
+                }, 
+                details: [
+                    { item: '视检', value: '正常', range: 'N/A', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '指检', value: '正常', range: 'N/A', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '雌二醇水平 (pg/mL)', value: '165', range: '30-400', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '卵巢检查', value: '正常', range: 'N/A', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '子宫检查', value: '正常', range: 'N/A', status: '正常', color: 'text-accentGreen' }
+                ] 
+            }, 
+            '2022_fall': { 
+                title: '2022年秋季体检报告', 
+                date: '2022.11.10', 
+                height: 165.0, 
+                weight: 50.5, 
+                bmi: 18.5, 
+                vision_left: 4.9, 
+                vision_right: 5.0, 
+                blood_pressure: '118/75', 
+                heartbeat: 80,
+                result_summary: '体质健康，BMI正常。注意用眼习惯，防止视力继续下降。', 
+                exam_image_url: null, 
+                hasImageArchive: 0, 
+                details: [
+                    { item: '身高 (cm)', value: '165.0', range: '160-180', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '体重 (kg)', value: '50.5', range: '50-70', status: '正常', color: 'text-accentGreen' }, 
+                    { item: 'BMI', value: '18.5', range: '18.5-24.9', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '双眼视力', value: '4.9 / 5.0', range: '4.9+ / 4.9+', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '血压 (mmHg)', value: '118/75', range: '90/60-140/90', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '肺活量 (ml)', value: '4100', range: '3500+', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '心率 (bpm)', value: '80', range: '60-100', status: '正常', color: 'text-accentGreen' }
+                ] 
+            }, 
+            '2022_spring': { 
+                title: '2022年春季体检报告', 
+                date: '2022.04.05', 
+                height: 165.2, 
+                weight: 49.7, 
+                bmi: 18.2, 
+                vision_left: 4.9, 
+                vision_right: 4.9, 
+                blood_pressure: '120/78', 
+                heartbeat: 78,
+                result_summary: '体质平稳，无异常。', 
+                exam_image_url: null, 
+                hasImageArchive: 0, 
+                details: [
+                    { item: '身高 (cm)', value: '165.2', range: '160-180', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '体重 (kg)', value: '49.7', range: '50-70', status: '正常', color: 'text-accentGreen' }, 
+                    { item: 'BMI', value: '18.2', range: '18.5-24.9', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '双眼视力', value: '4.8 / 4.9', range: '4.9+ / 4.9+', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '血压 (mmHg)', value: '120/78', range: '90/60-140/90', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '肺活量 (ml)', value: '4050', range: '3800+', status: '正常', color: 'text-accentGreen' }, 
+                    { item: '心率 (bpm)', value: '78', range: '60-100', status: '正常', color: 'text-accentGreen' }
+                ] 
+            } 
+        };
         const li_jingyao_healthData = {};
-        const allHealthData = { 'huang_jiaxi': healthData_huang_jiaxi, 'song_peizi': healthData_song_peizi, 'xue_jinye': healthData_xue_jinye, 'li_jingyao': li_jingyao_healthData };
+        const allHealthData = { 
+            'huang_jiaxi': healthData_huang_jiaxi, 
+            'song_peizi': healthData_song_peizi, 
+            'xue_jinye': healthData_xue_jinye, 
+            'li_jingyao': li_jingyao_healthData 
+        };
         window.allHealthData = allHealthData;
 
         // Archive Modal Logic
@@ -383,7 +1449,7 @@
             const signatureEl = document.getElementById('rewards-detail-modal-signature');
             
             const certificateType = type === 'Honor' ? '荣誉证书' : '惩戒通知';
-            const levelText = level === 'Major' ? '主要/严重' : '次要/轻微';
+            const levelText = level === 'Major' ? '高' : '低';
             const studentName = window.studentData[window.currentStudentId]?.name || '未知学生';
             const accentColor = type === 'Honor' ? 'text-accentYellow' : 'text-accentRed';
             const accentLineBg = type === 'Honor' ? 'bg-accentOrange' : 'bg-accentRed';
@@ -706,7 +1772,12 @@
                 const isLatest = (index === 0);
                 const innerClass = isLatest ? 'health-card-inner bg-dark text-white p-4 rounded-2xl shadow-lg' : 'health-card-inner bg-[#F3F0EA] hover:bg-white border border-transparent hover:border-gray-200 p-4 rounded-2xl transition-all';
                 const titleClass = isLatest ? 'font-bold text-sm text-accentGreen' : 'font-bold text-sm text-dark group-hover:text-accentGreen transition-colors';
-                const tagText = examId.includes('_reproductive') ? '专检' : (isLatest ? '最新' : '常规');
+                
+                let tagText = '常规';
+                if (examId.includes('_reproductive')) tagText = '专检';
+                else if (examId.includes('_urgent') || exam.title.includes('急检')) tagText = '急检';
+                else if (isLatest) tagText = '最新';
+
                 const tagBg = isLatest ? 'bg-accentGreen text-dark' : 'bg-white text-gray-400';
                 const bmi = exam.bmi;
                 const vision = exam.vision_left === exam.vision_right ? exam.vision_left : `${exam.vision_left}/${exam.vision_right}`;
@@ -729,22 +1800,11 @@
             summaryContainer.innerHTML = '';
             summaryContainer.insertAdjacentHTML('beforeend', `<p class="text-sm text-gray-500">${data.result_summary}</p>`);
 
-            const isReproductiveExam = examId.includes('_reproductive');
+            const isReproductiveExam = data.hasImageArchive === 1;
+            const isUrgentExam = (data.title && data.title.includes('急检')) || (examId && examId.includes('_urgent'));
+            const isFirstSexExam = data.isFirstSexExam === 1;
             
             if (isReproductiveExam) {
-                document.getElementById('stat-icon-1').className = 'ph-fill ph-eye text-xl sm:text-2xl text-accentBlue mb-2';
-                document.getElementById('stat-label-1').textContent = '视检';
-                document.getElementById('stat-height').textContent = '正常';
-                document.getElementById('stat-card-1').className = 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center';
-
-                let checkLabel = '指检';
-                let checkIcon = 'ph-fill ph-hand-tap';
-                if (student.gender === '男') { checkLabel = '触检'; checkIcon = 'ph-fill ph-hand-palm'; }
-                document.getElementById('stat-icon-2').className = `${checkIcon} text-xl sm:text-2xl text-accentOrange mb-2`;
-                document.getElementById('stat-label-2').textContent = checkLabel;
-                document.getElementById('stat-weight').textContent = '正常';
-                document.getElementById('stat-card-2').className = 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center';
-
                 const gender = student.gender;
                 const hormoneKey = gender === '男' ? '睾酮' : '雌二醇';
                 const organKey = gender === '男' ? '睾丸' : '卵巢';
@@ -753,41 +1813,109 @@
                 const organData = data.details.find(d => d.item.includes(organKey));
                 const otherData = data.details.find(d => d.item.includes(otherKey));
 
-                document.getElementById('stat-icon-3').className = 'ph-fill ph-flask text-2xl text-accentYellow mb-2';
-                document.getElementById('stat-label-3').textContent = hormoneData?.item.replace(/ *\([^)]*\) /g, "") || '激素水平';
-                document.getElementById('stat-bmi').textContent = hormoneData?.value || 'N/A';
-                document.getElementById('stat-card-3').className = 'bg-dark text-white rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center';
+                let checkLabel = '指检';
+                let checkIcon = 'ph-hand-tap';
+                if (student.gender === '男') { checkLabel = '触检'; checkIcon = 'ph-hand-palm'; }
 
-                document.getElementById('stat-icon-4').className = 'ph-fill ph-shield-check text-2xl text-accentGreen mb-2';
-                document.getElementById('stat-label-4').textContent = organData?.item.replace(/ *\([^)]*\) /g, "") || '器官检查';
-                document.getElementById('stat-vision').textContent = organData?.status || 'N/A';
-                document.getElementById('stat-card-4').className = 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center';
+                const stats = [
+                    { icon: 'ph-eye', label: '视检', value: '正常', color: 'text-accentBlue', cardClass: 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center' },
+                    { icon: checkIcon, label: checkLabel, value: '正常', color: 'text-accentOrange', cardClass: 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center' },
+                    { icon: 'ph-flask', label: hormoneData?.item.replace(/ *\([^)]*\) /g, "") || '激素水平', value: hormoneData?.value || 'N/A', color: 'text-accentYellow', cardClass: 'bg-dark text-white rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center' },
+                    { icon: 'ph-shield-check', label: organData?.item.replace(/ *\([^)]*\) /g, "") || '器官检查', value: organData?.status || 'N/A', color: 'text-accentGreen', cardClass: 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center' },
+                    { icon: 'ph-stethoscope', label: otherData?.item.replace(/ *\([^)]*\) /g, "") || '附加检查', value: otherData?.status || 'N/A', color: 'text-accentRed', cardClass: 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center' }
+                ];
 
-                document.getElementById('stat-icon-5').className = 'ph-fill ph-stethoscope text-2xl text-accentRed mb-2';
-                document.getElementById('stat-label-5').textContent = otherData?.item.replace(/ *\([^)]*\) /g, "") || '附加检查';
-                document.getElementById('stat-bp').textContent = otherData?.status || 'N/A';
-                document.getElementById('stat-card-5').className = 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center';
+                document.getElementById('stat-icon-1').className = `ph-fill ${stats[0].icon} text-xl sm:text-2xl ${stats[0].color} mb-2`;
+                document.getElementById('stat-label-1').textContent = stats[0].label;
+                document.getElementById('stat-height').textContent = stats[0].value;
+                document.getElementById('stat-card-1').className = stats[0].cardClass;
+
+                document.getElementById('stat-icon-2').className = `ph-fill ${stats[1].icon} text-xl sm:text-2xl ${stats[1].color} mb-2`;
+                document.getElementById('stat-label-2').textContent = stats[1].label;
+                document.getElementById('stat-weight').textContent = stats[1].value;
+                document.getElementById('stat-card-2').className = stats[1].cardClass;
+
+                document.getElementById('stat-icon-3').className = `ph-fill ${stats[2].icon} text-2xl ${stats[2].color} mb-2`;
+                document.getElementById('stat-label-3').textContent = stats[2].label;
+                document.getElementById('stat-bmi').textContent = stats[2].value;
+                document.getElementById('stat-card-3').className = stats[2].cardClass;
+
+                document.getElementById('stat-icon-4').className = `ph-fill ${stats[3].icon} text-xl sm:text-2xl ${stats[3].color} mb-2`;
+                document.getElementById('stat-label-4').textContent = stats[3].label;
+                document.getElementById('stat-vision').textContent = stats[3].value;
+                document.getElementById('stat-card-4').className = stats[3].cardClass;
+
+                document.getElementById('stat-icon-5').className = `ph-fill ${stats[4].icon} text-xl sm:text-2xl ${stats[4].color} mb-2`;
+                document.getElementById('stat-label-5').textContent = stats[4].label;
+                document.getElementById('stat-bp').textContent = stats[4].value;
+                document.getElementById('stat-card-5').className = stats[4].cardClass;
+
+            } else if (isUrgentExam) {
+                const stats = data.urgent_stats || [
+                    { icon: 'ph-thermometer', label: '体温 (°C)', value: `${data.thermometer}`, color: 'text-accentRed', cardClass: 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center' },
+                    { icon: 'ph-heartbeat', label: '心率 (bpm)', value: `${data.heartbeat}`, color: 'text-accentRed', cardClass: 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center' },
+                    { icon: 'ph-first-aid', label: '意识', value: `${data.consciousness}`, color: 'text-accentRed', cardClass: 'bg-dark text-white rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center' },
+                    { icon: 'ph-activity', label: '呼吸 (bpm)', value: `${data.activity}`, color: 'text-accentRed', cardClass: 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center' },
+                    { icon: 'ph-drop', label: '血压 (mmHg)', value: `${data.blood_pressure}`, color: 'text-accentRed', cardClass: 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center' }
+                ];
+                
+                document.getElementById('stat-icon-1').className = `ph-fill ${stats[0].icon} text-xl sm:text-2xl ${stats[0].color} mb-2`;
+                document.getElementById('stat-label-1').textContent = stats[0].label;
+                document.getElementById('stat-height').textContent = stats[0].value;
+                document.getElementById('stat-card-1').className = stats[0].cardClass;
+
+                document.getElementById('stat-icon-2').className = `ph-fill ${stats[1].icon} text-xl sm:text-2xl ${stats[1].color} mb-2`;
+                document.getElementById('stat-label-2').textContent = stats[1].label;
+                document.getElementById('stat-weight').textContent = stats[1].value;
+                document.getElementById('stat-card-2').className = stats[1].cardClass;
+
+                document.getElementById('stat-icon-3').className = `ph-fill ${stats[2].icon} text-2xl ${stats[2].color} mb-2`;
+                document.getElementById('stat-label-3').textContent = stats[2].label;
+                document.getElementById('stat-bmi').textContent = stats[2].value;
+                document.getElementById('stat-card-3').className = stats[2].cardClass;
+
+                document.getElementById('stat-icon-4').className = `ph-fill ${stats[3].icon} text-xl sm:text-2xl ${stats[3].color} mb-2`;
+                document.getElementById('stat-label-4').textContent = stats[3].label;
+                document.getElementById('stat-vision').textContent = stats[3].value;
+                document.getElementById('stat-card-4').className = stats[3].cardClass;
+
+                document.getElementById('stat-icon-5').className = `ph-fill ${stats[4].icon} text-xl sm:text-2xl ${stats[4].color} mb-2`;
+                document.getElementById('stat-label-5').textContent = stats[4].label;
+                document.getElementById('stat-bp').textContent = stats[4].value;
+                document.getElementById('stat-card-5').className = stats[4].cardClass;
             } else {
-                document.getElementById('stat-icon-1').className = 'ph-fill ph-ruler text-xl sm:text-2xl text-accentGreen mb-2';
-                document.getElementById('stat-label-1').textContent = '身高';
-                document.getElementById('stat-height').textContent = `${data.height} cm`;
-                document.getElementById('stat-card-1').className = 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center';
-                document.getElementById('stat-icon-2').className = 'ph-fill ph-scales text-xl sm:text-2xl text-accentGreen mb-2';
-                document.getElementById('stat-label-2').textContent = '体重';
-                document.getElementById('stat-weight').textContent = `${data.weight} kg`;
-                document.getElementById('stat-card-2').className = 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center';
-                document.getElementById('stat-icon-3').className = 'ph-fill ph-clipboard-text text-2xl text-accentYellow mb-2';
-                document.getElementById('stat-label-3').textContent = 'BMI 指数';
-                document.getElementById('stat-bmi').textContent = data.bmi;
-                document.getElementById('stat-card-3').className = 'bg-dark text-white rounded-[24px] lg:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center';
-                document.getElementById('stat-icon-4').className = 'ph-fill ph-eye text-xl sm:text-2xl text-accentGreen mb-2';
-                document.getElementById('stat-label-4').textContent = '双眼视力';
-                document.getElementById('stat-vision').textContent = `${data.vision_left} / ${data.vision_right}`;
-                document.getElementById('stat-card-4').className = 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center';
-                document.getElementById('stat-icon-5').className = 'ph-fill ph-heartbeat text-xl sm:text-2xl text-accentRed mb-2';
-                document.getElementById('stat-label-5').textContent = '血压 (mmHg)';
-                document.getElementById('stat-bp').textContent = data.blood_pressure;
-                document.getElementById('stat-card-5').className = 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center';
+                const stats = [
+                    { icon: 'ph-ruler', label: '身高 (cm)', value: `${data.height}`, color: 'text-accentGreen', cardClass: 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center' },
+                    { icon: 'ph-scales', label: '体重 (kg)', value: `${data.weight}`, color: 'text-accentGreen', cardClass: 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center' },
+                    { icon: 'ph-clipboard-text', label: 'BMI 指数', value: `${data.bmi}`, color: 'text-accentYellow', cardClass: 'bg-dark text-white rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center' },
+                    { icon: 'ph-heartbeat', label: '心率 (bpm)', value: `${data.heartbeat}`, color: 'text-accentRed', cardClass: 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center' },
+                    { icon: 'ph-drop', label: '血压 (mmHg)', value: `${data.blood_pressure}`, color: 'text-accentRed', cardClass: 'bg-cardLight rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 shadow-soft flex flex-col justify-between items-center text-center' }
+                ];
+
+                document.getElementById('stat-icon-1').className = `ph-fill ${stats[0].icon} text-xl sm:text-2xl ${stats[0].color} mb-2`;
+                document.getElementById('stat-label-1').textContent = stats[0].label;
+                document.getElementById('stat-height').textContent = stats[0].value;
+                document.getElementById('stat-card-1').className = stats[0].cardClass;
+
+                document.getElementById('stat-icon-2').className = `ph-fill ${stats[1].icon} text-xl sm:text-2xl ${stats[1].color} mb-2`;
+                document.getElementById('stat-label-2').textContent = stats[1].label;
+                document.getElementById('stat-weight').textContent = stats[1].value;
+                document.getElementById('stat-card-2').className = stats[1].cardClass;
+
+                document.getElementById('stat-icon-3').className = `ph-fill ${stats[2].icon} text-2xl ${stats[2].color} mb-2`;
+                document.getElementById('stat-label-3').textContent = stats[2].label;
+                document.getElementById('stat-bmi').textContent = stats[2].value;
+                document.getElementById('stat-card-3').className = stats[2].cardClass;
+
+                document.getElementById('stat-icon-4').className = `ph-fill ${stats[3].icon} text-xl sm:text-2xl ${stats[3].color} mb-2`;
+                document.getElementById('stat-label-4').textContent = stats[3].label;
+                document.getElementById('stat-vision').textContent = stats[3].value;
+                document.getElementById('stat-card-4').className = stats[3].cardClass;
+
+                document.getElementById('stat-icon-5').className = `ph-fill ${stats[4].icon} text-xl sm:text-2xl ${stats[4].color} mb-2`;
+                document.getElementById('stat-label-5').textContent = stats[4].label;
+                document.getElementById('stat-bp').textContent = stats[4].value;
+                document.getElementById('stat-card-5').className = stats[4].cardClass;
             }
 
             const tbody = document.getElementById('health-table-body');
@@ -818,16 +1946,21 @@
                 historyContainer.querySelectorAll('[id^="health-item-"]').forEach(item => {
                     const inner = item.querySelector('.health-card-inner');
                     const examKey = item.id.replace('history-item-', '');
-                    inner.className = 'health-card-inner bg-[#F3F0EA] hover:bg-white border border-transparent hover:border-gray-200 p-4 rounded-2xl transition-all';
-                    inner.querySelector('h4').className = 'font-bold text-sm text-dark group-hover:text-accentGreen transition-colors';
+                    inner.className = 'health-card-inner bg-[#F3F0EA] hover:bg-white border border-transparent hover:border-gray-200 p-4 rounded-2xl transition-all';inner.querySelector('h4').className = 'font-bold text-sm text-dark group-hover:text-accentGreen transition-colors';
                     const tagSpan = inner.querySelector('span:first-child');
-                    if (tagSpan) { tagSpan.className = 'text-[10px] text-gray-400 bg-white px-2 py-0.5 rounded-full border border-gray-100'; tagSpan.textContent = examKey.includes('_reproductive') ? '专检' : '常规'; }
+                    if (tagSpan) { 
+                        tagSpan.className = 'text-[10px] text-gray-400 bg-white px-2 py-0.5 rounded-full border border-gray-100'; 
+                        let tText = '常规';
+                        if (examKey.includes('_reproductive')) tText = '专检';
+                        else if (examKey.includes('_urgent')) tText = '急检';
+                        tagSpan.textContent = tText; 
+                    }
                 });
             }
             const activeItem = document.getElementById(`health-item-${examId}`);
             if (activeItem) {
                 const inner = activeItem.querySelector('.health-card-inner');
-                inner.className = 'health-card-inner bg-dark text-white p-4 rounded-2xl shadow-lg';
+                inner.className = 'health-card-inner bg-dark text-white p-4 rounded-2xl shadow-lg transform transition-all scale-[1.02]';
                 inner.querySelector('h4').className = 'font-bold text-sm text-accentGreen';
                 const tagSpan = inner.querySelector('span:first-child');
                 if (tagSpan) { tagSpan.className = 'text-xs font-bold bg-accentGreen text-dark px-2 py-0.5 rounded-full'; tagSpan.textContent = '当前'; }
@@ -872,13 +2005,97 @@
             });
         }
 
+        // ====================================================
+        // ======== [更新] 部门自定义详情浮窗逻辑 (Overlay版) ========
+        // ====================================================
+
+        /**
+         * 函数: 打开部门自定义信息浮窗 (Overlay 模式 - 样式优化版)
+         */
+        window.showDeptCustomInfo = function() {
+            if (!currentDeptIdForInfo) return;
+            
+            const deptData = departments[currentDeptIdForInfo];
+            const overlay = document.getElementById('dept-info-overlay');
+            const titleEl = document.getElementById('dept-info-overlay-title');
+            const contentEl = document.getElementById('dept-info-overlay-content');
+            const decorationEl = document.getElementById('dept-info-overlay-decoration');
+
+            if (!overlay) return;
+
+            // 获取自定义内容
+            const info = deptData.customInfo || {
+                title: `${deptData.title} · 部门细则`,
+                content: `<div class="h-full flex flex-col items-center justify-center text-gray-400 opacity-60">
+                    <i class="ph-duotone ph-notebook text-5xl mb-3"></i>
+                    <p class="text-sm">暂无详细规章制度</p>
+                </div>`
+            };
+
+            // 样式设置
+            const textColorClass = deptData.textClass; // e.g. text-accentRed
+            const bgClass = deptData.bgClass;       // e.g. bg-accentRed
+
+            // 更新内容与样式
+            titleEl.textContent = info.title;
+            
+            // [修改 3] 标题样式调整：使用 text-sm, uppercase, tracking-wider 以匹配“核心部员”
+            // 同时保留部门的主题色 (textColorClass)
+            titleEl.className = `text-sm font-bold uppercase tracking-wider ${textColorClass} pr-4`; 
+            
+            contentEl.innerHTML = info.content;
+            
+            // 更新背景装饰球
+            decorationEl.className = `absolute -bottom-10 -right-10 w-40 h-40 rounded-full opacity-10 blur-3xl pointer-events-none z-10 ${bgClass}`;
+
+            // 显示
+            overlay.classList.remove('hidden');
+        }
+
+        /**
+         * 函数: 关闭部门自定义信息浮窗
+         */
+        window.closeDeptCustomInfo = function() {
+            const overlay = document.getElementById('dept-info-overlay');
+            if (overlay) {
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // ESC 键监听逻辑更新 (修改 ID 引用即可)
+        document.addEventListener('keydown', function(event) {
+            const deptModal = document.getElementById('department-modal');
+            const overlay = document.getElementById('dept-info-overlay'); // [修改] 获取 overlay
+            
+            if (event.key === "Escape") {
+                // [修改] 优先关闭内部 Overlay
+                if (overlay && !overlay.classList.contains('hidden')) { 
+                    window.closeDeptCustomInfo();
+                    return; 
+                }
+                
+                // ... 原有逻辑保持不变
+                if (deptModal && !deptModal.classList.contains('hidden')) { window.closeDepartmentModal(); }
+                // ... 其他模态框关闭逻辑
+            }
+        });
+
 
         // Close on ESC key
         document.addEventListener('keydown', function(event) {
             const deptModal = document.getElementById('department-modal');
             const archiveDetailModal = document.getElementById('rewards-detail-modal');
             const imageModal = document.getElementById('image-modal');
+            // [新增] 部门自定义浮窗
+            const infoModal = document.getElementById('dept-custom-info-modal'); 
+            
             if (event.key === "Escape") {
+                // [新增] 优先关闭自定义浮窗
+                if (infoModal && !infoModal.classList.contains('hidden')) { 
+                    window.closeDeptCustomInfo();
+                    return; // 阻止后续逻辑
+                }
+                
                 if (deptModal && !deptModal.classList.contains('hidden')) { window.closeDepartmentModal(); }
                 else if (archiveDetailModal && !archiveDetailModal.classList.contains('hidden')) { window.closeRewardsDetailModal(); }
                 else if (imageModal && !imageModal.classList.contains('hidden')) { window.closeExamImage(); }
@@ -1868,11 +3085,35 @@
                                 </div>
 
                                 <!-- Members Grid (Populated by JS) -->
-                                <div class="md:col-span-8 bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-                                    <h5 class="text-sm font-bold text-gray-400 uppercase mb-4 tracking-wider">核心部员</h5>
-                                    <div id="modal-members-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                        <!-- Dynamic Content -->
+                                <div class="md:col-span-8 bg-white rounded-3xl p-6 shadow-sm border border-gray-100 relative overflow-hidden transition-all">
+    
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h5 class="text-sm font-bold text-gray-400 uppercase tracking-wider">核心部员</h5>
+                                        
+                                        <button id="dept-info-trigger" onclick="window.showDeptCustomInfo()" class="w-6 h-6 rounded-full border border-gray-200 text-gray-400 flex items-center justify-center transition-colors shadow-sm cursor-pointer z-10" title="查看部门细则">
+                                            <i class="ph-bold ph-info text-sm"></i>
+                                        </button>
                                     </div>
+
+                                    <div id="modal-members-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                        </div>
+
+                                    <div id="dept-info-overlay" class="hidden absolute inset-0 bg-white z-20 p-6 flex flex-col animate-fade-in-down">
+                                        
+                                        <div class="flex justify-between items-center mb-4 flex-shrink-0 relative z-20">
+                                            <h3 id="dept-info-overlay-title" class="text-dark">部门详情</h3>
+                                            
+                                            <button onclick="window.closeDeptCustomInfo()" class="w-6 h-6 rounded-full bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-gray-500 transition-colors cursor-pointer" title="返回">
+                                                <i class="ph-bold ph-arrow-left text-sm"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <div id="dept-info-overlay-content" class="flex-1 overflow-y-auto no-scrollbar relative z-20 pr-1">
+                                            </div>
+
+                                        <div id="dept-info-overlay-decoration" class="absolute -bottom-10 -right-10 w-32 h-32 rounded-full opacity-10 blur-2xl pointer-events-none z-10"></div>
+                                    </div>
+
                                 </div>
                             </div>
                         </section>
@@ -1930,6 +3171,27 @@
                                             
                                         <div id="modal-feature-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                             <!-- Dynamic List Items -->
+                                        </div>
+                                    </div>
+
+                                    <!-- Custom info -->
+                                    <div id="dept-custom-info-modal" class="hidden fixed inset-0 z-[150] flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-6 transition-opacity duration-300">
+                                        <div class="absolute inset-0" onclick="window.closeDeptCustomInfo()"></div>
+                                        
+                                        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 relative z-10 animate-fade-in-down overflow-hidden">
+                                            <div id="dept-info-decoration" class="absolute -top-10 -right-10 w-24 h-24 bg-gray-100 rounded-full opacity-50 blur-xl"></div>
+
+                                            <div class="flex justify-between items-start mb-4 relative">
+                                                <h3 id="dept-info-modal-title" class="text-lg font-bold text-dark pr-4">部门详情</h3>
+                                                <button onclick="window.closeDeptCustomInfo()" class="w-6 h-6 rounded-full bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-gray-500 transition-colors">
+                                                    <i class="ph-bold ph-x text-xs"></i>
+                                                </button>
+                                            </div>
+                                            
+                                            <div id="dept-info-modal-content" class="relative max-h-[60vh] overflow-y-auto pr-2 no-scrollbar">
+                                                </div>
+
+                                            <div id="dept-info-bar" class="w-full h-1 bg-gray-100 mt-6 rounded-full"></div>
                                         </div>
                                     </div>
 
