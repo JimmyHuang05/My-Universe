@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CampusHub - 校园生活圈</title>
+    
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 引入 FontAwesome 图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- 配置 Tailwind 主题 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6', // 蓝色主色调
+                        secondary: '#64748b',
+                        surface: '#ffffff',
+                        background: '#f8fafc',
+                        bilibili: '#FB7299', // 仿B站粉色
+                        treehole: '#10b981', // 树洞绿色
+                        market: '#f97316',   // 集市橙色
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* 全局隐藏滚动条 */
+        html, body {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE 10+ */
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar {
+            display: none; /* Chrome/Safari/Webkit */
+        }
+
+        /* 简单的点赞动画 */
+        .like-anim {
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .like-anim:active {
+            transform: scale(1.3);
+        }
+        .liked {
+            color: #ef4444; /* 帖子点赞红 */
+        }
+        .comment-liked {
+            color: #FB7299; /* 评论点赞粉 */
+        }
+
+        /* --- 全屏直接高斯模糊效果 --- */
+        .full-screen-backdrop {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0);
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease, backdrop-filter 0.5s ease;
+        }
+
+        .full-screen-backdrop.active {
+            background-color: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* --- 发帖面板的缓动效果 --- */
+        .modal-panel {
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease;
+        }
+
+        /* 底部导航栏在桌面端隐藏 */
+        @media (min-width: 768px) {
+            .mobile-nav { display: none; }
+            .desktop-nav { display: flex; }
+            .fab-button { display: none; }
+        }
+        
+        @media (max-width: 767px) {
+            .mobile-nav { display: flex; }
+            .desktop-nav { display: none; }
+            body { padding-bottom: 80px; }
+        }
+
+        /* 评论区动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-background text-gray-800 font-sans antialiased selection:bg-primary selection:text-white">
+
+    <!-- 顶部导航栏 -->
+    <header class="fixed top-0 w-full z-40 bg-surface/90 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300" id="header">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0); openFeed();">
+                <div class="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center text-white font-bold text-lg">C</div>
+                <span class="text-xl font-bold tracking-tight text-gray-900">CampusHub<sup class="text-xs text-primary ml-1 font-medium">beta</sup></span>
+            </div>
+
+            <div class="desktop-nav items-center gap-6">
+                <div class="relative">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="搜索标题或发帖人..." class="pl-9 pr-4 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 w-64 transition-all">
+                </div>
+                <nav class="flex gap-6 text-sm font-medium text-gray-600">
+                    <a href="javascript:void(0)" onclick="openFeed()" id="nav-square" class="hover:text-primary transition-colors text-primary font-bold">广场</a>
+                    <a href="javascript:void(0)" onclick="openTreeHole()" id="nav-treehole" class="hover:text-primary transition-colors">树洞</a>
+                    <a href="javascript:void(0)" onclick="openMarket()" id="nav-market" class="hover:text-primary transition-colors">集市</a>
+                </nav>
+                <div class="flex items-center gap-3 pl-4 border-l border-gray-200">
+                    <button class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                        <i class="fa-regular fa-bell text-gray-600 text-sm"></i>
+                    </button>
+                    <!-- 当前用户头像 (User) -->
+                    <div id="desktop-user-avatar">
+                        <!-- JS将在此插入头像 -->
+                    </div>
+                    <button onclick="toggleModal('postModal')" class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors shadow-lg shadow-blue-500/30">
+                        发帖
+                    </button>
+                </div>
+            </div>
+
+            <div class="md:hidden flex items-center gap-3">
+                <button class="w-8 h-8 flex items-center justify-center text-gray-600">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                <!-- 移动端当前用户头像 -->
+                <div id="mobile-user-avatar">
+                    <!-- JS将在此插入头像 -->
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主体内容 -->
+    <main class="max-w-6xl mx-auto px-4 pt-20 grid grid-cols-1 md:grid-cols-12 gap-6 relative">
+        
+        <!-- 左侧/主要内容流 -->
+        <div class="md:col-span-8 lg:col-span-8 transition-all duration-300">
+            
+            <!-- 1. 广场/主列表视图容器 -->
+            <div id="main-feed-view">
+                <!-- 排序工具栏 -->
+                <div class="flex items-center justify-between mb-4 px-1">
+                    <h3 class="font-bold text-gray-900 text-lg flex items-center gap-2">
+                        <span id="feed-title">最新动态</span>
+                        <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+                    </h3>
+                    <div class="flex gap-4 text-sm text-gray-500 bg-white px-3 py-1.5 rounded-full border border-gray-100 shadow-sm">
+                        <button id="feed-sort-hot" class="font-bold text-gray-900 cursor-pointer transition-colors flex items-center gap-1" onclick="switchFeedSortOrder('hot')">
+                            <i class="fa-solid fa-fire text-xs text-red-500"></i> 热门
+                        </button>
+                        <div class="w-[1px] h-3 bg-gray-200 self-center"></div>
+                        <button id="feed-sort-new" class="cursor-pointer hover:text-gray-900 transition-colors flex items-center gap-1" onclick="switchFeedSortOrder('new')">
+                            <i class="fa-regular fa-clock text-xs"></i> 最新
+                        </button>
+                    </div>
+                </div>
+
+                <div id="post-feed" class="space-y-4">
+                    <!-- 帖子将通过JS插入这里 -->
+                </div>
+                <div class="py-8 text-center" id="feed-loading-state">
+                    <button id="load-more" class="text-sm text-gray-500 hover:text-primary flex items-center justify-center gap-2 mx-auto">
+                        <span>加载更多内容</span>
+                        <i class="fa-solid fa-chevron-down text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. 帖子详情视图 (默认隐藏) -->
+            <div id="post-detail-view" class="hidden bg-white rounded-2xl shadow-sm border border-gray-100 min-h-[500px]">
+                <!-- 详情内容将通过JS动态插入 -->
+            </div>
+
+            <!-- 3. 个人主页视图 (默认隐藏) -->
+            <div id="user-profile-view" class="hidden flex-col gap-4">
+                <!-- 个人资料卡片 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
+                    <!-- 背景图 -->
+                    <div class="h-32 bg-gradient-to-r from-blue-400 to-indigo-500 relative">
+                        <button onclick="closeProfile()" class="absolute top-4 left-4 w-8 h-8 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-colors z-10">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="px-6 pb-6">
+                        <div class="flex justify-between items-end -mt-10 mb-4">
+                            <!-- 头像容器 -->
+                            <div id="profile-avatar-container" class="relative">
+                                <!-- JS 插入大头像 -->
+                            </div>
+                            <button class="bg-white border border-gray-200 text-gray-700 px-4 py-1.5 rounded-full text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm">
+                                编辑资料
+                            </button>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                                User 
+                                <span class="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">LV.5</span>
+                            </h2>
+                            <p class="text-gray-500 text-sm mt-1">这里是个人签名，热爱生活，热爱校园。</p>
+                        </div>
+
+                        <div class="flex gap-6 border-t border-gray-50 pt-4">
+                            <div class="text-center">
+                                <div class="text-lg font-bold text-gray-900" id="profile-stats-posts">0</div>
+                                <div class="text-xs text-gray-400">帖子</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-lg font-bold text-gray-900">128</div>
+                                <div class="text-xs text-gray-400">关注</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-lg font-bold text-gray-900">356</div>
+                                <div class="text-xs text-gray-400">粉丝</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-lg font-bold text-gray-900" id="profile-stats-likes">0</div>
+                                <div class="text-xs text-gray-400">获赞</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 个人动态列表 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 min-h-[300px] p-2">
+                    <div class="flex items-center gap-6 border-b border-gray-100 px-4">
+                        <button class="py-4 text-sm font-bold text-primary border-b-2 border-primary">我的动态</button>
+                        <button class="py-4 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">回复</button>
+                        <button class="py-4 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">点赞</button>
+                    </div>
+                    <div id="profile-posts-list" class="p-2 space-y-4 mt-2">
+                        <!-- JS 插入我的帖子 -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 4. 话题详情视图 (默认隐藏) -->
+            <div id="topic-detail-view" class="hidden flex-col gap-4">
+                 <!-- 话题 Banner 将由 JS 动态渲染 -->
+                 <div id="topic-header-container"></div>
+
+                <!-- 话题下的帖子列表 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 min-h-[500px] p-2">
+                    <div class="flex items-center gap-6 border-b border-gray-100 px-4 mb-2">
+                        <button id="topic-sort-hot" class="py-4 text-sm font-bold text-gray-900 border-b-2 border-gray-900 cursor-pointer">热门</button>
+                        <button id="topic-sort-new" class="py-4 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors cursor-pointer">实时</button>
+                    </div>
+                    <div id="topic-posts-feed" class="space-y-4">
+                        <!-- JS 插入话题帖子 -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 5. 树洞视图 (默认隐藏) -->
+            <div id="tree-hole-view" class="hidden flex-col gap-4">
+                <!-- 树洞 Banner -->
+                <div class="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl p-6 shadow-md text-white relative overflow-hidden">
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                <i class="fa-solid fa-tree text-xl"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold">树洞 · 匿名吐槽</h2>
+                        </div>
+                        <p class="text-emerald-50 text-sm opacity-90 max-w-lg">
+                            在这里，戴上面具，卸下防备。所有的烦恼、秘密和吐槽都可以留在这里。
+                        </p>
+                    </div>
+                    <!-- 装饰图标 -->
+                    <i class="fa-solid fa-comments absolute -bottom-4 -right-4 text-9xl text-white/10 rotate-12"></i>
+                </div>
+
+                <!-- 树洞列表 -->
+                <div id="tree-hole-feed" class="space-y-4">
+                    <!-- JS 插入树洞帖子 -->
+                </div>
+                
+                <div class="py-8 text-center text-gray-400 text-xs">
+                    <p>到底了，秘密就这么多 ~</p>
+                </div>
+            </div>
+
+            <!-- 6. 集市视图 (默认隐藏) -->
+            <div id="market-view" class="hidden flex-col gap-4">
+                <!-- 集市 Header -->
+                <div class="flex items-center justify-between px-2">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                            <span class="text-market">🛍️</span> 校园集市
+                        </h2>
+                        <p class="text-xs text-gray-500 mt-1">二手书、闲置好物、求购信息</p>
+                    </div>
+                    <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-xs font-bold transition-colors">
+                        发布闲置
+                    </button>
+                </div>
+
+                <!-- 分类标签 -->
+                <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide" id="market-tabs">
+                    <button onclick="filterMarket('all')" class="market-tab-btn flex-shrink-0 bg-market text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-sm shadow-orange-200" data-category="all">全部</button>
+                    <button onclick="filterMarket('二手书')" class="market-tab-btn flex-shrink-0 bg-white border border-gray-200 text-gray-600 px-4 py-1.5 rounded-full text-sm font-medium hover:border-market hover:text-market transition-colors" data-category="二手书">二手书/教材</button>
+                    <button onclick="filterMarket('数码')" class="market-tab-btn flex-shrink-0 bg-white border border-gray-200 text-gray-600 px-4 py-1.5 rounded-full text-sm font-medium hover:border-market hover:text-market transition-colors" data-category="数码">数码产品</button>
+                    <button onclick="filterMarket('生活')" class="market-tab-btn flex-shrink-0 bg-white border border-gray-200 text-gray-600 px-4 py-1.5 rounded-full text-sm font-medium hover:border-market hover:text-market transition-colors" data-category="生活">生活用品</button>
+                    <button onclick="filterMarket('求购')" class="market-tab-btn flex-shrink-0 bg-white border border-gray-200 text-gray-600 px-4 py-1.5 rounded-full text-sm font-medium hover:border-market hover:text-market transition-colors" data-category="求购">求购</button>
+                </div>
+
+                <!-- 商品列表 (Grid) -->
+                <div id="market-feed" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <!-- JS 插入商品 -->
+                </div>
+                
+                <div class="py-8 text-center text-gray-400 text-xs">
+                    <p>没有更多商品了</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 右侧侧边栏 (仅桌面端显示) -->
+        <aside class="hidden md:block md:col-span-4 lg:col-span-4 space-y-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h3 class="font-bold text-gray-900 mb-2">👋 欢迎回到 CampusHub</h3>
+                <p class="text-sm text-gray-500 leading-relaxed mb-4">
+                    这里是属于我们自己的校园生活圈。无论是选课避雷、寻找饭搭子还是二手交易，都在这里！
+                </p>
+                <div class="flex gap-4 text-center">
+                    <div class="flex-1 bg-indigo-50 rounded-lg py-2">
+                        <div class="text-lg font-bold text-indigo-600">8.2k</div>
+                        <div class="text-xs text-gray-500">校友</div>
+                    </div>
+                    <div class="flex-1 bg-indigo-50 rounded-lg py-2">
+                        <div class="text-lg font-bold text-indigo-600">500+</div>
+                        <div class="text-xs text-gray-500">今日新帖</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-fire text-red-500"></i> 全校热榜
+                </h3>
+                <ul class="space-y-4">
+                    <li class="flex items-start gap-3 cursor-pointer group" onclick="openTopic(1)">
+                        <span class="text-lg font-bold text-red-500 group-hover:text-primary transition-colors">1</span>
+                        <div>
+                            <p class="text-sm font-medium text-gray-800 group-hover:text-primary transition-colors line-clamp-1">期末考试延期? 教务处回应</p>
+                            <span class="text-xs text-gray-400">教务处辟谣，网传消息不实。</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3 cursor-pointer group" onclick="openTopic(2)">
+                        <span class="text-lg font-bold text-orange-500 group-hover:text-primary">2</span>
+                        <div>
+                            <p class="text-sm font-medium text-gray-800 group-hover:text-primary transition-colors line-clamp-1">食堂新开“自选称重”窗口评价</p>
+                            <span class="text-xs text-gray-400">师生热议，性价比高但排队较长。</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3 cursor-pointer group" onclick="openTopic(3)">
+                        <span class="text-lg font-bold text-yellow-500 group-hover:text-primary">3</span>
+                        <div>
+                            <p class="text-sm font-medium text-gray-800 group-hover:text-primary transition-colors line-clamp-1">高三期中成绩分析会直播回放</p>
+                            <span class="text-xs text-gray-400">班主任详细讲解本次考试趋势。</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="flex flex-wrap gap-x-4 gap-y-2 text-xs text-gray-400 px-2">
+                <a href="#" class="hover:underline">关于我们</a>
+                <a href="#" class="hover:underline">用户协议</a>
+                <a href="#" class="hover:underline">隐私政策</a>
+                <span>© 2023 Nexus Inc.</span>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- 移动端底部悬浮发布按钮 -->
+    <button onclick="toggleModal('postModal')" class="fab-button fixed bottom-20 right-4 w-14 h-14 bg-primary text-white rounded-full shadow-lg shadow-blue-500/40 flex items-center justify-center text-xl z-30 active:scale-95 transition-transform">
+        <i class="fa-solid fa-plus"></i>
+    </button>
+
+    <!-- 移动端底部导航栏 -->
+    <nav class="mobile-nav fixed bottom-0 w-full bg-white border-t border-gray-100 pb-safe z-40 justify-around items-center h-16 text-xs text-gray-500">
+        <a href="javascript:void(0)" onclick="openFeed()" class="flex flex-col items-center gap-1 w-full h-full justify-center text-primary" id="nav-home-mobile">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span>首页</span>
+        </a>
+        <a href="javascript:void(0)" onclick="openTreeHole()" class="flex flex-col items-center gap-1 w-full h-full justify-center hover:text-gray-900 transition-colors" id="nav-treehole-mobile">
+            <i class="fa-solid fa-tree text-lg"></i>
+            <span>树洞</span>
+        </a>
+        <a href="javascript:void(0)" onclick="openMarket()" class="flex flex-col items-center gap-1 w-full h-full justify-center hover:text-gray-900 transition-colors" id="nav-market-mobile">
+            <i class="fa-solid fa-store text-lg"></i>
+            <span>集市</span>
+        </a>
+        <a href="#" class="flex flex-col items-center gap-1 w-full h-full justify-center hover:text-gray-900 transition-colors">
+            <i class="fa-regular fa-user text-lg"></i>
+            <span>我的</span>
+        </a>
+    </nav>
+
+    <!-- 发帖模态框 -->
+    <div id="postModal" class="fixed inset-0 z-50 hidden flex flex-col items-center justify-center">
+        <div id="modalBackdrop" class="full-screen-backdrop" onclick="toggleModal('postModal')"></div>
+        <div id="modalPanel" class="modal-panel bg-white w-full max-w-lg md:w-[600px] rounded-2xl shadow-2xl p-6 flex flex-col max-h-[90vh] z-10 transform scale-95 opacity-0">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-900">发布新动态</h3>
+                <button onclick="toggleModal('postModal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <input type="text" placeholder="加个吸睛的标题 (必填)" class="w-full text-lg font-bold border-none focus:ring-0 focus:outline-none caret-primary placeholder:text-gray-300 px-0 mb-4 bg-transparent">
+            <textarea placeholder="分享你的校园生活、吐槽、或者求助..." class="w-full flex-1 min-h-[150px] resize-none border-none focus:ring-0 focus:outline-none caret-primary text-gray-600 px-0 bg-transparent text-base" id="postContent"></textarea>
+            <div class="flex gap-2 mb-6 overflow-x-auto py-2">
+                <span class="px-3 py-1 rounded-full bg-gray-100 text-xs text-gray-500 flex items-center gap-1 cursor-pointer hover:bg-gray-200">
+                    <i class="fa-solid fa-hashtag text-gray-400"></i> 话题
+                </span>
+                <span class="px-3 py-1 rounded-full bg-yellow-50 text-yellow-600 text-xs border border-yellow-100">求助万能的校友</span>
+                <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs border border-blue-100">闲置交易</span>
+            </div>
+            <div class="flex justify-between items-center border-t border-gray-100 pt-4">
+                <div class="flex gap-4 text-gray-400 text-lg">
+                    <button class="hover:text-primary"><i class="fa-regular fa-image"></i></button>
+                    <button class="hover:text-primary"><i class="fa-solid fa-link"></i></button>
+                    <button class="hover:text-primary"><i class="fa-regular fa-face-smile"></i></button>
+                </div>
+                <button onclick="submitPost()" class="bg-gray-900 hover:bg-gray-800 text-white px-6 py-2 rounded-full text-sm font-medium transition-colors">
+                    发布
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知 Toast -->
+    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-xl text-sm opacity-0 transition-opacity duration-300 pointer-events-none z-50 flex items-center gap-2">
+        <i class="fa-solid fa-check-circle text-green-400"></i>
+        <span id="toast-msg">操作成功</span>
+    </div>
+
+    <script>
+        // -------------------------
+        // 头像生成工具函数
+        // -------------------------
+        
+        const pinyinMap = { '黄': 'H', '骆': 'L', '华': 'H', '凝': 'N', '子': 'Z', '怡': 'Y', '婧': 'J', '瑶': 'Y', '锦': 'J', '烨': 'Y', '琰': 'Y', '清': 'Q', '任': 'R', '佳': 'J', '可': 'K', '依': 'Y', '郁': 'Y', '唯': 'W', '亦': 'Y', '婕': 'J', '雨': 'Y', '菲': 'F', '芯': 'X', '慈': 'C', '诣': 'Y', '茗': 'M', '佩': 'P', '姿': 'Z', '祺': 'Q', '越': 'Y', '官': 'G', '王': 'W', '谭': 'T', '宋': 'S', '年': 'N', '胡': 'H', '田': 'T', '马': 'M', '袁': 'Y', '湘': 'X', '琴': 'Q', '花': 'H', '泽': 'Z', '类': 'L', '道': 'D', '明': 'M', '寺': 'S', '赵': 'Z', '默': 'M', '笙': 'S', '路': 'L', '星': 'X', '河': 'H', '耿': 'G', '张': 'Z', '伟': 'W', '陈': 'C', '美': 'M', '大': 'D', '力': 'L', '海': 'H', '棠': 'T', '曾': 'Z', '小': 'X', '贤': 'X', '展': 'Z', '博': 'B', '关': 'G', '谷': 'G', '林': 'L', '萧': 'X', '南': 'N', '湘': 'X', '唐': 'T', '宛': 'W', '如': 'R', '桥': 'Q', '川': 'C', '钟': 'Z', '白': 'B', '逸': 'Y', '帆': 'F', '流': 'L', '枫': 'F', '赤': 'C', '木': 'M', '晴': 'Q', '宫': 'G', '良': 'L', '思': 'S', '周': 'Z', '杰': 'J', '晨': 'C', '光': 'G', '曹': 'C', '陆': 'L', '秃': 'T', '码': 'M', '学': 'X', '霸': 'B', '摄': 'S', '影': 'Y', '吃': 'C', '货': 'H', '考': 'K', '研': 'Y', '迷': 'M', '茫': 'M', '路': 'L', '人': 'R', '老': 'L', '油': 'Y', '新': 'X', '生': 'S', '旁': 'P', '观': 'G' };
+        const avatarColors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500', 'bg-teal-500', 'bg-blue-500', 'bg-indigo-500', 'bg-purple-500', 'bg-pink-500'];
+
+        function getSurnameInitial(name) {
+            if (!name || typeof name !== 'string') return '?';
+            let cleanName = name.trim();
+            if(cleanName.includes('(')) cleanName = cleanName.split('(')[0].trim();
+            if(cleanName.includes('-')) {
+                const parts = cleanName.split('-');
+                if (parts[1] && parts[1].trim()) cleanName = parts[1].trim();
+                else cleanName = parts[0].trim();
+            }
+            let firstChar = cleanName.charAt(0);
+            if (/[a-zA-Z]/.test(firstChar)) return firstChar.toUpperCase();
+            const initial = pinyinMap[firstChar] || firstChar;
+            return initial.toUpperCase();
+        }
+
+        function getAvatarColor(name) {
+            let hash = 0;
+            for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+            const index = Math.abs(hash) % avatarColors.length;
+            return avatarColors[index];
+        }
+
+        function renderAvatar(name, sizeClass = 'w-10 h-10', fontSizeClass = 'text-sm', onClick = '') {
+            const initial = getSurnameInitial(name);
+            const bgColor = getAvatarColor(name);
+            const clickAttr = onClick ? `onclick="${onClick}"` : '';
+            const cursorClass = onClick ? 'cursor-pointer hover:ring-2 hover:ring-primary hover:ring-offset-2 transition-all' : '';
+            return `<div class="${sizeClass} ${fontSizeClass} ${cursorClass} rounded-full flex items-center justify-center font-bold text-white flex-shrink-0 ${bgColor} select-none shadow-sm" title="${name}" ${clickAttr}>${initial}</div>`;
+        }
+        
+        // -------------------------
+        // 业务逻辑
+        // -------------------------
+
+        const now = Date.now();
+
+        // 广场帖子数据
+        const postsData = [
+            {
+                id: 0,
+                user: "User",
+                isHost: 1,
+                time: "刚刚",
+                tag: "🌟 新人报道",
+                title: "大家好，我是新加入的同学！",
+                content: "很高兴加入 CampusHub 大家庭，希望能在这里认识更多有趣的朋友。请多关照！",
+                likes: 5,
+                comments: 2,
+                views: "56",
+                images: [],
+                heatValue: 200, 
+                timestamp: now, 
+                commentList: [
+                    { id: 901, user: "大三学长 (CS)", content: "欢迎欢迎！👏 大学生活还是很精彩的，除了学习，建议多参加一些社团活动，能认识很多志同道合的朋友。另外，大一的基础课一定要打好，特别是高数和英语，对后面考研或者出国都很重要。如果有不懂的问题，随时可以在广场提问，大家都很热情的！图书馆是个好地方，尤其是期末的时候，记得早点去占座哦~", time: "1分钟前", likes: 1, isHost: 0, replies: [] },
+                    { id: 902, user: "User", content: "谢谢学长！刚才看到隔壁那个晚霞的帖子太美了，推荐大家也去看看 >>2", time: "刚刚", likes: 0, isHost: 1, replies: [] }
+                ]
+            },
+            {
+                id: 1,
+                user: "大三学长 (CS)",
+                isHost: 1,
+                time: "10分钟前",
+                tag: "📚 选课避雷",
+                title: "求问计算机网络的李老师给分怎么样？",
+                content: "下学期想选这门课，但是听说作业巨多而且期末很难？有没有上过的学长学姐现身说法一下？急急急！🙏",
+                likes: 12,
+                comments: 8,
+                views: "210",
+                images: [],
+                heatValue: 500,
+                timestamp: now - 600000, 
+                commentList: [
+                    { id: 102, user: "学霸007", content: "其实只要认真听课，给分还可以的，我上学期拿了90+。李老师讲课很有水平，就是严了点。", time: "5分钟前", heatValue: 80, timestamp: now - 300000, likes: 18, isHost: 0, isPinned: 1, replies: [{ id: 301, user: "大三学长 (CS)", to: "学霸007", content: "感谢学霸！请问平时分占比多少？", time: "3分钟前", likes: 1, isHost: 1 }] },
+                    { id: 101, user: "秃头码农", content: "快跑！！作业多到怀疑人生，期末考试还巨难！💀", time: "2分钟前", heatValue: 150, timestamp: now - 120000, likes: 32, isHost: 0, isPinned: 0, replies: [{ id: 201, user: "迷茫大一", to: "秃头码农", content: "啊？真的吗？我已经选了...", time: "1分钟前", likes: 2, isHost: 0 }, { id: 202, user: "秃头码农", to: "迷茫大一", content: "赶紧退课，保平安！这课挂科率30%！", time: "刚刚", likes: 5, isHost: 0 }] },
+                    { id: 103, user: "卑微大三", content: "楼上的学霸别凡尔赛了，挂科率懂的都懂。", time: "12分钟前", heatValue: 20, timestamp: now - 720000, likes: 4, isHost: 0, isPinned: 0, replies: [{ id: 401, user: "新生", to: "卑微大三", content: "瑟瑟发抖中...", time: "8分钟前", likes: 1, isHost: 0 }, { id: 402, user: "老油条", to: "新生", content: "别怕，期末抱佛脚大法。", time: "5分钟前", likes: 0, isHost: 0 }, { id: 403, user: "旁观者", to: "老油条", content: "抱佛脚是没用的，老实预习。", time: "2分钟前", likes: 0, isHost: 0 }] }
+                ]
+            },
+             {
+                id: 2,
+                user: "摄影社-小王",
+                isHost: 1,
+                time: "35分钟前",
+                tag: "📸 校园随拍",
+                title: "今天的晚霞也太好看了吧！📍东操场",
+                content: "刚刚路过操场随手拍的一张，原图直出。感觉所有的期末焦虑都被治愈了~ 大家快出来看天空！",
+                likes: 256,
+                comments: 3,
+                views: "1.2k",
+                images: ["https://images.unsplash.com/photo-1516216628859-9bccecab13ca?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"],
+                heatValue: 1000,
+                timestamp: now - 2100000,
+                commentList: [
+                    { id: 301, user: "吃瓜群众", content: "哇，这也太美了吧！求原图当壁纸！😍", time: "10分钟前", heatValue: 10, timestamp: now - 600000, likes: 5, isHost: 0, replies: [] }
+                ]
+            },
+            {
+                id: 3,
+                user: "文学社-阿强",
+                isHost: 0,
+                time: "50分钟前",
+                tag: "📖 随笔",
+                title: "【长文慎入】关于昨天那场暴雨的胡思乱想",
+                content: "昨天的暴雨下得猝不及防，我站在图书馆的屋檐下，看着雨水像断了线的珠子一样砸在水泥地上，溅起一朵朵转瞬即逝的水花。空气中弥漫着泥土翻滚后的腥味，混合着旁边桂花树被打落的清香，这种味道很独特，让人清醒又有些怅然。我想起了大一刚入学的那天，也是这样的大雨，我拖着行李箱在校门口不知所措，是一个陌生的学长递给了我一把伞。四年过去了，我至今不知道他的名字，也没再见过那把伞。时间过得真快啊，转眼就要毕业了，这座校园承载了太多的回忆，好的坏的，都在这场雨里变得模糊又清晰。希望大家都能珍惜当下的每一刻，不要等到离开了才开始怀念。",
+                likes: 42,
+                comments: 5,
+                views: "330",
+                images: [],
+                heatValue: 50,
+                timestamp: now - 3000000,
+                commentList: []
+            },
+            {
+                id: 4,
+                user: "公共服务部测评姬#001",
+                isHost: 0,
+                time: "12小时前",
+                tag: "❤️ 暖心推荐",
+                title: "【深度测评】吹爆公共服务部宋佩姿学姐的最新服务！治愈系满分！",
+                content: `
+                    <p style="font-size: 16px;">大家好，我是你们的老熟人——公共服务部测评姬#001！</p>
+                    <p style="font-size: 16px;">距离上次礼仪部 × 公共服务部联动的「圣诞节狂欢」已经过去了整整12天。</p>
+                    <p style="font-size: 16px;">本以为这个学期咱们部门不会再有大动作，没想到上周五，公共服务部直接放了个“王炸”——三大校花之一、人称“宋神”的宋佩姿学姐，竟然推出了全新服务！</p>
+                    <p style="font-size: 16px;">而且居然是三大校花之一，人称“宋神”的宋佩姿学姐的全新服务，我简直不能更兴奋了！还记得上次的“心理服务”还是两年前，测评姬初二时体验过。</p>
+                    <p style="font-size: 16px;">两年前，测评姬还在初二，有幸体验过她的心理服务，那是真正的“白月光”回忆啊。</p>
+                    <p style="font-size: 16px;">废话不多说，这次活动极其难约（一周仅开放两天，每天限两人），但测评姬凭着单身多年的手速和满格网速，终于成功拿下一个名额！</p>
+                    <p style="font-size: 16px;">至于预约流程和所需信息，大家可以翻阅我之前的科普贴或官方公告。<b>现在，让我们直接进入正题！</b></p>
+                    <p style="font-size: 16px;">——————————我是分割线——————————</p>
+                    <h4 style="font-size: 18px;"><b>🕒 测评时间线</b></p>
+                    <dl class="my-4">
+                        <dt class="font-bold text-primary" style="font-size: 1.2rem;">入场</dt>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">周一的性别平等与情绪健康促进中心人不是很多，前台接待依然是我们可爱的看板娘年祺祺学妹。</dd>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">按照惯例，先签那份大家都很熟悉的《免责条款》。但！！重点来了！！ 因为这次是宋佩姿学姐的专场，祺祺学妹特意又拿出了一份《特殊服务知情同意书》让我签。</dd>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">我大概扫了一眼，给大家划个重点，这份协议的核心就两点：1. 安全第一：保证服务过程中的物理安全；2.绝对尊重：这一条用词很严厉，强调“绝不能违背轮值部员的意愿”，否则后果自负。</dd>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">手续办完就可以进去了。</dd>
+                        
+                            <dt class="font-bold text-primary" style="font-size: 1.2rem;">准备</dt>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">终于见到宋神了！！！本人真的巨好看！！！宋神穿的是校服，化了一个很淡的妆。不得不说，校花就是校花，哪怕只是安安静静坐着，清冷的气质也直接拉满。她会问你几个问题，大概是个人偏好、注意事项之类的），如是回答即可。</dd>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">问答环节结束后，宋神也是递给测评姬一套一次性浴衣，我们需要去旁边的浴室里洗一个澡。毕竟是宋学姐的专场，对卫生的要求那是相当高的……不然脏脏的，宋神也下不去逼，是吧（笑）。</dd>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">我们把全身快速冲一遍就行，记得用提供的沐浴露，宋神会进来帮我们仔细清洗阴茎——不能说绝了，只能说硬得很彻底，测评姬不小心射了一次，射在宋神脸上了（）</dd>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">洗澡的细节就不多说了，需要注意的是，特殊服务的时间限制是一个小时，洗澡时不包含在这个时间里的，所以……懂得都懂，别累着我们的宋神就行。</dd>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">擦干和换衣服是要我们自己来的，这个时间宋神会去房间里点香薰和布置灯光，这里我选的是“雪松”，我觉得这个味道很符合宋神的气质，到时候操起来肯定很应景。</dd>
+                        
+                        <dt class="font-bold text-primary" style="font-size: 1.2rem;">前戏</dt>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">房间里的布置很简单，中间是一张双人床，旁边有躺椅和瑜伽垫。</dd>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">宋神让测评姬先躺在躺椅上，然后她会按摩一下我们的肩颈，不得不说，手法相当专业。</dd>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">舒缓放松下来之后，就是我们今天的第一个环节——“口交”。宋神的口交技术不用我多说了，相信大部分的兄弟都体验过，测评姬也是不负众望，没到十分钟就射了。</dd>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">（之前有学弟问我，宋学姐在公共服务部的这一年里，吃过多少根鸡巴，我也不知道，只是知道她很喜欢吃。有一次抱着我的鸡巴啃了半个小时，超时了也没管……）</dd>
+                        
+                        <dt class="font-bold text-primary" style="font-size: 1.2rem;">正剧</dt>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">因为特殊原因，详细的流程我不能说，但是可以给兄弟们稍微介绍一下。</dd>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">宋神会推销避孕套，测评姬因为想支持一下伟大的宋神，于是斥巨资买了最贵的“冰感超薄“，一共三个；经济一般的兄弟建议选免费的，这里的避孕套普遍比外面的贵2-3倍。不过贵的有贵的好处，戴上之后和没戴感觉差不多。</dd>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">然后宋神会用嘴给我们带上避孕套，涩气拉满了。随后就是女上位+后入插入式性处理服务，我对宋神的评价是……</dd>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">世界上第二伟大的逼（你问第一是谁？当然是我们仪式部薛学姐的白虎馒头逼了），如果想看薛部长逼的照片，可以私聊她，让她给你开个档案中心的临时权限。</dd>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">冰感套＋宋神火热的骚逼，我敢说基本上没人能撑住几下。宋神的服务态度一向是第一梯队的，她会边挨操边问你爽不爽，有什么需要调整的，姿势上也是全程迎合，里面也特别会吸（比我女朋友会吸多了，这是可以说的吗？）</dd>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">特别注意的是！宋神一开始是不让摸奶子的，但是我在后入位给她操爽了，她会主动让你摸她奶子。可惜亲嘴还是不行的。</dd>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">据不完全统计，测评姬射了三次，避孕套正好用完。我也问了宋神，如果用完了还想射，只能选口交或者手交，无套中出的权利是属于宋神男朋友的（羡慕）</dd>
+
+                        <dt class="font-bold text-primary" style="font-size: 1.2rem;">收尾</dt>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">一切结束后，宋神会陪我们一起洗一次澡。</dd>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">注意！这个时候我们就可以使用我们灵活的手指，帮宋神扣扣骚逼，是吧，毕竟宋神欲求不满是出了名的（）</dd>
+
+                        <dt class="font-bold text-primary" style="font-size: 1.2rem;">总结</dt>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">额外再说一句，宋神是很感性的，测评姬给她扣爽了，她真的会送测评姬一次无套素股！你没听错，无套！</dd>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">当然测评姬还是不敢插入的，万一被公共服务部拉了黑名单就得不偿失了，不过虽然不能整根进去，进去半根还是可以的。宋神的解释是，只要不插到底，就不算无套插入——我很喜欢这一点。</dd>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">所以要是真的有天赋异禀的兄弟给宋神操到神志不清，很有可能能白嫖一次无套插入，能不能中出就看运气了。</dd>
+                        <dd class="mb-2 ml-4" style="font-size: 1.0rem;">测评贴就写到这里，大家记得去体验，现在还有活动，每让宋神高潮一次，就能抽一次奖，最高能获得iPhone 17 Pro Max。</dd>
+                    </dl>
+                `,
+                likes: 342,
+                comments: 53,
+                views: "1.5k",
+                images: ["https://images.unsplash.com/photo-1516534775068-ba3e7458af70?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"],
+                heatValue: 800,
+                commentList: [
+                    { id: 401, user: "LLAAMM", content: "cy", time: "12小时前", heatValue: 137, likes: 137, isHost: 0, replies: [] },
+                    { id: 402, user: "龙卷风八角", content: "cy", time: "11小时前", heatValue: 22, likes: 22, isHost: 0, replies: [] },
+                    { id: 403, user: "迪迪rora", content: "cy", time: "9小时前", heatValue: 18,  likes: 18, isHost: 0, replies: [] },
+                    { id: 404, user: "高三在逃人机", content: "cy", time: "5小时前", heatValue: 6,  likes: 6, isHost: 0, replies: [] },
+                    { id: 405, user: "十二", content: "cy", time: "5小时前", heatValue: 2,  likes: 2, isHost: 0, replies: [] },
+                    { id: 406, user: "LeonChen", content: "已预约", time: "3小时前", heatValue: 25,  likes: 25, isHost: 0, replies: [] },
+                    { id: 407, user: "Teo", content: "整个公共服务部就宋精盆最骚，天天顶着个冷脸，以为是什么纯情玉女。", time: "5小时前", heatValue: 96,  likes: 96, isHost: 0, 
+                        replies: [
+                            { id: 4071, user: "宋佩姿第一黑粉", to: "Teo", content: "支持，像骆骆和年祺祺每次口交完都吐出来，就宋精盆喜欢咽下去，咽完还张嘴给你看一下，骚货一个。", time: "2小时前", likes: 40, isHost: 0 },
+                            { id: 4072, user: "铃鹿未来", to: "宋佩姿第一黑粉", content: "她那栀子花香氛味儿都快成精盆专属味了。一闻就知道刚被十几个人用过，还在那装清纯，吐了。", time: "2小时前", likes: 35, isHost: 0 },
+                            { id: 4073, user: "撞地球的猪", to: "宋佩姿第一黑粉", content: "太对了，最恶心的就是她咽精那套流程，贱不贱啊？老子射你嘴里你还他妈感恩戴德，精盆本盆。", time: "1小时前", likes: 26, isHost: 0 },
+                            { id: 4074, user: "弗拉基米尔升天", to: "宋佩姿第一黑粉", content: "那你们怎么不嫌骆骆和年祺祺吐掉更脏？双标狗罢了。宋神咽下去＋张嘴给你看，是尊重你每一滴好吗？", time: "1小时前", likes: 31, isHost: 0 },
+                            { id: 4075, user: "宋佩姿第一黑粉", to: "弗拉基米尔升天", content: "sb龟男，下次看着你家宋神被别人操到高潮。", time: "41分钟前", likes: 5, isHost: 0 },
+                        ] 
+                    },
+                    { id: 408, user: "管你什么事", content: "人家跟男朋友天天在教室后排操来操去，不戴套也没人管，肚子鼓得跟五个多月似的，一压就喷出一堆的精液，都快成移动精盆了", time: "3小时前", heatValue: 16,  likes: 16, isHost: 0, replies: [] },
+                    { id: 409, user: "爱吃鱼的狮子", content: "兄弟们我约到了！等我测评！", time: "3小时前", heatValue: 174,  likes: 174, isHost: 0, 
+                        replies: [
+                            { id: 4091, user: "LYT...", to: "爱吃鱼的狮子", content: "cy", time: "2小时前", likes: 72, isHost: 0 }, 
+                            { id: 4092, user: "配枪碳基巫女", to: "爱吃鱼的狮子", content: "cy", time: "1小时前", likes: 30, isHost: 0 }
+                        ] 
+                    },
+                    { id: 410, user: "一只苹果", content: "cy", time: "3小时前", heatValue: 5,  likes: 5, isHost: 0, replies: [] },
+                    { id: 411, user: "板烧鸡腿堡战士", content: "感谢学弟喜欢！我会继续努力的❤", time: "2小时前", heatValue: 126,  likes: 126, isHost: 0, 
+                        replies: [
+                            { id: 4111, user: "高三在逃人机", to: "板烧鸡腿堡战士", content: "看看逼", time: "2小时前", likes: 32, isHost: 0 },
+                            { id: 4112, user: "点进主页你就破防", to: "板烧鸡腿堡战士", content: "骚逼", time: "2小时前", likes: 11, isHost: 0 },
+                            { id: 4113, user: "我有20厘米大肉棒", to: "板烧鸡腿堡战士", content: "约不到你啊宋神", time: "2小时前", likes: 1, isHost: 0 },
+                            { id: 4114, user: "公共服务部测评姬001", to: "板烧鸡腿堡战士", content: "宋神求电子签名！", time: "2小时前", likes: 45, isHost: 0 },
+                            { id: 4115, user: "板烧鸡腿堡战士", to: "公共服务部测评姬001", content: "高二（6）班 宋佩姿", time: "1小时前", likes: 62, isHost: 0 },
+                            { id: 4116, user: "板烧鸡腿堡战士", to: "公共服务部测评姬001", content: "顺便说一句，你技术蛮好的，下次再约我，我送你一次无套。", time: "1小时前", likes: 53, isHost: 0 },
+                        ] 
+                    },
+                    { id: 412, user: "哈哈哈哈u", content: "cy", time: "2小时前", heatValue: 2,  likes: 2, isHost: 0, replies: [] },
+                    { id: 413, user: "数学王子进同学", content: "cy", time: "2小时前", heatValue: 3,  likes: 3, isHost: 0, replies: [] },
+                    { id: 414, user: "肥鲇鱼历险记", content: "cy", time: "2小时前", heatValue: 2,  likes: 2, isHost: 0, replies: [] },
+                    { id: 415, user: "阿拉斯加的星星", content: "我觉得宋佩姿脑子多少有点问题，操到一半和我说她毛长得有点多，让我帮她刮毛？我请问呢？虽然最后送了我半个小时。", time: "1小时前", heatValue: 39,  likes: 39, isHost: 0, 
+                        replies: [
+                            { id: 4151, user: "板烧鸡腿堡战士", to: "阿拉斯加的星星", content: "你要吃我逼，还嫌我毛扎嘴，让你自己剃你还不乐意了？", time: "2小时前", likes: 8, isHost: 0 },
+                            { id: 4152, user: "Teo", to: "板烧鸡腿堡战士", content: "精盆能不能闭嘴啊，全校那么多根鸡巴天天轮着喂你，还塞不满你那三个洞？天天在那发加场公告，装得像谁稀罕似的，恶心。", time: "52小时前", likes: 23, isHost: 0 },
+                            { id: 4153, user: "故青山有思", to: "Teo", content: "最恶心她的双标。约她的时候说“只做有套”，结果你鸡巴大她就给你无套，更大就给你中出。什么狗屁规矩，还不是看鸡巴尺寸办事的婊子？", time: "12分钟前", likes: 48, isHost: 0 }
+                        ] 
+                    },
+                    { id: 416, user: "怎么啥名字都重复", content: "cy", time: "2小时前", heatValue: 1,  likes: 1, isHost: 0, replies: [] },
+                    { id: 417, user: "深紫色的猫", content: "怎么一堆人骂我们家宋神的？操不到就诋毁是吧？", time: "1小时前", heatValue: 3,  likes: 3, isHost: 0, 
+                        replies: [
+                            { id: 4171, user: "宋佩姿第一黑粉", to: "深紫色的猫", content: "龟男别洗了。她就是靠卖惨＋装温柔吃这碗饭，真女神会天天把“想被中出”挂嘴边？骚就骚，别装。", time: "47小时前", likes: 29, isHost: 0 }
+                        ] 
+                },
+                    { id: 418, user: "ouo", content: "第三次有套的时候她突然自己把套扯了，说“想感觉一下真的温度”，我直接无套顶到底，她当场翻白眼高潮，喷得我肚子全是水。", time: "1小时前", heatValue: 14,  likes: 14, isHost: 0, 
+                        replies: [
+                            { id: 4181, user: "只有红茶", to: "ouo", content: "兄弟方便问一下你多大吗？", time: "2小时前", likes: 10, isHost: 0 },
+                            { id: 4182, user: "ouo", to: "只有红茶", content: "17.6厘米。直径是5厘米左右。", time: "1小时前", likes: 32, isHost: 0 },
+                            { id: 4183, user: "只有红茶", to: "ouo", content: "牛逼兄弟", time: "1小时前", likes: 15, isHost: 0 }
+                        ] 
+                    },
+                    { id: 419, user: "魔力迈克", content: "cy", time: "1小时前", heatValue: 1,  likes: 1, isHost: 0, replies: [] },
+                    { id: 420, user: "小黄鸭", content: "我也有幸把宋神拿下了，这里给测评姬补个大尺寸实测报告：我本人19cm+，龟头直径5.2cm，属于公共服务部官方“提前申报”级别。宋神差点被我操晕了，一共做了三个多小时（宋神不让我走，一直加时），前五次有套，第六次她说想试试无套，第七次说是没力气爬起来了，让我直接射在里面。一个字总结，“爽！“宋神表面上很高冷，实际上一看到大鸡巴就走不动道，真的巨骚。", time: "1小时前", heatValue: 275,  likes: 275, isHost: 0, isPinned: 1, 
+                        replies: [
+                            { id: 4201, user: "公共服务部测评姬001", to: "小黄鸭", content: "天赋异禀的兄弟现身说法了，羡慕能无套中出宋神。", time: "50分钟前", likes: 108, isHost: 1 }
+                        ] 
+                    },
+                    { id: 421, user: "故青山有思", content: "宋精盆别他妈装圣母了，公共服务部第一鸡巴收容所，天天被不同尺寸轮着捅，还装什么欲求不满？你那逼早被操成公共厕所了，塞根黄瓜都能松松垮垮晃一圈。", time: "58分钟前", heatValue: 2,  likes: 2, isHost: 0, 
+                        replies: [
+                            { id: 4211, user: "故青山有思", to: "故青山有思", content: "走廊碰见就装不认识，私下被操得嗓子哑了还发加场公告，装你妈的逼呢，臭不可闻的婊子？", time: "55分钟前", likes: 2, isHost: 0 },
+                            { id: 4212, user: "一二三四五六", to: "故青山有思", content: "黑子嘴放干净点。你们喷得越狠，只能说明你们根本没约到过，酸得要死。", time: "10分钟前", likes: 1, isHost: 0 },
+                            { id: 4213, user: "故青山有思", to: "一二三四五六", content: "老子18厘米，给你们家宋精盆都操成傻子了，你在这里狗叫什么？", time: "6分钟前", likes: 1, isHost: 0 }
+                        ] 
+                    },
+                    { id: 422, user: "哈基米转世杏鲍菇", content: "她那张脸我真看吐了，天天一个表情营业笑，被十几个男人轮完还笑得出来？笑得越甜逼越臭。", time: "56分钟前", heatValue: 5,  likes: 5, isHost: 0, 
+                        replies: [
+                            { id: 4221, user: "实名上网CCB", to: "哈基米转世杏鲍菇", content: "她每次发回复都带“♡”，恶心死了，就好像在说“我被操得很开心”，真他妈下贱到骨子里。", time: "3分钟前", likes: 3, isHost: 0 }
+                        ] 
+                    },
+                    { id: 423, user: "嘟嘟机关枪", content: "cy", time: "50分钟前", heatValue: 1,  likes: 1, isHost: 0, replies: [] },
+                    { id: 424, user: "法师李", content: "宋神从来不挑人。我鸡鸡只有10cm，她也照样夸我“学弟好硬好可爱”，给我戴套戴到最舒服。你们骂她只爱大尺寸？睁眼说瞎话谁不会？", time: "28分钟前", heatValue: 7,  likes: 7, isHost: 0, 
+                        replies: [
+                            { id: 4241, user: "哈基米转世杏鲍菇", to: "法师李", content: "10cm还敢说话？三级残废的阳痿男。", time: "9分钟前", likes: 1, isHost: 0 }
+                        ] 
+                    },
+                    { id: 425, user: "如梦如烟lele", content: "宋神骚是骚了点，但是她好看啊，技术还好。", time: "22分钟前", heatValue: 1,  likes: 1, isHost: 0, 
+                        replies: [
+                            { id: 4251, user: "来日方长", to: "如梦如烟lele", content: "我觉得一般。。。宋神太敏感了，我干了没几下就高潮了，给我喷得衣服上全是水。", time: "18分钟前", likes: 1, isHost: 0 }
+                        ] 
+                    },
+                    { id: 426, user: "小狗我们走", content: "她真的好会叫……声音又甜又媚，关键是叫的还是我名字。", time: "7分钟前", heatValue: 1,  likes: 1, isHost: 0, replies: [] },
+                ]
+            }
+        ];
+        
+        const treeHoleData = [
+            { id: 9001, user: "某同学 #2938", time: "5分钟前", content: "真的受不了舍友半夜打游戏大喊大叫，已经沟通好几次了都没用，心累。如果是你们会怎么办？真的想搬出去住了。每天晚上都要戴耳塞才能勉强入睡，精神衰弱了都。而且他打游戏还喜欢拍桌子，那个声音在安静的晚上简直像打雷一样。辅导员也找过了，但是他就老实两天，然后又原形毕露。有没有什么好的隔音耳塞推荐？或者校外租房有什么注意事项吗？", likes: 12, comments: 0 },
+            { id: 9002, user: "某同学 #1102", time: "20分钟前", content: "今天在图书馆看到了一个很像前任的背影，那一瞬间心脏漏了一拍，手里的笔都掉了。原来过了这么久，还是没有完全放下啊。", likes: 45, comments: 0 },
+            { id: 9003, user: "某同学 #8821", time: "45分钟前", content: "有没有人觉得最近学校的猫变胖了？特别是橘猫，感觉走路都费劲了，大家是不是喂太好了哈哈哈。", likes: 89, comments: 0 },
+            { id: 9004, user: "某同学 #3321", time: "1小时前", content: "考研倒计时，压力大到想哭。每天早上6点起晚上12点睡，感觉头发都要掉光了。希望一切努力都值得吧。", likes: 102, comments: 0 }
+        ];
+
+        const topicPostsData = { 
+            1: [
+                { id: 1001, user: "校园新闻Bot", isHost: 0, time: "2小时前", tag: "📢 官方通告", title: "【重要】教务处关于期末考试安排的正式通知", content: "各位同学请注意，针对近期网络上流传的“期末考试延期”消息，教务处郑重辟谣：所有考试将严格按照原定校历时间进行。请大家不信谣、不传谣，安心备考。具体考试时间表已更新至教务系统。", likes: 1024, comments: 89, views: "2.5w", images: [], heatValue: 5000, timestamp: now - 7200000 },
+                { id: 1002, user: "焦虑大四人", isHost: 0, time: "1小时前", tag: "💭 吐槽", title: "吓死我了，还以为真的延期，差点就把回家的票退了...", content: "看到群里消息的时候心脏骤停，好不容易抢到的票啊！还好是假的。大家加油复习吧，早考完早回家！", likes: 128, comments: 23, views: "1.2k", images: [], heatValue: 300, timestamp: now - 3600000 },
+                { id: 1003, user: "吃瓜前线", isHost: 0, time: "30分钟前", tag: "🍉 闲聊", title: "那个造谣的帖子已经被删了，互联网不是法外之地", content: "听说造谣的是个大一新生，可能只是想恶作剧一下，结果没想到闹这么大。虽然没造成实质影响，但还是给大家提个醒，期末季大家都很敏感。", likes: 45, comments: 12, views: "800", images: [], heatValue: 100, timestamp: now - 1800000 },
+                { id: 1004, user: "图书馆占座狂魔", isHost: 0, time: "10分钟前", tag: "📚 复习", title: "既然不延期，大家还是老实复习吧", content: "图书馆现在已经没位置了，大家别来了，去教学楼吧。这次期末真的要命，特别是高数。", likes: 56, comments: 8, views: "500", images: [], heatValue: 80, timestamp: now - 600000 },
+                { id: 1005, user: "匿名用户", isHost: 0, time: "15分钟前", tag: "🤔 疑惑", title: "到底是谁传出来的延期啊？", content: "害我昨天还要玩了一整天游戏，今天看到辟谣心态崩了。造谣一张嘴，辟谣跑断腿。", likes: 34, comments: 5, views: "420", images: [], heatValue: 60, timestamp: now - 900000 }
+            ],
+            2: [
+                { id: 2001, user: "干饭人", isHost: 0, time: "20分钟前", tag: "🍱 探店", title: "亲测自选窗口！20块钱吃撑了！", content: "种类超级多，而且看着都很新鲜。我拿了红烧肉、回锅肉还有好几个素菜，最后称下来才23块钱，这在外面不得40起步？冲就完事了！", likes: 230, comments: 45, views: "3.2k", images: ["https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"], heatValue: 400, timestamp: now - 1200000 },
+                { id: 2002, user: "排队王", isHost: 0, time: "40分钟前", tag: "⚠️ 避雷", title: "中午12点别去！排队排到楼梯口！", content: "建议大家错峰出行，12点去简直是噩梦。虽然味道不错，但是为了吃个饭排队半小时真的不值得。希望能多开几个窗口。", likes: 156, comments: 32, views: "2.1k", images: [], heatValue: 200, timestamp: now - 2400000 },
+                { id: 2003, user: "美食家阿强", isHost: 0, time: "5分钟前", tag: "😋 推荐", title: "强推那个糖醋里脊！绝了！", content: "去晚了真的没有了，酸甜适中，肉也很多，不是那种全是面粉的。一定要早点去！", likes: 88, comments: 12, views: "1.1k", images: [], heatValue: 180, timestamp: now - 300000 },
+                { id: 2004, user: "减脂人", isHost: 0, time: "1小时前", tag: "🥗 吐槽", title: "蔬菜有点油...", content: "虽然是称重，但是蔬菜感觉油放得有点多，对于减脂人士不太友好。希望食堂阿姨手抖一下，少放点油。", likes: 23, comments: 4, views: "300", images: [], heatValue: 40, timestamp: now - 3600000 }
+            ],
+            3: [
+                { id: 3001, user: "教务处", isHost: 1, time: "昨天 22:00", tag: "📺 回放", title: "【直播回放】高三期中考试成绩分析会", content: "点击链接观看回放：http://school-video.edu/v/123456 \n本次会议重点：\n1. 各学科分数段分布统计\n2. 易错题型深度解析\n3. 冲刺阶段复习策略\n请各位家长和同学认真观看。", likes: 560, comments: 12, views: "5.6k", images: [], heatValue: 600, timestamp: now - 86400000 },
+                { id: 3002, user: "学渣本渣", isHost: 0, time: "昨天 23:30", tag: "😭 心态崩了", title: "看完分析会，感觉我也就告别一本了...", content: "数学平均分居然这么高？难道只有我一个人觉得这次几何题巨难吗？救命啊，这差距也太大了。", likes: 89, comments: 56, views: "1.5k", images: [], heatValue: 150, timestamp: now - 82800000 },
+                { id: 3003, user: "理综小王子", isHost: 0, time: "30分钟前", tag: "⚛️ 物理", title: "物理最后一道大题有人做出来了吗？", content: "老师分析说那题其实不难，但是我完全没思路啊。第一问就卡住了，有没有大佬讲讲思路？", likes: 45, comments: 20, views: "890", images: [], heatValue: 120, timestamp: now - 1800000 },
+                { id: 3004, user: "家长A", isHost: 0, time: "2小时前", tag: "👨‍👩‍👧 交流", title: "这次平均分比上次低了不少", content: "听完分析会，感觉这次卷子确实难。孩子回家都闷闷不乐的，各位家长还是要多鼓励为主。", likes: 156, comments: 45, views: "2.3k", images: [], heatValue: 300, timestamp: now - 7200000 }
+            ]
+        }; 
+        
+        const topicsMetadata = {
+            1: { title: "期末考试延期? 教务处回应", desc: "教务处辟谣...", heat: "12.5w", discuss: "542", time: "今日 10:30", gradient: "from-red-500 to-orange-400", icon: "🔥" },
+            2: { title: "食堂新开“自选称重”窗口评价", desc: "食堂二楼新开...", heat: "8.9w", discuss: "320", time: "今日 11:00", gradient: "from-orange-400 to-yellow-400", icon: "🍱" },
+            3: { title: "高三期中成绩分析会直播回放", desc: "本次期中考试...", heat: "5.2w", discuss: "186", time: "昨日 20:00", gradient: "from-blue-500 to-indigo-500", icon: "📊" }
+        };
+
+        const marketItems = [
+            { id: 5001, title: "考研数学李永乐复习全书 (9成新)", price: "15", user: "学霸学长", image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", tag: "二手书", status: "selling" },
+            { id: 5002, title: "九成新罗技G304无线鼠标", price: "80", user: "电竞少年", image: "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", tag: "数码", status: "selling" },
+            { id: 5003, title: "宿舍神器遮光帘 (送挂钩)", price: "20", user: "我要睡觉", image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", tag: "生活", status: "selling" },
+            { id: 5004, title: "雅思真题4-17 (含解析)", price: "50", user: "屠鸭战士", image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", tag: "二手书", status: "selling" },
+            { id: 5005, title: "大一高数课本上下册", price: "10", user: "迷茫大一", image: "https://images.unsplash.com/photo-1532012197267-da84d127e765?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", tag: "二手书", status: "selling" },
+            { id: 5006, title: "求购一辆二手电动车", price: "500-800", user: "不想走路", image: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60", tag: "求购", status: "buying" }
+        ];
+
+        let expandedReplies = {};
+        let currentCommentSortOrder = 'hot'; 
+        let currentFeedSortOrder = 'hot';   
+        let activePostId = null;
+        let currentSearchQuery = '';
+        let currentMarketCategory = 'all'; 
+        let activeTopicId = null;
+        let currentTopicSortOrder = 'hot';
+        let postStack = [];
+        let returnViewId = 'main-feed-view';
+
+        // --- 核心渲染与切换逻辑 ---
+
+        function processContentLinks(text) {
+            if (!text) return "";
+            function findPostById(id) {
+                let post = postsData.find(p => p.id === id);
+                if (post) return post;
+                post = treeHoleData.find(p => p.id === id);
+                if (post) return post;
+                for (const topicId in topicPostsData) {
+                    post = topicPostsData[topicId].find(p => p.id === id);
+                    if (post) return post;
+                }
+                post = marketItems.find(p => p.id === id);
+                if (post) return post;
+                return null;
+            }
+            return text.replace(/>>(\d+)/g, (match, idStr) => {
+                const id = parseInt(idStr);
+                const post = findPostById(id);
+                if (post) {
+                    let displayText = post.title;
+                    if (!displayText && post.content) displayText = post.content.substring(0, 10) + "...";
+                    else if (!displayText) displayText = "查看详情";
+                    if (displayText.length > 12) displayText = displayText.substring(0, 12) + "...";
+                    return `<span class="text-primary font-medium cursor-pointer hover:underline bg-blue-50 px-1.5 py-0.5 rounded mx-1 select-none text-xs align-baseline inline-flex items-center gap-1" onclick="event.stopPropagation(); openPost(${id})"><i class="fa-solid fa-link text-[10px]"></i>${displayText}</span>`;
+                } else {
+                    return `<span class="text-gray-400 font-mono bg-gray-100 px-1 rounded mx-0.5 select-none text-xs">#${id} (未知)</span>`;
+                }
+            });
+        }
+
+        window.toggleCommentExpand = function(id) {
+            const textEl = document.getElementById(`comment-text-${id}`);
+            const btnEl = document.getElementById(`comment-btn-${id}`);
+            if (!textEl || !btnEl) return;
+            if (textEl.classList.contains('line-clamp-3')) {
+                textEl.classList.remove('line-clamp-3');
+                btnEl.innerText = '收起';
+            } else {
+                textEl.classList.add('line-clamp-3');
+                btnEl.innerText = '展开';
+            }
+        }
+
+        window.toggleTreeHoleExpand = function(id) {
+            const textEl = document.getElementById(`tree-text-${id}`);
+            const btnEl = document.getElementById(`tree-btn-${id}`);
+            if (!textEl || !btnEl) return;
+            if (textEl.classList.contains('line-clamp-4')) {
+                textEl.classList.remove('line-clamp-4');
+                btnEl.innerText = '收起';
+            } else {
+                textEl.classList.add('line-clamp-4');
+                btnEl.innerText = '展开全文';
+            }
+        }
+
+        function handleSearch(query) {
+            currentSearchQuery = query.trim();
+            renderPosts();
+            const titleEl = document.getElementById('feed-title');
+            const loadMoreEl = document.getElementById('feed-loading-state');
+            if (currentSearchQuery) {
+                titleEl.innerText = `搜索: "${currentSearchQuery}"`;
+                if(loadMoreEl) loadMoreEl.classList.add('hidden');
+            } else {
+                titleEl.innerText = '最新动态';
+                if(loadMoreEl) loadMoreEl.classList.remove('hidden');
+            }
+        }
+        
+        function switchTopicSortOrder(order) {
+            if (currentTopicSortOrder === order) return;
+            currentTopicSortOrder = order;
+            const hotBtn = document.getElementById('topic-sort-hot');
+            const newBtn = document.getElementById('topic-sort-new');
+            const activeClass = "py-4 text-sm font-bold text-gray-900 border-b-2 border-gray-900 cursor-pointer";
+            const inactiveClass = "py-4 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors cursor-pointer";
+            if (order === 'hot') {
+                hotBtn.className = activeClass;
+                newBtn.className = inactiveClass;
+            } else {
+                hotBtn.className = inactiveClass;
+                newBtn.className = activeClass;
+            }
+            renderTopicPosts();
+        }
+
+        function renderTopicPosts() {
+            if (!activeTopicId || !topicPostsData[activeTopicId]) return;
+            const posts = topicPostsData[activeTopicId];
+            const sorted = [...posts];
+            // 修改：话题页的“实时”排序也改为按ID倒序
+            if (currentTopicSortOrder === 'hot') sorted.sort((a, b) => (b.heatValue || 0) - (a.heatValue || 0));
+            else sorted.sort((a, b) => b.id - a.id);
+            renderPostList('topic-posts-feed', sorted);
+        }
+
+        function switchFeedSortOrder(order) {
+            if (currentFeedSortOrder === order) return;
+            currentFeedSortOrder = order;
+            const hotBtn = document.getElementById('feed-sort-hot');
+            const newBtn = document.getElementById('feed-sort-new');
+            const activeClass = "font-bold text-gray-900 cursor-pointer transition-colors flex items-center gap-1";
+            const inactiveClass = "cursor-pointer text-gray-400 hover:text-gray-900 transition-colors flex items-center gap-1";
+            if (order === 'hot') {
+                hotBtn.className = activeClass;
+                newBtn.className = inactiveClass;
+                hotBtn.querySelector('i').classList.remove('text-gray-400');
+                hotBtn.querySelector('i').classList.add('text-red-500');
+            } else {
+                hotBtn.className = inactiveClass;
+                newBtn.className = activeClass;
+                hotBtn.querySelector('i').classList.remove('text-red-500');
+                hotBtn.querySelector('i').classList.add('text-gray-400');
+            }
+            renderPosts();
+        }
+
+        function getSortedPosts() {
+            let filtered = postsData;
+            if (currentSearchQuery) {
+                const lowerQuery = currentSearchQuery.toLowerCase();
+                filtered = postsData.filter(p => p.title.toLowerCase().includes(lowerQuery) || p.user.toLowerCase().includes(lowerQuery));
+            }
+            const sorted = [...filtered];
+            // 修改：广场的“最新”排序也改为按ID倒序
+            if (currentFeedSortOrder === 'hot') return sorted.sort((a, b) => (b.heatValue || 0) - (a.heatValue || 0));
+            else return sorted.sort((a, b) => b.id - a.id);
+        }
+
+        function renderTreeHolePosts() {
+            const container = document.getElementById('tree-hole-feed');
+            if(!container) return;
+            let html = '';
+            treeHoleData.forEach(post => {
+                const isLongContent = post.content.length > 100;
+                html += `
+                <article class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow select-none animate-fade-in relative overflow-hidden">
+                    <i class="fa-solid fa-quote-left absolute top-4 right-4 text-4xl text-gray-50 opacity-50"></i>
+                    <div class="flex items-center gap-3 mb-3 relative z-10">
+                        <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500"><i class="fa-solid fa-user-secret"></i></div>
+                        <div><h4 class="text-sm font-bold text-gray-700 leading-none">${post.user}</h4><div class="text-xs text-gray-400 mt-1">${post.time}</div></div>
+                    </div>
+                    <div class="relative z-10 mb-4">
+                        <p id="tree-text-${post.id}" class="text-gray-600 text-base leading-relaxed font-medium ${isLongContent ? 'line-clamp-4' : ''}">${post.content}</p>
+                        ${isLongContent ? `<button id="tree-btn-${post.id}" onclick="toggleTreeHoleExpand(${post.id})" class="text-xs text-treehole font-bold hover:underline mt-2 cursor-pointer">展开全文</button>` : ''}
+                    </div>
+                    <div class="flex items-center justify-end border-t border-gray-50 pt-3 relative z-10">
+                         <button class="group flex items-center gap-2 text-gray-500 hover:text-emerald-500 transition-colors" onclick="handleLike(this)"><i class="fa-regular fa-heart text-lg like-anim group-hover:scale-110"></i><span class="text-xs font-medium">${post.likes}</span></button>
+                    </div>
+                </article>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function filterMarket(category) {
+            currentMarketCategory = category;
+            const buttons = document.querySelectorAll('.market-tab-btn');
+            buttons.forEach(btn => {
+                if (btn.getAttribute('data-category') === category) btn.className = "market-tab-btn flex-shrink-0 bg-market text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-sm shadow-orange-200 transition-colors";
+                else btn.className = "market-tab-btn flex-shrink-0 bg-white border border-gray-200 text-gray-600 px-4 py-1.5 rounded-full text-sm font-medium hover:border-market hover:text-market transition-colors";
+            });
+            renderMarketItems();
+        }
+
+        function handleMarketFavorite(btn) {
+            const icon = btn.querySelector('i');
+            if (icon.classList.contains('fa-regular')) {
+                icon.classList.remove('fa-regular');
+                icon.classList.add('fa-solid', 'text-yellow-500', 'like-anim');
+                setTimeout(() => icon.classList.remove('like-anim'), 200);
+            } else {
+                icon.classList.remove('fa-solid', 'text-yellow-500');
+                icon.classList.add('fa-regular');
+            }
+        }
+
+        function renderMarketItems() {
+            const container = document.getElementById('market-feed');
+            if (!container) return;
+            let filteredItems = marketItems;
+            if (currentMarketCategory !== 'all') filteredItems = marketItems.filter(item => item.tag === currentMarketCategory);
+            if (filteredItems.length === 0) {
+                container.innerHTML = `<div class="col-span-2 md:col-span-3 text-center py-12 text-gray-400"><i class="fa-solid fa-box-open text-4xl mb-3 opacity-30"></i><p class="text-sm">该分类下暂无商品</p></div>`;
+                return;
+            }
+            let html = '';
+            filteredItems.forEach(item => {
+                const avatarHtml = renderAvatar(item.user, 'w-6 h-6', 'text-xs');
+                const isBuying = item.status === 'buying';
+                const priceColor = isBuying ? 'text-blue-500' : 'text-market';
+                const pricePrefix = isBuying ? '预算 ' : '¥';
+                html += `
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all group animate-fade-in">
+                    <div class="h-32 bg-gray-100 relative overflow-hidden">
+                        <img src="${item.image}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                        ${isBuying ? '<div class="absolute top-2 right-2 bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">求购</div>' : ''}
+                    </div>
+                    <div class="p-3">
+                        <h4 class="text-sm font-bold text-gray-900 line-clamp-2 h-10 mb-2 leading-snug">${item.title}</h4>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="${priceColor} font-bold text-sm">${pricePrefix}<span class="text-lg">${item.price}</span></span>
+                            <span class="text-[10px] text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded">${item.tag}</span>
+                        </div>
+                        <div class="flex items-center justify-between border-t border-gray-50 pt-2">
+                            <div class="flex items-center gap-1.5">${avatarHtml}<span class="text-xs text-gray-500 truncate max-w-[60px]">${item.user}</span></div>
+                            <button class="text-gray-400 hover:text-yellow-500 transition-colors p-1" onclick="handleMarketFavorite(this)"><i class="fa-regular fa-star text-lg"></i></button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function updateNavState(activeId) {
+            const navIds = ['nav-square', 'nav-treehole', 'nav-market'];
+            const mobileNavIds = ['nav-home-mobile', 'nav-treehole-mobile', 'nav-market-mobile'];
+            navIds.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) { el.classList.remove('text-primary', 'font-bold'); el.classList.add('text-gray-600'); }
+            });
+             mobileNavIds.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) { el.classList.remove('text-primary'); el.classList.add('text-gray-500'); }
+            });
+            const activeEl = document.getElementById(activeId);
+            if(activeEl) { activeEl.classList.remove('text-gray-600'); activeEl.classList.add('text-primary', 'font-bold'); }
+            const mobileActiveEl = document.getElementById(activeId === 'nav-square' ? 'nav-home-mobile' : (activeId === 'nav-treehole' ? 'nav-treehole-mobile' : 'nav-market-mobile'));
+            if(mobileActiveEl) { mobileActiveEl.classList.remove('text-gray-500'); mobileActiveEl.classList.add('text-primary'); }
+        }
+
+        function hideAllViews() {
+            ['main-feed-view', 'post-detail-view', 'user-profile-view', 'topic-detail-view', 'tree-hole-view', 'market-view'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) { el.classList.add('hidden'); el.classList.remove('flex'); }
+            });
+        }
+
+        function openFeed() {
+            hideAllViews();
+            document.getElementById('main-feed-view').classList.remove('hidden');
+            updateNavState('nav-square');
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+
+        function openTreeHole() {
+            hideAllViews();
+            const view = document.getElementById('tree-hole-view');
+            view.classList.remove('hidden');
+            view.classList.add('flex');
+            updateNavState('nav-treehole');
+            renderTreeHolePosts();
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+
+        function openMarket() {
+            hideAllViews();
+            const view = document.getElementById('market-view');
+            view.classList.remove('hidden');
+            view.classList.add('flex');
+            updateNavState('nav-market');
+            filterMarket('all');
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+
+        function openProfile() {
+            hideAllViews();
+            const view = document.getElementById('user-profile-view');
+            view.classList.remove('hidden');
+            view.classList.add('flex');
+            const profileAvatarContainer = document.getElementById('profile-avatar-container');
+            const bigAvatar = renderAvatar('User', 'w-20 h-20', 'text-3xl');
+            profileAvatarContainer.innerHTML = bigAvatar.replace('rounded-full', 'rounded-full border-4 border-white');
+            const myPosts = postsData.filter(p => p.user === 'User');
+            renderPostList('profile-posts-list', myPosts);
+            document.getElementById('profile-stats-posts').innerText = myPosts.length;
+            const totalLikes = myPosts.reduce((sum, p) => sum + p.likes, 0);
+            document.getElementById('profile-stats-likes').innerText = totalLikes;
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+
+        function openTopic(topicId) {
+            if (!topicsMetadata[topicId]) return;
+            activeTopicId = topicId;
+            currentTopicSortOrder = 'hot'; 
+            hideAllViews();
+            const view = document.getElementById('topic-detail-view');
+            view.classList.remove('hidden');
+            view.classList.add('flex');
+            const metadata = topicsMetadata[topicId];
+            const topicHeaderContainer = document.getElementById('topic-header-container');
+            const hotBtnClass = "py-4 text-sm font-bold text-gray-900 border-b-2 border-gray-900 cursor-pointer";
+            const newBtnClass = "py-4 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors cursor-pointer";
+            topicHeaderContainer.innerHTML = `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative"><div class="h-32 bg-gradient-to-r ${metadata.gradient} relative"><button onclick="closeTopic()" class="absolute top-4 left-4 w-8 h-8 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-colors z-10"><i class="fa-solid fa-arrow-left"></i></button></div><div class="px-6 pb-6 -mt-8 relative z-10"><div class="w-16 h-16 bg-white rounded-xl shadow-md flex items-center justify-center text-3xl mb-3">${metadata.icon}</div><h1 class="text-2xl font-bold text-gray-900 mb-2">${metadata.title}</h1><p class="text-gray-600 text-sm leading-relaxed mb-4">${metadata.desc}</p><div class="flex items-center gap-6 text-xs text-gray-500"><span class="flex items-center gap-1"><i class="fa-solid fa-fire text-red-500"></i> ${metadata.heat} 热度</span><span>${metadata.discuss} 讨论</span><span>${metadata.time} 创建</span></div></div></div>`;
+            const sortContainer = document.querySelector('#topic-detail-view .border-b');
+            if(sortContainer) {
+                sortContainer.innerHTML = `<button id="topic-sort-hot" onclick="switchTopicSortOrder('hot')" class="${hotBtnClass}">热门</button><button id="topic-sort-new" onclick="switchTopicSortOrder('new')" class="${newBtnClass}">实时</button>`;
+            }
+            renderTopicPosts();
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+
+        function closeProfile() { openFeed(); }
+        function closeTopic() { openFeed(); }
+        function closePost() { 
+            document.getElementById('post-detail-view').classList.add('hidden');
+            document.getElementById('main-feed-view').classList.remove('hidden');
+        }
+
+        function renderPostList(containerId, posts) {
+            const feed = document.getElementById(containerId);
+            if (!feed) return;
+            let html = '';
+            if (!posts || posts.length === 0) {
+                feed.innerHTML = `<div class="text-center py-12 text-gray-400"><p class="text-sm">暂无内容</p></div>`;
+                return;
+            }
+            posts.forEach(post => {
+                const imageHtml = post.images.length > 0 ? `<div class="mt-3 mb-1 rounded-xl overflow-hidden h-48 md:h-64 w-full relative" onclick="event.stopPropagation(); openPost(${post.id})"><img src="${post.images[0]}" class="object-cover w-full h-full hover:scale-105 transition-transform duration-500" loading="lazy" alt="Image"></div>` : '';
+                const avatarHtml = renderAvatar(post.user, 'w-10 h-10', 'text-sm');
+                const clickAction = containerId === 'topic-posts-feed' ? '' : `onclick="openPost(${post.id})"`;
+                const cursorStyle = containerId === 'topic-posts-feed' ? 'cursor-default' : 'cursor-pointer hover:shadow-md';
+                const isLongContent = post.content.length > 100;
+                html += `
+                <article ${clickAction} class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 ${cursorStyle} transition-shadow select-none animate-fade-in">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-3">${avatarHtml}<div><h4 class="text-sm font-bold text-gray-900 leading-none">${post.user}</h4><div class="flex items-center gap-2 mt-1"><span class="text-xs text-gray-400">${post.time}</span><span class="w-1 h-1 bg-gray-300 rounded-full"></span><span class="text-xs text-primary bg-blue-50 px-2 py-0.5 rounded-full font-medium">${post.tag}</span></div></div></div>
+                        <button class="text-gray-300 hover:text-gray-600 p-2 rounded-full hover:bg-gray-50" onclick="event.stopPropagation()"><i class="fa-solid fa-ellipsis"></i></button>
+                    </div>
+                    <div class="mb-4">
+                        <h2 class="text-lg md:text-xl font-bold text-gray-900 mb-2 leading-tight hover:text-primary transition-colors">${post.title}</h2>
+                        <div class="text-gray-600 text-sm md:text-base leading-relaxed line-clamp-3">${post.content}</div>${imageHtml}
+                    </div>
+                    <div class="flex items-center justify-between border-t border-gray-50 pt-3">
+                        <div class="flex gap-6">
+                            <button class="group flex items-center gap-2 text-gray-500 hover:text-red-500 transition-colors" onclick="event.stopPropagation(); handleLike(this)"><i class="fa-regular fa-heart text-lg like-anim group-hover:scale-110"></i><span class="text-xs font-medium">${post.likes}</span></button>
+                            <button class="group flex items-center gap-2 text-gray-500 hover:text-blue-500 transition-colors"><i class="fa-regular fa-comment text-lg group-hover:scale-110 transition-transform"></i><span class="text-xs font-medium">${post.comments}</span></button>
+                            <button class="group flex items-center gap-2 text-gray-500 hover:text-green-500 transition-colors" onclick="event.stopPropagation()"><i class="fa-solid fa-share nodes text-lg group-hover:scale-110 transition-transform"></i></button>
+                        </div>
+                        <div class="text-xs text-gray-400 flex items-center gap-1"><i class="fa-solid fa-chart-simple"></i> ${post.views}</div>
+                    </div>
+                </article>`;
+            });
+            feed.innerHTML = html;
+        }
+
+        function renderCommentsRecursive(comments, postId) {
+            if (!comments || comments.length === 0) return '<div class="text-center text-gray-400 py-12 text-sm flex flex-col items-center gap-2"><i class="fa-regular fa-comments text-2xl text-gray-200"></i><span>暂无评论，快来抢沙发吧~</span></div>';
+            const sortedComments = sortComments(comments);
+            return sortedComments.map(c => {
+                const totalReplies = c.replies ? c.replies.length : 0;
+                const isExpanded = expandedReplies[c.id] === true;
+                
+                // 修改：根据展开状态决定显示内容
+                let repliesToShow = [];
+                if (c.replies && c.replies.length > 0) {
+                    if (isExpanded) {
+                        // 展开状态：按 ID 排序
+                        repliesToShow = [...c.replies].sort((a, b) => a.id - b.id);
+                    } else {
+                        // 收起状态：按点赞数排序取前两条
+                        repliesToShow = [...c.replies].sort((a, b) => (b.likes || 0) - (a.likes || 0)).slice(0, 2);
+                    }
+                }
+
+                const mainAvatarHtml = renderAvatar(c.user, 'w-10 h-10', 'text-sm');
+                const isLongComment = c.content.length > 100;
+                const processedContent = processContentLinks(c.content);
+                let repliesListHtml = repliesToShow.map(r => {
+                    const replyAvatarHtml = renderAvatar(r.user, 'w-6 h-6', 'text-xs');
+                    const processedReplyContent = processContentLinks(r.content);
+                    return `<div class="flex gap-2.5 items-start group relative">${replyAvatarHtml}<div class="flex-1"><div class="text-sm leading-relaxed"><span class="text-xs font-bold ${r.isHost === 1 ? 'text-primary' : 'text-gray-600'} cursor-pointer hover:text-bilibili mr-1">${r.user}</span>${r.to ? `<span class="text-xs text-gray-500">回复 <span class="text-blue-500 cursor-pointer hover:underline">@${r.to}</span> : </span>` : ': '}<span class="text-gray-700 hover:text-gray-900 transition-colors">${processedReplyContent}</span></div><div class="flex items-center gap-4 text-[11px] text-gray-400 mt-1"><span>${r.time}</span><button class="hover:text-bilibili flex items-center gap-1 transition-colors" onclick="handleCommentLike(this)"><i class="fa-regular fa-thumbs-up"></i><span>${r.likes || 0}</span></button><button class="hover:text-bilibili flex items-center gap-1 transition-colors"><i class="fa-regular fa-thumbs-down"></i></button><button class="hover:text-bilibili font-medium opacity-0 group-hover:opacity-100 transition-opacity">回复</button></div></div></div>`;
+                }).join('<div class="h-2"></div>');
+                let viewMoreLinkHtml = '';
+                if (totalReplies > 2) {
+                    if (isExpanded) viewMoreLinkHtml = `<div class="mt-2 text-xs pt-1"><span class="text-blue-500 cursor-pointer hover:underline flex items-center gap-1 w-fit" onclick="window.toggleReplies(${postId}, ${c.id})">收起回复 <i class="fa-solid fa-angle-up text-[10px]"></i></span></div>`;
+                    else viewMoreLinkHtml = `<div class="mt-2 text-xs pt-1 flex items-center gap-1"><span class="text-gray-500">共${totalReplies}条回复, </span><span class="text-blue-500 cursor-pointer hover:underline flex items-center gap-1" onclick="window.toggleReplies(${postId}, ${c.id})">点击查看 <i class="fa-solid fa-angle-right text-[10px]"></i></span></div>`;
+                }
+                const repliesHtml = totalReplies > 0 ? `<div id="replies-container-${c.id}" class="mt-3 bg-gray-50/80 rounded-lg p-3 space-y-0">${repliesListHtml}${viewMoreLinkHtml}</div>` : '';
+                return `<div class="flex gap-4 mb-6 animate-fade-in group"><div class="flex-shrink-0 cursor-pointer hover:scale-105 transition-transform">${mainAvatarHtml}</div><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="text-sm font-bold ${c.isHost === 1 ? 'text-primary' : 'text-gray-600'} cursor-pointer hover:text-bilibili transition-colors">${c.user}</span>${c.isPinned ? '<span class="text-[10px] bg-red-50 text-red-500 px-1.5 py-0.5 rounded border border-red-100 font-bold select-none">置顶</span>' : ''}</div><div class="mb-2"><p id="comment-text-${c.id}" class="text-[15px] text-gray-800 leading-relaxed ${isLongComment ? 'line-clamp-3' : ''}">${processedContent}</p>${isLongComment ? `<button id="comment-btn-${c.id}" onclick="toggleCommentExpand(${c.id})" class="text-xs text-primary font-bold hover:underline mt-1">展开</button>` : ''}</div><div class="flex items-center gap-5 text-xs text-gray-400"><span>${c.time}</span><button class="flex items-center gap-1.5 hover:text-bilibili transition-colors" onclick="handleCommentLike(this)"><i class="fa-regular fa-thumbs-up text-[13px]"></i><span>${c.likes || 0}</span></button><button class="flex items-center gap-1.5 hover:text-bilibili transition-colors"><i class="fa-regular fa-thumbs-down text-[13px]"></i></button><button class="hover:text-bilibili transition-colors font-medium">回复</button><button class="ml-auto hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"><i class="fa-solid fa-ellipsis-vertical"></i></button></div>${repliesHtml}</div></div><div class="border-b border-gray-50 my-4 last:hidden"></div>`;
+            }).join('');
+        }
+
+        function openPost(id, isBack = false) {
+             let post = postsData.find(p => p.id === id);
+             let isTreeHole = false;
+             if (!post) { post = treeHoleData.find(p => p.id === id); if (post) isTreeHole = true; }
+             if (!post) { for (const topicId in topicPostsData) { const p = topicPostsData[topicId].find(item => item.id === id); if (p) { post = p; break; } } }
+             if (!post) post = marketItems.find(p => p.id === id);
+             if (!post) return;
+             const detailView = document.getElementById('post-detail-view');
+             const isCurrentlyViewingPost = !detailView.classList.contains('hidden');
+             if (!isCurrentlyViewingPost) {
+                 if (!document.getElementById('main-feed-view').classList.contains('hidden')) returnViewId = 'main-feed-view';
+                 else if (!document.getElementById('tree-hole-view').classList.contains('hidden')) returnViewId = 'tree-hole-view';
+                 else if (!document.getElementById('market-view').classList.contains('hidden')) returnViewId = 'market-view';
+                 else if (!document.getElementById('topic-detail-view').classList.contains('hidden')) returnViewId = 'topic-detail-view';
+                 else if (!document.getElementById('user-profile-view').classList.contains('hidden')) returnViewId = 'user-profile-view';
+                 postStack = []; hideAllViews();
+             } else {
+                 if (!isBack && activePostId !== null) postStack.push(activePostId);
+             }
+             activePostId = id; 
+             if (!isTreeHole && post.commentList) { postsData.forEach(p => { if(p.commentList) { p.commentList.forEach(c => { expandedReplies[c.id] = false; }); } }); }
+             detailView.classList.remove('hidden');
+             const authorAvatarHtml = isTreeHole ? `<div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xl"><i class="fa-solid fa-user-secret"></i></div>` : renderAvatar(post.user, 'w-12 h-12', 'text-base');
+             const imageHtml = post.images && post.images.length > 0 ? `<img src="${post.images[0]}" class="w-full rounded-xl mb-6 shadow-sm" alt="Image">` : '';
+             const commentsSection = isTreeHole ? `<div class="py-12 text-center text-gray-400 bg-gray-50 rounded-xl my-8 border border-gray-100 border-dashed"><i class="fa-solid fa-comment-slash text-3xl mb-2 opacity-50"></i><p class="text-sm">树洞内容 · 禁评保护</p></div>` : (() => {
+                    const commentsToRender = post.commentList || [];
+                    const commentsHtml = renderCommentsRecursive(commentsToRender, id); 
+                    const hotClass = currentCommentSortOrder === 'hot' ? "font-bold text-gray-900 cursor-pointer transition-colors" : "cursor-pointer hover:text-gray-900 transition-colors";
+                    const newClass = currentCommentSortOrder === 'new' ? "font-bold text-gray-900 cursor-pointer transition-colors" : "cursor-pointer hover:text-gray-900 transition-colors";
+                    return `<div class="mb-20"><div class="flex items-center justify-between mb-6"><h3 class="font-bold text-gray-900 text-lg">全部评论 <span class="text-gray-400 text-base font-normal">(${commentsToRender.length})</span></h3><div class="flex gap-4 text-sm text-gray-500"><span id="sort-hot-btn" class="${hotClass}" onclick="switchCommentSortOrder('hot')">最热</span><span id="sort-new-btn" class="${newClass}" onclick="switchCommentSortOrder('new')">最新</span></div></div><div id="comments-list">${commentsHtml}</div></div>`;
+                })();
+             const bottomBar = isTreeHole ? `<div class="sticky bottom-0 border-t border-gray-100 bg-white p-3 md:rounded-b-2xl pb-safe flex justify-between items-center px-6"><span class="text-gray-400 text-sm">树洞模式，仅供浏览</span><button class="flex items-center gap-2 text-gray-500 hover:text-emerald-500 transition-colors px-4 py-2 bg-gray-50 rounded-full" onclick="handleLike(this)"><i class="fa-regular fa-heart text-xl"></i><span class="font-bold">${post.likes}</span></button></div>` : `<div class="sticky bottom-0 border-t border-gray-100 bg-white p-3 md:rounded-b-2xl pb-safe"><div class="flex gap-2 items-center"><div class="flex-1 relative"><input type="text" placeholder="发一条友善的评论..." class="w-full bg-gray-100 rounded-full pl-4 pr-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all hover:bg-gray-200 focus:bg-white"><button class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-primary text-white rounded-full flex items-center justify-center text-xs shadow-md hover:scale-105 transition-transform"><i class="fa-solid fa-paper-plane"></i></button></div><button class="p-2.5 text-gray-400 hover:text-bilibili transition-colors" onclick="handleLike(this)"><i class="fa-regular fa-thumbs-up text-xl"></i></button><button class="p-2.5 text-gray-400 hover:text-yellow-500 transition-colors"><i class="fa-regular fa-star text-xl"></i></button></div></div>`;
+             const postTitle = post.title || `树洞 #${post.id}`;
+             const postContent = post.content || "";
+             detailView.innerHTML = `<div class="sticky top-16 md:top-0 z-20 bg-white/95 backdrop-blur border-b border-gray-100 p-4 flex items-center gap-4 rounded-t-2xl shadow-sm"><button onclick="goBack()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"><i class="fa-solid fa-arrow-left text-gray-600"></i></button><span class="font-bold text-gray-900">${isTreeHole ? '树洞详情' : '帖子详情'}</span></div><div class="p-6"><div class="flex items-center gap-3 mb-6">${authorAvatarHtml}<div><h4 class="text-base font-bold text-gray-900">${post.user}</h4><div class="flex items-center gap-2 text-xs text-gray-500"><span>${post.time}</span>${post.tag ? `<span>·</span><span class="text-primary">${post.tag}</span>` : ''}</div></div>${!isTreeHole ? '<button class="ml-auto bg-primary/10 text-primary px-4 py-1.5 rounded-full text-xs font-bold hover:bg-primary hover:text-white transition-colors">关注</button>' : ''}</div><article class="prose prose-blue max-w-none mb-8">${isTreeHole ? '' : `<h1 class="text-2xl font-bold text-gray-900 mb-4 leading-snug">${postTitle}</h1>`}<div class="text-gray-700 text-lg leading-relaxed mb-6 font-medium space-y-4">${postContent}</div>${imageHtml}</article>${!isTreeHole ? `<div class="flex items-center justify-between border-y border-gray-100 py-3 mb-8 text-sm text-gray-500"><div class="flex gap-4"><span>阅读 ${post.views}</span><span>点赞 ${post.likes}</span></div><span>举报</span></div>` : ''}${commentsSection}</div>${bottomBar}`;
+        }
+
+        function goBack() {
+            if (postStack.length > 0) { const prevId = postStack.pop(); openPost(prevId, true); }
+            else { closePostToView(); }
+        }
+
+        function closePostToView() {
+            const detailView = document.getElementById('post-detail-view');
+            detailView.classList.add('hidden');
+            const returnView = document.getElementById(returnViewId);
+            if (returnView) { returnView.classList.remove('hidden'); if (['user-profile-view', 'topic-detail-view', 'tree-hole-view', 'market-view'].includes(returnViewId)) returnView.classList.add('flex'); }
+            else document.getElementById('main-feed-view').classList.remove('hidden');
+            activePostId = null;
+        }
+
+        function sortComments(comments) {
+            const sorted = [...comments];
+            return sorted.sort((a, b) => {
+                const pinnedA = a.isPinned || 0; const pinnedB = b.isPinned || 0;
+                if (pinnedA !== pinnedB) return pinnedB - pinnedA;
+                if (currentCommentSortOrder === 'hot') return (b.heatValue || 0) - (a.heatValue || 0);
+                else return b.id - a.id; 
+            });
+        }
+
+        function renderPosts() {
+            const sortedPosts = getSortedPosts();
+            renderPostList('post-feed', sortedPosts);
+        }
+
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const backdrop = document.getElementById('modalBackdrop');
+            const panel = document.getElementById('modalPanel');
+            if (modal.classList.contains('hidden')) { modal.classList.remove('hidden'); backdrop.classList.add('active'); requestAnimationFrame(() => { setTimeout(() => { panel.classList.remove('scale-95', 'opacity-0'); panel.classList.add('scale-100', 'opacity-100'); }, 50); }); document.body.style.overflow = 'hidden'; }
+            else { panel.classList.remove('scale-100', 'opacity-100'); panel.classList.add('scale-95', 'opacity-0'); setTimeout(() => { backdrop.classList.remove('active'); setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = ''; }, 500); }, 50); }
+        }
+
+        function handleLike(btn) {
+            const icon = btn.querySelector('i');
+            const countSpan = btn.querySelector('span');
+            if(!countSpan) {
+                if (icon.classList.contains('fa-regular')) { icon.classList.remove('fa-regular'); icon.classList.add('fa-solid', 'text-bilibili', 'like-anim'); setTimeout(() => icon.classList.remove('like-anim'), 200); }
+                else { icon.classList.remove('fa-solid', 'text-bilibili'); icon.classList.add('fa-regular'); }
+                return;
+            }
+            let count = parseInt(countSpan.innerText);
+            if (icon.classList.contains('fa-regular')) { icon.classList.remove('fa-regular'); icon.classList.add('fa-solid', 'text-red-500', 'liked'); count++; if(navigator.vibrate) navigator.vibrate(50); }
+            else { icon.classList.remove('fa-solid', 'text-red-500', 'liked'); icon.classList.add('fa-regular'); count--; }
+            countSpan.innerText = count;
+        }
+
+        function handleCommentLike(btn) {
+            const icon = btn.querySelector('i');
+            const countSpan = btn.querySelector('span');
+            let count = parseInt(countSpan.innerText);
+            if (icon.classList.contains('fa-regular')) { icon.classList.remove('fa-regular'); icon.classList.add('fa-solid', 'comment-liked'); count++; icon.style.transform = 'scale(1.2)'; setTimeout(() => icon.style.transform = 'scale(1)', 200); }
+            else { icon.classList.remove('fa-solid', 'comment-liked'); icon.classList.add('fa-regular'); count--; }
+            countSpan.innerText = count;
+        }
+
+        function submitPost() {
+            const content = document.getElementById('postContent').value;
+            if(!content) { showToast('请输入内容'); return; }
+            toggleModal('postModal');
+            document.getElementById('postContent').value = ''; 
+            setTimeout(() => { showToast('发布成功！'); window.scrollTo({ top: 0, behavior: 'smooth' }); }, 700);
+        }
+
+        let toastTimeout;
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.innerText = msg;
+            toast.classList.remove('opacity-0');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => { toast.classList.add('opacity-0'); }, 3000);
+        }
+
+        // Changed from function toggleReplies(...) { ... }
+        window.toggleReplies = function(postId, commentId) {
+            const isExpanded = expandedReplies[commentId];
+            expandedReplies[commentId] = !isExpanded;
+            const post = postsData.find(p => p.id === postId);
+            const comment = post.commentList.find(c => c.id === commentId);
+            if (comment) {
+                const totalReplies = comment.replies ? comment.replies.length : 0;
+                
+                // 修改：根据展开状态决定显示内容
+                let repliesToShow = [];
+                if (comment.replies && comment.replies.length > 0) {
+                    if (expandedReplies[commentId]) {
+                        // 展开状态：按 ID 排序
+                        repliesToShow = [...comment.replies].sort((a, b) => a.id - b.id);
+                    } else {
+                        // 收起状态：按点赞数排序取前两条
+                        repliesToShow = [...comment.replies].sort((a, b) => (b.likes || 0) - (a.likes || 0)).slice(0, 2);
+                    }
+                }
+
+                let repliesListHtml = repliesToShow.map(r => {
+                    const replyAvatarHtml = renderAvatar(r.user, 'w-6 h-6', 'text-xs');
+                    const processedReplyContent = processContentLinks(r.content);
+                    return `<div class="flex gap-2.5 items-start group relative">${replyAvatarHtml}<div class="flex-1"><div class="text-sm leading-relaxed"><span class="text-xs font-bold ${r.isHost === 1 ? 'text-primary' : 'text-gray-600'} cursor-pointer hover:text-bilibili mr-1">${r.user}</span>${r.to ? `<span class="text-xs text-gray-500">回复 <span class="text-blue-500 cursor-pointer hover:underline">@${r.to}</span> : </span>` : ': '}<span class="text-gray-700 hover:text-gray-900 transition-colors">${processedReplyContent}</span></div><div class="flex items-center gap-4 text-[11px] text-gray-400 mt-1"><span>${r.time}</span><button class="hover:text-bilibili flex items-center gap-1 transition-colors" onclick="handleCommentLike(this)"><i class="fa-regular fa-thumbs-up"></i><span>${r.likes || 0}</span></button><button class="hover:text-bilibili flex items-center gap-1 transition-colors"><i class="fa-regular fa-thumbs-down"></i></button><button class="hover:text-bilibili font-medium opacity-0 group-hover:opacity-100 transition-opacity">回复</button></div></div></div>`;
+                }).join('<div class="h-2"></div>');
+                let viewMoreLinkHtml = '';
+                if (totalReplies > 2) {
+                    if (expandedReplies[commentId]) viewMoreLinkHtml = `<div class="mt-2 text-xs pt-1"><span class="text-blue-500 cursor-pointer hover:underline flex items-center gap-1 w-fit" onclick="window.toggleReplies(${postId}, ${commentId})">收起回复 <i class="fa-solid fa-angle-up text-[10px]"></i></span></div>`;
+                    else viewMoreLinkHtml = `<div class="mt-2 text-xs pt-1 flex items-center gap-1"><span class="text-gray-500">共${totalReplies}条回复, </span><span class="text-blue-500 cursor-pointer hover:underline flex items-center gap-1" onclick="window.toggleReplies(${postId}, ${commentId})">点击查看 <i class="fa-solid fa-angle-right text-[10px]"></i></span></div>`;
+                }
+                const container = document.getElementById(`replies-container-${commentId}`);
+                if (container) container.innerHTML = repliesListHtml + viewMoreLinkHtml;
+            }
+        }
+
+        function renderCommentSection(postId) {
+            const post = postsData.find(p => p.id === postId);
+            if (!post) return;
+            const commentsToRender = post.commentList || [];
+            const commentsHtml = renderCommentsRecursive(commentsToRender, postId);
+            const listEl = document.getElementById('comments-list');
+            if (listEl) listEl.innerHTML = commentsHtml;
+        }
+
+        function switchCommentSortOrder(order) {
+            if (currentCommentSortOrder === order) return;
+            currentCommentSortOrder = order;
+            const hotBtn = document.getElementById('sort-hot-btn');
+            const newBtn = document.getElementById('sort-new-btn');
+            if (order === 'hot') {
+                hotBtn.className = "font-bold text-gray-900 cursor-pointer transition-colors";
+                newBtn.className = "cursor-pointer hover:text-gray-900 transition-colors";
+            } else {
+                hotBtn.className = "cursor-pointer hover:text-gray-900 transition-colors";
+                newBtn.className = "font-bold text-gray-900 cursor-pointer transition-colors";
+            }
+            renderCommentSection(activePostId);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderPosts();
+            updateNavState('nav-square'); 
+            const myAvatar = renderAvatar('User', 'w-8 h-8', 'text-xs', 'openProfile()');
+            const desktopContainer = document.getElementById('desktop-user-avatar');
+            const mobileContainer = document.getElementById('mobile-user-avatar');
+            if(desktopContainer) desktopContainer.innerHTML = myAvatar.replace('w-8 h-8', 'w-8 h-8 cursor-pointer hover:ring-2 hover:ring-primary ring-offset-2 transition-all');
+            if(mobileContainer) mobileContainer.innerHTML = myAvatar;
+        });
+
+    </script>
+</body>
+</html>
