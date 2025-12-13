@@ -219,8 +219,8 @@
                     widgetStatus: "100%", 
                     widgetColor: "bg-accentRed", 
                     list: [
-                        { label: "2022/12/28", title: "部长联席会议", sub: "13:00 @ C501" }, 
-                        { label: "2023/01/11", title: "部长联席会议", sub: "13:00 @ C501" }, 
+                        { label: "2022/12/28", title: "部长联席会议", sub: "13:00 @ C301" }, 
+                        { label: "2023/01/11", title: "部长联席会议", sub: "13:00 @ C301" }, 
                         { label: "2023/01/25", title: "部长联席会议", sub: "13:00 @ 线上" }, 
                         { label: "2023/02/08", title: "部长联席会议", sub: "13:00 @ 线上" }
                     ] 
@@ -435,7 +435,7 @@
                         <div class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
                             <p class="text-xs mt-1">考核内容③：候选人应当完成一次 <b>“礼仪迎宾”</b>。</p>
                             <div class="mt-1 p-3 bg-accentPurple/20 rounded-lg border border-accentPurple">
-                                <p class="text-xs mt-1"><b>“礼仪迎宾”</b>，又名“阴水净尘”，是指女性上位跨坐，双手扶肩，阴茎贴于腹部但不插入，臀部前后小幅度滑动，用湿润的大阴唇来回摩擦整根阴茎20-30次的动作。</p>
+                                <p class="text-xs mt-1"><b>“礼仪迎宾”</b>，又名“接风洗尘”，是指女性上位跨坐，双手扶肩，阴茎贴于腹部但不插入，臀部前后小幅度滑动，用湿润的大阴唇来回摩擦整根阴茎20-30次的动作。</p>
                             </div>
                             <p class="text-xs mt-1">考核内容④：候选人应当完成一次 <b>“礼仪深吻”</b>。</p>
                             <div class="mt-1 p-3 bg-accentPurple/20 rounded-lg border border-accentPurple">
@@ -607,7 +607,7 @@
                     widgetColor: "bg-accentGreen", 
                     list: [
                         { label: "2022/09/15", title: "社团招新会", sub: "14:00 @ 食堂" }, 
-                        { label: "2022/09/20", title: "社团预算分配研讨会", sub: "10:00 @ C503" }, 
+                        { label: "2022/09/20", title: "社团预算分配研讨会", sub: "10:00 @ C303" }, 
                         { label: "N/A", title: "N/A", sub: "N/A" }, 
                         { label: "N/A", title: "N/A", sub: "N/A" }
                     ] 
@@ -930,6 +930,50 @@
                 politics: '共青团员', 
                 avatar: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVU5pMO756lxQ05g4EUHxXdbJ-g_eIAACegtrG1AJiUXa8owFNKll_gEAAwIAA3gAAzYE.png' 
             },
+            'wang_ziyi': { 
+                name: '王子怡', 
+                id: '1100120210519', 
+                class: '高二 (5) 班', 
+                gender: '女', 
+                ethnicity: '汉族', 
+                position: '学术部 部长', 
+                enrollment: '2021年9月', 
+                politics: '共青团员', 
+                avatar: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVn9pPN6cwnCJy9WsGxYeIYpkVApeEwACFQtrG4iY6EVYBTT1BpaLegEAAwIAA3gAAzYE.png' 
+            },
+            'zhang_huiru': { 
+                name: '张蕙如', 
+                id: '1100120210116', 
+                class: '高二 (1) 班', 
+                gender: '女', 
+                ethnicity: '汉族', 
+                position: '风纪委员', 
+                enrollment: '2021年9月', 
+                politics: '共青团员', 
+                avatar: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVoBpPOBiajaVE4JS3SlawjxzIkIetwACFwtrG4iY6EVk9Yd8pwELXQEAAwIAA3gAAzYE.png' 
+            },
+            'nian_qiqi': { 
+                name: '年祺祺', 
+                id: '1100120220307', 
+                class: '高一 (3) 班', 
+                gender: '女', 
+                ethnicity: '汉族', 
+                position: '公共服务部 部员', 
+                enrollment: '2022年9月', 
+                politics: '群众', 
+                avatar: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVoFpPOCQsecqtaJe0nDSDJWv1dA6xQACGAtrG4iY6EUg89sREn5iCgEAAwIAA3gAAzYE.png' 
+            },
+            'zhang_yanqing': { 
+                name: '张琰清', 
+                id: '1100120210518', 
+                class: '高二 (5) 班', 
+                gender: '女', 
+                ethnicity: '苗族', 
+                position: '宣传部 部长', 
+                enrollment: '2021年9月', 
+                politics: '共青团员', 
+                avatar: 'https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBVoJpPODRIRcr1fRoRoDVvPXqIdCbugACGQtrG4iY6EWUu6gLg7mc-gEAAwIAA3gAAzYE.png' 
+            },
         };
         window.studentData = studentData;
         // 黄嘉熙 (Huang Jiaxi) 的模拟成绩 (文科) - 仅展示近两次
@@ -1078,7 +1122,9 @@
             },
         };
         const li_jingyao_exams = {};
-        const allExamData = { 'huang_jiaxi': huang_jiaxi_exams, 'song_peizi': song_peizi_exams, 'xue_jinye': xue_jinye_exams, 'li_jingyao': li_jingyao_exams};
+        const wang_ziyi_exams = {};
+        
+        const allExamData = { 'huang_jiaxi': huang_jiaxi_exams, 'song_peizi': song_peizi_exams, 'xue_jinye': xue_jinye_exams, 'li_jingyao': li_jingyao_exams, 'wang_ziyi': wang_ziyi_exams};
         window.allExamData = allExamData;
         const allRewardsData = {
             'huang_jiaxi': [
@@ -1093,7 +1139,7 @@
                 { 
                     type: 'Infraction', 
                     item: '违纪处分', 
-                    date: '2022.12.19', 
+                    date: '2022.12.20', 
                     issuer: '校教务处', 
                     level: 'Minor', 
                     description: '各级部、班级：\n\n经查，2022年12月19日15时47分许，高二（6）班黄嘉熙同学（男，17岁）与高二（6）班宋佩姿同学（女，16岁）在教学楼西侧楼梯间转角发生性行为。\n\n该区域为监控覆盖区域，事发过程被完整记录。经核实，两人全程未使用安全套等任何防护措施，且黄嘉熙同学多次在宋佩姿同学体内射精，存在较大健康与安全隐患，违反《私立东华高级中学学生日常行为规范》第三十七条“必须采取必要安全防护措施”之规定。\n\n鉴于两人主观恶意不深、系初次违纪，且性行为本身不属禁止事项，仅因未落实安全防护要求，故定性为一般违纪。\n\n根据校纪校规有关规定，经德育处联合各部门讨论，给予以下处理：\n\n1. 给予黄嘉熙、宋佩姿同学各警告处分一次；\n\n2. 安排二人自11月18日起承担一周教学楼西侧楼梯间及周边区域的清扫保洁义务服务。\n\n希望全校学生引以为戒，在发生性行为时务必采取充分、有效的安全防护措施，保护自己也尊重他人，共同维护健康文明的校园环境。\n\n特此通报。' 
@@ -1101,7 +1147,7 @@
                 {
                     type: 'Infraction', 
                     item: '违纪处分', 
-                    date: '2022.12.28', 
+                    date: '2022.12.29', 
                     issuer: '校教务处', 
                     level: 'Minor', 
                     description: '各级部、班级：\n\n经查，2022年12月28日14时30分许，高二（6）班黄嘉熙同学（男，17岁）与高二（6）班薛锦烨同学（女，16岁）在体育课结束后未及时离场，在体育馆乒乓球房内于乒乓球桌上发生性行为，致使球桌台面严重变形、边缘开裂、支撑结构损坏，直接维修费用预计人民币2800余元。\n\n该区域为监控覆盖区域，事发过程被完整记录。经核实，两人全程未使用安全套等任何防护措施，且黄嘉熙同学多次在薛锦烨同学体内射精，存在较大健康与安全隐患，违反《私立东华高级中学学生日常行为规范》第三十七条“必须采取必要安全防护措施”之规定。\n\n根据校纪校规有关规定，经德育处联合各部门讨论，给予以下处理：\n\n1. 给予黄嘉熙、薛锦烨同学各警告处分一次；\n\n2. 赔偿乒乓球桌维修费用。\n\n3. 安排二人自11月22日起承担一周教学乒乓球房的清扫保洁义务服务。\n\n希望全校学生引以为戒，在发生性行为时务必采取充分、有效的安全防护措施，保护自己也尊重他人，共同维护健康文明的校园环境。\n\n特此通报。' 
@@ -1135,7 +1181,7 @@
                 {
                     type: 'Infraction', 
                     item: '违纪处分', 
-                    date: '2022.12', 
+                    date: '2022.12.20', 
                     issuer: '校教务处', 
                     level: 'Minor', 
                     description: '各级部、班级：\n\n经查，2022年12月19日15时47分许，高二（6）班黄嘉熙同学（男，17岁）与高二（6）班宋佩姿同学（女，16岁）在教学楼西侧楼梯间转角发生性行为。\n\n该区域为监控覆盖区域，事发过程被完整记录。经核实，两人全程未使用安全套等任何防护措施，且黄嘉熙同学多次在宋佩姿同学体内射精，存在较大健康与安全隐患，违反《私立东华高级中学学生日常行为规范》第三十七条“必须采取必要安全防护措施”之规定。\n\n鉴于两人主观恶意不深、系初次违纪，且性行为本身不属禁止事项，仅因未落实安全防护要求，故定性为一般违纪。\n\n根据校纪校规有关规定，经德育处联合各部门讨论，给予以下处理：\n\n1. 给予黄嘉熙、宋佩姿同学各警告处分一次；\n\n2. 安排二人自11月18日起承担一周教学楼西侧楼梯间及周边区域的清扫保洁义务服务。\n\n希望全校学生引以为戒，在发生性行为时务必采取充分、有效的安全防护措施，保护自己也尊重他人，共同维护健康文明的校园环境。\n\n特此通报。' 
@@ -1153,13 +1199,14 @@
                 {
                     type: 'Infraction', 
                     item: '违纪处分', 
-                    date: '2022.12.28', 
+                    date: '2022.12.29', 
                     issuer: '校教务处', 
                     level: 'Minor', 
                     description: '各级部、班级：\n\n经查，2022年12月28日14时30分许，高二（6）班黄嘉熙同学（男，17岁）与高二（6）班薛锦烨同学（女，16岁）在体育课结束后未及时离场，在体育馆乒乓球房内于乒乓球桌上发生性行为，致使球桌台面严重变形、边缘开裂、支撑结构损坏，直接维修费用预计人民币2800余元。\n\n该区域为监控覆盖区域，事发过程被完整记录。经核实，两人全程未使用安全套等任何防护措施，且黄嘉熙同学多次在薛锦烨同学体内射精，存在较大健康与安全隐患，违反《私立东华高级中学学生日常行为规范》第三十七条“必须采取必要安全防护措施”之规定。\n\n根据校纪校规有关规定，经德育处联合各部门讨论，给予以下处理：\n\n1. 给予黄嘉熙、薛锦烨同学各警告处分一次；\n\n2. 赔偿乒乓球桌维修费用。\n\n3. 安排二人自11月22日起承担一周教学乒乓球房的清扫保洁义务服务。\n\n希望全校学生引以为戒，在发生性行为时务必采取充分、有效的安全防护措施，保护自己也尊重他人，共同维护健康文明的校园环境。\n\n特此通报。' 
                 },
             ],
-            'li_jingyao': []
+            'li_jingyao': [],
+            'wang_ziyi': []
         };
         window.allRewardsData = allRewardsData;
         const healthData_huang_jiaxi = { 
@@ -1428,11 +1475,13 @@
             } 
         };
         const li_jingyao_healthData = {};
+        const wang_ziyi_healthData = {};
         const allHealthData = { 
             'huang_jiaxi': healthData_huang_jiaxi, 
             'song_peizi': healthData_song_peizi, 
             'xue_jinye': healthData_xue_jinye, 
-            'li_jingyao': li_jingyao_healthData 
+            'li_jingyao': li_jingyao_healthData, 
+            'wang_ziyi': wang_ziyi_healthData,
         };
         window.allHealthData = allHealthData;
 
@@ -1548,7 +1597,7 @@
             } else {
                 const resultHtml = matchedStudents.map(key => {
                     const data = window.studentData[key];
-                    const isPermissioned = key !== 'li_jingyao'; 
+                    const isPermissioned = key !== 'li_jingyao' && key !== 'wang_ziyi' && key !== 'zhang_huiru' && key !== 'nian_qiqi' && key !== 'zhang_yanqing'; 
                     const statusText = isPermissioned ? '已获得查阅权限' : '未获得查阅权限';
                     const statusColor = isPermissioned ? 'text-accentGreen bg-accentGreen/10' : 'text-accentRed bg-accentRed/10';
                     const avatarText = data.name.substring(0, 1); 
@@ -1589,6 +1638,18 @@
         }
         window.switchArchiveSubView = function(viewName) {
             if (window.currentStudentId === 'li_jingyao' && (viewName === 'view-grades' || viewName === 'view-health' || viewName === 'view-rewards-honors')) {
+                window.showNoPermissionModal();
+                return; 
+            } else if (window.currentStudentId === 'wang_ziyi' && (viewName === 'view-grades' || viewName === 'view-health' || viewName === 'view-rewards-honors')) {
+                window.showNoPermissionModal();
+                return; 
+            } else if (window.currentStudentId === 'zhang_huiru' && (viewName === 'view-grades' || viewName === 'view-health' || viewName === 'view-rewards-honors')) {
+                window.showNoPermissionModal();
+                return; 
+            } else if (window.currentStudentId === 'nian_qiqi' && (viewName === 'view-grades' || viewName === 'view-health' || viewName === 'view-rewards-honors')) {
+                window.showNoPermissionModal();
+                return; 
+            } else if (window.currentStudentId === 'zhang_yanqing' && (viewName === 'view-grades' || viewName === 'view-health' || viewName === 'view-rewards-honors')) {
                 window.showNoPermissionModal();
                 return; 
             }
@@ -2312,7 +2373,7 @@
                                     <div class="flex items-start gap-4 p-3 rounded-xl cursor-pointer hover:bg-[#F7F5F0] transition">
                                         <div class="w-10 h-10 rounded-full bg-accentRed/20 text-accentRed font-bold flex items-center justify-center flex-shrink-0">1</div>
                                         <div class="flex-1 min-w-0 flex flex-col justify-center"> 
-                                            <div class="flex justify-between items-center gap-2"><h4 class="text-sm font-bold text-accentRed truncate">期末考试延期? 教务处回应</h4><span class="text-xs font-medium text-white bg-accentRed px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap shadow-md">15.6k</span></div>
+                                            <div class="flex justify-between items-center gap-2"><h4 class="text-sm font-bold text-accentRed truncate">疫情推迟返校? 教务处回应</h4><span class="text-xs font-medium text-white bg-accentRed px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap shadow-md">15.6k</span></div>
                                             <p class="text-[10px] text-gray-500 mt-0.5 truncate">教务处辟谣，网传消息不实，请勿传谣。</p>
                                         </div>
                                     </div>
@@ -2326,8 +2387,8 @@
                                     <div class="flex items-start gap-4 p-3 rounded-xl cursor-pointer hover:bg-[#F7F5F0] transition">
                                         <div class="w-10 h-10 rounded-full bg-accentYellow/20 text-accentYellow font-bold flex items-center justify-center flex-shrink-0">3</div>
                                         <div class="flex-1 min-w-0 flex flex-col justify-center"> 
-                                            <div class="flex justify-between items-center gap-2"><h4 class="text-sm font-bold text-dark truncate">高三期中成绩分析会直播回放</h4><span class="text-xs font-medium text-dark bg-accentYellow px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap shadow-md">5.1k</span></div>
-                                            <p class="text-[10px] text-gray-500 mt-0.5 truncate">班主任详细讲解本次考试趋势。</p>
+                                            <div class="flex justify-between items-center gap-2"><h4 class="text-sm font-bold text-dark truncate">高三三模成绩分析会直播回放</h4><span class="text-xs font-medium text-dark bg-accentYellow px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap shadow-md">5.1k</span></div>
+                                            <p class="text-[10px] text-gray-500 mt-0.5 truncate">教研员详细讲解本次考试趋势。</p>
                                         </div>
                                     </div>
                                 </div>
@@ -2732,7 +2793,7 @@
                                             <i class="ph-fill ph-graduation-cap text-accentBlue group-hover:scale-110 transition-transform"></i> 
                                             <span class="font-bold text-sm group-hover:text-accentBlue transition-colors">学术部</span>
                                         </div>
-                                        <p class="text-[10px] text-gray-500 group-hover:text-gray-300">学术活动统筹</p>
+                                        <p class="text-[10px] text-gray-500 group-hover:text-gray-300">academic@dhss.su</p>
                                     </div>
                                     
                                     <!-- 纪律部 -->
@@ -2741,7 +2802,7 @@
                                             <i class="ph-fill ph-gavel text-accentRed group-hover:scale-110 transition-transform"></i> 
                                             <span class="font-bold text-sm group-hover:text-accentRed transition-colors">纪律部</span>
                                         </div>
-                                        <p class="text-[10px] text-gray-500 group-hover:text-gray-300">纪律检查执行</p>
+                                        <p class="text-[10px] text-gray-500 group-hover:text-gray-300">discipline@dhss.su</p>
                                     </div>
                                     
                                     <!-- 仪式部 -->
@@ -2750,7 +2811,7 @@
                                             <i class="ph-fill ph-microphone-stage text-accentPurple group-hover:scale-110 transition-transform"></i> 
                                             <span class="font-bold text-sm group-hover:text-accentPurple transition-colors">仪式部</span>
                                         </div>
-                                        <p class="text-[10px] text-gray-500 group-hover:text-gray-300">仪式典仪承办</p>
+                                        <p class="text-[10px] text-gray-500 group-hover:text-gray-300">ceremony@dhss.su</p>
                                     </div>
                                     
                                     <!-- 宣传部 -->
@@ -2759,7 +2820,7 @@
                                             <i class="ph-fill ph-megaphone text-accentOrange group-hover:scale-110 transition-transform"></i> 
                                             <span class="font-bold text-sm group-hover:text-accentOrange transition-colors">宣传部</span>
                                         </div>
-                                        <p class="text-[10px] text-gray-500 group-hover:text-gray-300">宣传内容发布</p>
+                                        <p class="text-[10px] text-gray-500 group-hover:text-gray-300">publicity@dhss.su</p>
                                     </div>
                                     
                                     <!-- 体育部 -->
@@ -2768,7 +2829,7 @@
                                             <i class="ph-fill ph-trophy text-accentYellow group-hover:scale-110 transition-transform"></i> 
                                             <span class="font-bold text-sm group-hover:text-accentYellow transition-colors">体育部</span>
                                         </div>
-                                        <p class="text-[10px] text-gray-500 group-hover:text-gray-300">体育活动运营</p>
+                                        <p class="text-[10px] text-gray-500 group-hover:text-gray-300">sports@dhss.su</p>
                                     </div>
                                     
                                     <!-- 组织部 -->
@@ -2777,7 +2838,7 @@
                                             <i class="ph-fill ph-users-three text-accentGreen group-hover:scale-110 transition-transform"></i> 
                                             <span class="font-bold text-sm group-hover:text-accentGreen transition-colors">组织部</span>
                                         </div>
-                                        <p class="text-[10px] text-gray-500 group-hover:text-gray-300">策划组织管理</p>
+                                        <p class="text-[10px] text-gray-500 group-hover:text-gray-300">societies@dhss.su</p>
                                     </div>
                                     
                                     <!-- 公共关系部 -->
@@ -2786,7 +2847,7 @@
                                             <i class="ph-fill ph-handshake text-indigo-500 group-hover:scale-110 transition-transform"></i> 
                                             <span class="font-bold text-sm group-hover:text-indigo-500 transition-colors">公共关系部</span>
                                         </div>
-                                        <p class="text-[10px] text-gray-500 group-hover:text-gray-300">对外联络负责</p>
+                                        <p class="text-[10px] text-gray-500 group-hover:text-gray-300">pr@dhss.su</p>
                                     </div>
                                     
                                     <!-- 公共服务部 -->
@@ -2795,7 +2856,7 @@
                                             <i class="ph-fill ph-heart text-accentRed group-hover:scale-110 transition-transform"></i> 
                                             <span class="font-bold text-sm group-hover:text-accentRed transition-colors">公共服务部</span>
                                         </div>
-                                        <p class="text-[10px] text-gray-500 group-hover:text-gray-300">校园公共服务</p>
+                                        <p class="text-[10px] text-gray-500 group-hover:text-gray-300">service@dhss.su</p>
                                     </div>
 
                                 </div>
@@ -2811,7 +2872,7 @@
                                 </div>
                                 <div class="flex items-center gap-3 text-gray-300">
                                     <i class="ph-fill ph-envelope text-accentYellow"></i>
-                                    <span>su_union@edu.space</span>
+                                    <span>su_union@dhss.su</span>
                                 </div>
                             </div>
                             <button class="w-full mt-4 bg-accentYellow text-dark font-bold py-3 rounded-xl shadow-lg hover:bg-white transition-colors">
@@ -2830,7 +2891,7 @@
                                     <div class="w-14 h-14 rounded-2xl bg-accentBlue/10 text-accentBlue flex items-center justify-center text-3xl">
                                         <i class="ph-fill ph-books"></i>
                                     </div>
-                                    <span class="text-[10px] font-bold text-gray-400 bg-white px-2 py-1 rounded-full shadow-sm">综合楼 201</span>
+                                    <span class="text-[10px] font-bold text-gray-400 bg-white px-2 py-1 rounded-full shadow-sm">C501</span>
                                 </div>
                                 <h3 class="text-xl font-bold text-dark mb-2">教务处</h3>
                                 <p class="text-sm text-gray-500 leading-relaxed">负责全校教学运行管理、课程安排、考试组织及学籍成绩管理。学生选课与转学办理中心。</p>
@@ -2853,7 +2914,7 @@
                                     <div class="w-14 h-14 rounded-2xl bg-accentRed/10 text-accentRed flex items-center justify-center text-3xl">
                                         <i class="ph-fill ph-flag-banner"></i> 
                                     </div>
-                                    <span class="text-[10px] font-bold text-gray-400 bg-white px-2 py-1 rounded-full shadow-sm">行政楼 305</span>
+                                    <span class="text-[10px] font-bold text-gray-400 bg-white px-2 py-1 rounded-full shadow-sm">C502</span>
                                 </div>
                                 <h3 class="text-xl font-bold text-dark mb-2">校团委</h3>
                                 <p class="text-sm text-gray-500 leading-relaxed">负责共青团组织建设、学生思想引领、社团管理及校园文化活动指导。志愿者服务总站。</p>
@@ -2876,7 +2937,7 @@
                                     <div class="w-14 h-14 rounded-2xl bg-accentPurple/10 text-accentPurple flex items-center justify-center text-3xl">
                                         <i class="ph-fill ph-shield-check"></i>
                                     </div>
-                                    <span class="text-[10px] font-bold text-gray-400 bg-white px-2 py-1 rounded-full shadow-sm">德育楼 103</span>
+                                    <span class="text-[10px] font-bold text-gray-400 bg-white px-2 py-1 rounded-full shadow-sm">C503</span>
                                 </div>
                                 <h3 class="text-xl font-bold text-dark mb-2">政教处</h3>
                                 <p class="text-sm text-gray-500 leading-relaxed">负责学生德育工作、纪律管理、宿舍管理及校园安全教育。心理咨询中心直属部门。</p>
@@ -2899,7 +2960,7 @@
                                     <div class="w-14 h-14 rounded-2xl bg-accentGreen/10 text-accentGreen flex items-center justify-center text-3xl">
                                         <i class="ph-fill ph-wrench"></i>
                                     </div>
-                                    <span class="text-[10px] font-bold text-gray-400 bg-white px-2 py-1 rounded-full shadow-sm">后勤楼 101</span>
+                                    <span class="text-[10px] font-bold text-gray-400 bg-white px-2 py-1 rounded-full shadow-sm">C101</span>
                                 </div>
                                 <h3 class="text-xl font-bold text-dark mb-2">总务处</h3>
                                 <p class="text-sm text-gray-500 leading-relaxed">负责校园后勤保障、食堂餐饮、设施维修及校园绿化。校园一卡通充值与挂失中心。</p>
